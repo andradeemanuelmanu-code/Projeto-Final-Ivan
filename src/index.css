@@ -8,89 +8,117 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Earth-tones Design System - Gestão Buffet */
+    --background: 30 20% 98%;
+    --foreground: 210 20% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 20% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 20% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary Brown #8B7355 */
+    --primary: 30 24% 44%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary Beige #D7CEC7 */
+    --secondary: 30 18% 81%;
+    --secondary-foreground: 210 20% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Light Sand backgrounds */
+    --muted: 30 20% 96%;
+    --muted-foreground: 30 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent Terracotta #C44536 */
+    --accent: 6 58% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Medium Taupe borders */
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 30 24% 44%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Status Colors */
+    --status-pending: 0 65% 58%;
+    --status-paid: 122 39% 56%;
+    --status-quote: 38 92% 62%;
+    --status-neutral: 210 11% 55%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Sidebar Earth-tones */
+    --sidebar-background: 30 15% 95%;
+    --sidebar-foreground: 210 20% 25%;
+    --sidebar-primary: 30 24% 44%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 20% 88%;
+    --sidebar-accent-foreground: 210 20% 20%;
+    --sidebar-border: 30 20% 85%;
+    --sidebar-ring: 30 24% 44%;
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(30 24% 44%), hsl(30 30% 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(30 18% 81%), hsl(30 22% 88%));
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsla(30, 24%, 20%, 0.08);
+    --shadow-md: 0 4px 16px hsla(30, 24%, 20%, 0.12);
+    --shadow-lg: 0 8px 24px hsla(30, 24%, 20%, 0.16);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 210 25% 10%;
+    --foreground: 30 15% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 22% 14%;
+    --card-foreground: 30 15% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 22% 14%;
+    --popover-foreground: 30 15% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 30 30% 55%;
+    --primary-foreground: 210 25% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 20% 20%;
+    --secondary-foreground: 30 15% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 20% 18%;
+    --muted-foreground: 30 10% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 6 58% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 210 20% 22%;
+    --input: 210 20% 22%;
+    --ring: 30 30% 55%;
+
+    --status-pending: 0 65% 52%;
+    --status-paid: 122 39% 50%;
+    --status-quote: 38 92% 56%;
+    --status-neutral: 210 11% 50%;
+
+    --sidebar-background: 210 25% 12%;
+    --sidebar-foreground: 30 15% 90%;
+    --sidebar-primary: 30 30% 55%;
+    --sidebar-primary-foreground: 210 25% 10%;
+    --sidebar-accent: 210 20% 18%;
+    --sidebar-accent-foreground: 30 15% 95%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 30 30% 55%;
+
+    --shadow-sm: 0 2px 8px hsla(0, 0%, 0%, 0.3);
+    --shadow-md: 0 4px 16px hsla(0, 0%, 0%, 0.4);
+    --shadow-lg: 0 8px 24px hsla(0, 0%, 0%, 0.5);
   }
 }
 
@@ -101,5 +129,64 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer components {
+  /* Event Cards */
+  .event-card {
+    @apply bg-card rounded-xl p-5 transition-all duration-300;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid hsl(var(--primary));
+  }
+  
+  .event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .event-card-pending {
+    border-left-color: hsl(var(--status-pending));
+  }
+
+  .event-card-paid {
+    border-left-color: hsl(var(--status-paid));
+  }
+
+  .event-card-quote {
+    border-left-color: hsl(var(--status-quote));
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    @apply rounded-2xl p-6 text-white;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Hover Scale Animation */
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Filter Chips */
+  .filter-chip {
+    @apply bg-secondary text-secondary-foreground rounded-full px-3 py-1.5 text-sm font-medium;
+    transition: var(--transition-smooth);
+  }
+
+  .filter-chip:hover {
+    @apply bg-primary text-primary-foreground;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
