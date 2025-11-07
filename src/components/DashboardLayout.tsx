@@ -15,6 +15,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, url: "/" },
     { title: "Eventos", icon: Calendar, url: "/eventos" },
+    { title: "Agenda", icon: Calendar, url: "/agenda" },
     { title: "Equipe", icon: Users, url: "/equipe" },
     { title: "Configurações", icon: Settings, url: "/configuracoes" },
   ];
