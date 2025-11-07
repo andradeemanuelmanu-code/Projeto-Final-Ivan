@@ -10,6 +10,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, url: "/" },
@@ -18,13 +19,30 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { title: "Configurações", icon: Settings, url: "/configuracoes" },
   ];
 
+  const handleNavClick = () => {
+    if (window.innerWidth < 1024) {
+      setMobileMenuOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex w-full">
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={cn(
           "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
-          sidebarCollapsed ? "w-20" : "w-72"
+          "fixed top-0 left-0 h-screen z-50",
+          "lg:sticky lg:z-auto",
+          sidebarCollapsed ? "w-20" : "w-72",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
@@ -38,18 +56,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hover:bg-sidebar-accent"
+            className="hover:bg-sidebar-accent hidden lg:flex"
           >
             {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </Button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => (
             <NavLink
               key={item.url}
               to={item.url}
+              onClick={handleNavClick}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                 "hover:bg-sidebar-accent text-sidebar-foreground"
@@ -79,19 +98,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto">
         {/* Header */}
-        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-8">
-          <div>
-            <h2 className="font-display font-semibold text-2xl text-foreground">
-              Dashboard
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Bem-vindo ao sistema de gestão
-            </p>
+        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden"
+            >
+              <Menu size={20} />
+            </Button>
+            <div>
+              <h2 className="font-display font-semibold text-xl sm:text-2xl text-foreground">
+                Dashboard
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+                Bem-vindo ao sistema de gestão
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" size="icon" className="relative">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full" />
@@ -100,7 +129,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {children}
         </main>
       </div>

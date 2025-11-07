@@ -48,41 +48,41 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
   
   return (
     <div className={cn(
-      "bg-card rounded-lg shadow-sm border-l-4 p-5 transition-all duration-200",
+      "bg-card rounded-lg shadow-sm border-l-4 p-4 sm:p-5 transition-all duration-200",
       "hover:shadow-md hover:-translate-y-1",
       config.borderColor
     )}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="font-display font-semibold text-lg text-foreground mb-1">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-display font-semibold text-base sm:text-lg text-foreground mb-1 truncate">
             {evento.motivo}
           </h3>
-          <p className="text-muted-foreground text-sm">{evento.cliente.nome}</p>
+          <p className="text-muted-foreground text-sm truncate">{evento.cliente.nome}</p>
         </div>
-        <Badge className={config.className}>
+        <Badge className={cn(config.className, "flex-shrink-0 text-xs")}>
           {config.label}
         </Badge>
       </div>
 
-      <div className="space-y-2 text-sm mb-4">
+      <div className="space-y-2 text-xs sm:text-sm mb-3 sm:mb-4">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Calendar size={16} />
-          <span>{dataFormatada} • {evento.horario.inicio} - {evento.horario.termino}</span>
+          <Calendar size={14} className="flex-shrink-0" />
+          <span className="truncate">{dataFormatada} • {evento.horario.inicio} - {evento.horario.termino}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
-          <MapPin size={16} />
+          <MapPin size={14} className="flex-shrink-0" />
           <span className="line-clamp-1">{evento.endereco}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Users size={16} />
+          <Users size={14} className="flex-shrink-0" />
           <span>{evento.convidados} convidados</span>
         </div>
       </div>
 
-      <div className="pt-3 border-t border-border flex items-center justify-between">
-        <div className="flex items-center gap-1 font-semibold text-foreground text-lg">
-          <DollarSign size={18} />
-          <span>
+      <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1 font-semibold text-foreground text-base sm:text-lg min-w-0">
+          <DollarSign size={16} className="flex-shrink-0" />
+          <span className="truncate">
             {new Intl.NumberFormat('pt-BR', {
               style: 'currency',
               currency: 'BRL'
@@ -90,22 +90,24 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
           </span>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2 flex-shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(evento)}
-            className="hover:bg-primary hover:text-primary-foreground"
+            className="hover:bg-primary hover:text-primary-foreground h-8 w-8 p-0"
+            aria-label="Editar evento"
           >
-            <Edit size={16} />
+            <Edit size={14} />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(evento.id)}
-            className="hover:bg-destructive hover:text-destructive-foreground"
+            className="hover:bg-destructive hover:text-destructive-foreground h-8 w-8 p-0"
+            aria-label="Excluir evento"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </Button>
         </div>
       </div>

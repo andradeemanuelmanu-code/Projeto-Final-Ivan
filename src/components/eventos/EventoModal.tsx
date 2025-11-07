@@ -116,14 +116,14 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh]">
+      <DialogContent className="max-w-3xl w-[90vw] max-h-[90vh] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">
+          <DialogTitle className="font-display text-xl sm:text-2xl">
             {evento ? "Editar Evento" : "Novo Evento"}
           </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
+        <ScrollArea className="max-h-[calc(90vh-120px)] pr-2 sm:pr-4">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Motivo do Evento */}
             <div className="space-y-2">
@@ -138,9 +138,9 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             </div>
 
             {/* Dados do Cliente */}
-            <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+            <div className="space-y-4 p-3 sm:p-4 bg-muted/30 rounded-lg">
               <h4 className="font-semibold text-sm">Dados do Cliente</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="clienteNome">Nome *</Label>
                   <Input
@@ -183,7 +183,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             </div>
 
             {/* Data e Convidados */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="data">Data do Evento *</Label>
                 <Input
@@ -210,7 +210,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             {/* Cardápio */}
             <div className="space-y-2">
               <Label>Cardápio *</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {cardapioOptions.map(option => (
                   <div key={option.value} className="flex items-center space-x-2">
                     <Checkbox
@@ -232,7 +232,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             {/* Bebidas */}
             <div className="space-y-2">
               <Label>Bebidas</Label>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {bebidasOptions.map(bebida => (
                   <div key={bebida} className="flex items-center space-x-2">
                     <Checkbox
@@ -252,7 +252,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             </div>
 
             {/* Horário */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="horarioInicio">Horário de Início *</Label>
                 <Input
@@ -294,7 +294,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             </div>
 
             {/* Valor e Pagamento */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="valor">Valor Total *</Label>
                 <Input
@@ -360,11 +360,11 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
             </div>
 
             {/* Botões */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={onClose}>
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/90">
+              <Button type="submit" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 {evento ? "Salvar Alterações" : "Criar Evento"}
               </Button>
             </div>

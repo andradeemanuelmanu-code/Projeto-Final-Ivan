@@ -83,18 +83,18 @@ const Eventos = () => {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-display font-bold text-3xl text-foreground">
+            <h1 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
               Administração de Eventos
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Gerencie todos os eventos do buffet
             </p>
           </div>
           <Button
             onClick={handleNovoEvento}
-            className="bg-primary hover:bg-primary/90 font-medium"
+            className="bg-primary hover:bg-primary/90 font-medium hidden sm:flex"
             size="lg"
           >
             <Plus size={20} className="mr-2" />
@@ -117,7 +117,7 @@ const Eventos = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {eventos.map(evento => (
               <EventoCard
                 key={evento.id}
@@ -164,8 +164,9 @@ const Eventos = () => {
         {/* Floating Action Button (Mobile) */}
         <Button
           onClick={handleNovoEvento}
-          className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg md:hidden bg-primary hover:bg-primary/90"
+          className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg sm:hidden bg-primary hover:bg-primary/90 z-40"
           size="icon"
+          aria-label="Novo Evento"
         >
           <Plus size={24} />
         </Button>
