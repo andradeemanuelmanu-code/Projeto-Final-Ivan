@@ -1,9 +1,8 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
-import EventCard from "@/components/EventCard";
-import CalendarWidget from "@/components/CalendarWidget";
+import { AgendaCalendar } from "@/components/agenda/AgendaCalendar";
 import { Calendar, DollarSign, TrendingUp, Users } from "lucide-react";
-import { mockEvents, mockMetrics } from "@/lib/mockData";
+import { mockMetrics } from "@/lib/mockData";
 
 const Index = () => {
   const metricIcons = [Calendar, DollarSign, TrendingUp, Users];
@@ -25,28 +24,8 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Events and Calendar Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Events List */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display font-semibold text-xl">Próximos Eventos</h2>
-              <button className="text-primary hover:text-primary/80 text-sm font-medium">
-                Ver todos
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mockEvents.map((event) => (
-                <EventCard key={event.id} {...event} />
-              ))}
-            </div>
-          </div>
-
-          {/* Calendar Widget */}
-          <div className="lg:col-span-1">
-            <CalendarWidget />
-          </div>
-        </div>
+        {/* Agenda de Eventos */}
+        <AgendaCalendar />
       </div>
     </DashboardLayout>
   );
