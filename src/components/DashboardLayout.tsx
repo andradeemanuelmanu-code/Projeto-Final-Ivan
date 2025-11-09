@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Calendar, LayoutDashboard, Users, Settings, Menu, Bell, ChevronLeft, DollarSign, Receipt, Star } from "lucide-react";
+import { Calendar, LayoutDashboard, Users, Settings, Menu, Bell, ChevronLeft, DollarSign, Receipt, Star, FileText } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { title: "Custos Fixos Mensais", icon: Receipt, url: "/custos-fixos-mensais" },
     { title: "Equipe", icon: Users, url: "/equipe" },
     { title: "Avaliações", icon: Star, url: "/avaliacoes" },
+    { title: "Gestão Fiscal", icon: FileText, url: "/gestao-fiscal" },
     { title: "Configurações", icon: Settings, url: "/configuracoes" },
   ];
 

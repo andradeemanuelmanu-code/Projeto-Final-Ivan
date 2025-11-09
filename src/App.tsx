@@ -10,6 +10,7 @@ import CustosPorEvento from "./pages/CustosPorEvento";
 import CustosFixosMensais from "./pages/CustosFixosMensais";
 import Equipe from "./pages/Equipe";
 import Avaliacoes from "./pages/Avaliacoes";
+import GestaoFiscal from "./pages/GestaoFiscal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/custos-fixos-mensais" element={<CustosFixosMensais />} />
           <Route path="/equipe" element={<Equipe />} />
           <Route path="/avaliacoes" element={<Avaliacoes />} />
+          <Route path="/gestao-fiscal" element={<GestaoFiscal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
