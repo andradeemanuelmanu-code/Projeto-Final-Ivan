@@ -1,0 +1,203 @@
+import { useState, useEffect } from "react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { eventosStorage } from "@/lib/eventosStorage";
+import { escalasStorage, membrosStorage } from "@/lib/equipeStorage";
+import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
+import { Evento } from "@/types/evento";
+import { MembroEquipe } from "@/types/equipe";
+import { EventoAvaliadoCard } from "@/components/avaliacoes/EventoAvaliadoCard";
+import { ModalEquipeAvaliacao } from "@/components/avaliacoes/ModalEquipeAvaliacao";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Star } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const Avaliacoes = () => {
+  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
+  const [membrosEvento, setMembrosEvento] = useState<MembroEquipe[]>([]);
+  const [modalEquipeOpen, setModalEquipeOpen] = useState(false);
+  const [verMaisOpen, setVerMaisOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { toast } = useToast();
+
+  const CARDS_POR_PAGINA = 8;
+
+  useEffect(() => {
+    carregarEventos();
+  }, [refreshKey]);
+
+  const carregarEventos = () => {
+    setLoading(true);
+    
+    // Simula loading para skeleton
+    setTimeout(() => {
+      const todosEventos = eventosStorage.getAllSorted();
+      
+      // Filtra apenas eventos que têm escala (membros alocados)
+      const eventosComEscala = todosEventos.filter(evento => {
+        const escala = escalasStorage.getByEventoId(evento.id);
+        return escala && escala.membros.length > 0;
+      });
+
+      // Ordena: pendentes primeiro
+      const eventosOrdenados = eventosComEscala.sort((a, b) => {
+        const escalaA = escalasStorage.getByEventoId(a.id)!;
+        const escalaB = escalasStorage.getByEventoId(b.id)!;
+        
+        const avaliadoA = avaliacoesStorage.isEventoAvaliado(a.id, escalaA.membros.length);
+        const avaliadoB = avaliacoesStorage.isEventoAvaliado(b.id, escalaB.membros.length);
+
+        if (avaliadoA === avaliadoB) return 0;
+        return avaliadoA ? 1 : -1;
+      });
+
+      setEventos(eventosOrdenados);
+      setLoading(false);
+    }, 500);
+  };
+
+  const handleCardClick = (evento: Evento) => {
+    const escala = escalasStorage.getByEventoId(evento.id);
+    
+    if (!escala || escala.membros.length === 0) {
+      toast({
+        title: "Sem equipe",
+        description: "Este evento não possui membros escalados.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const membros = escala.membros
+      .map(m => membrosStorage.getById(m.membroId))
+      .filter((m): m is MembroEquipe => m !== undefined);
+
+    setEventoSelecionado(evento);
+    setMembrosEvento(membros);
+    setModalEquipeOpen(true);
+  };
+
+  const handleAvaliacaoSaved = () => {
+    setRefreshKey(prev => prev + 1);
+    toast({
+      title: "Avaliação registrada",
+      description: "A avaliação foi salva com sucesso.",
+    });
+  };
+
+  const eventosPrincipais = eventos.slice(0, CARDS_POR_PAGINA);
+  const eventosRestantes = eventos.slice(CARDS_POR_PAGINA);
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-primary/10">
+            <Star className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="font-display text-3xl font-semibold text-foreground">
+              Avaliações
+            </h1>
+            <p className="text-muted-foreground">
+              Avalie o desempenho da equipe após os eventos
+            </p>
+          </div>
+        </div>
+
+        {/* Cards de Eventos */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-48 w-full" />
+            ))}
+          </div>
+        ) : eventos.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              Nenhum evento com equipe escalada encontrado.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Escale membros para eventos na página "Equipe" para poder avaliá-los.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {eventosPrincipais.map((evento) => {
+                const escala = escalasStorage.getByEventoId(evento.id);
+                const totalMembros = escala?.membros.length || 0;
+                const isAvaliado = avaliacoesStorage.isEventoAvaliado(evento.id, totalMembros);
+
+                return (
+                  <EventoAvaliadoCard
+                    key={evento.id}
+                    evento={evento}
+                    isAvaliado={isAvaliado}
+                    onClick={() => handleCardClick(evento)}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Botão Ver Mais */}
+            {eventosRestantes.length > 0 && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setVerMaisOpen(true)}
+                  className="px-8"
+                >
+                  Ver mais eventos ({eventosRestantes.length})
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Modal Ver Mais Eventos */}
+      <Dialog open={verMaisOpen} onOpenChange={setVerMaisOpen}>
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {eventosRestantes.map((evento) => {
+              const escala = escalasStorage.getByEventoId(evento.id);
+              const totalMembros = escala?.membros.length || 0;
+              const isAvaliado = avaliacoesStorage.isEventoAvaliado(evento.id, totalMembros);
+
+              return (
+                <EventoAvaliadoCard
+                  key={evento.id}
+                  evento={evento}
+                  isAvaliado={isAvaliado}
+                  onClick={() => {
+                    setVerMaisOpen(false);
+                    handleCardClick(evento);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Equipe */}
+      {eventoSelecionado && (
+        <ModalEquipeAvaliacao
+          open={modalEquipeOpen}
+          onOpenChange={setModalEquipeOpen}
+          eventoNome={eventoSelecionado.motivo}
+          eventoId={eventoSelecionado.id}
+          membros={membrosEvento}
+          onAvaliacaoSaved={handleAvaliacaoSaved}
+        />
+      )}
+    </DashboardLayout>
+  );
+};
+
+export default Avaliacoes;
