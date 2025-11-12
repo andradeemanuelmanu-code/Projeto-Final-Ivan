@@ -27,7 +27,8 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
   ];
 
   const handleNavClick = () => {
-    if (window.innerWidth < 1024) {
+    // md breakpoint is 768px
+    if (window.innerWidth < 768) {
       setMobileMenuOpen(false);
     }
   };
@@ -37,7 +38,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -47,9 +48,9 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
         className={cn(
           "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
           "fixed top-0 left-0 h-screen z-50",
-          "lg:sticky lg:z-auto",
+          "md:sticky md:z-auto",
           sidebarCollapsed ? "w-20" : "w-72",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Logo */}
@@ -63,7 +64,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hover:bg-sidebar-accent hidden lg:flex"
+            className="hover:bg-sidebar-accent hidden md:flex"
           >
             {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </Button>
@@ -105,7 +106,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto">
+      <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto">
         {/* Header */}
         <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3">
@@ -113,7 +114,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden"
+              className="md:hidden"
             >
               <Menu size={20} />
             </Button>
