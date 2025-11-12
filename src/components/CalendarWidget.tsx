@@ -1,16 +1,28 @@
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Evento } from "@/types/evento";
+import { parseLocalDate } from "@/lib/utils";
 
-const CalendarWidget = () => {
+interface CalendarWidgetProps {
+  eventos: Evento[];
+}
+
+const CalendarWidget = ({ eventos }: CalendarWidgetProps) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
-  // Mock events for specific dates
-  const eventDates = [
-    new Date(2025, 10, 15),
-    new Date(2025, 10, 20),
-    new Date(2025, 10, 25),
-  ];
+  const eventDates = useMemo(() => {
+    return eventos.map(evento => parseLocalDate(evento.data));
+  }, [eventos]);
+
+  const eventosEsteMes = useMemo(() => {
+    const mesAtual = date?.getMonth();
+    const anoAtual = date?.getFullYear();
+    return eventos.filter(evento => {
+      const dataEvento = parseLocalDate(evento.data);
+      return dataEvento.getMonth() === mesAtual && dataEvento.getFullYear() === anoAtual;
+    }).length;
+  }, [eventos, date]);
 
   return (
     <Card className="p-6">
@@ -32,7 +44,7 @@ const CalendarWidget = () => {
       />
       <div className="mt-4 pt-4 border-t border-border">
         <p className="text-sm text-muted-foreground">
-          {eventDates.length} eventos agendados este mês
+          {eventosEsteMes} {eventosEsteMes === 1 ? 'evento agendado' : 'eventos agendados'} este mês
         </p>
       </div>
     </Card>

@@ -10,7 +10,7 @@ interface EventCardProps {
   date: string;
   location: string;
   guests: number;
-  value: string;
+  value: number;
   status: EventStatus;
 }
 
@@ -34,6 +34,11 @@ const statusConfig = {
 
 const EventCard = ({ title, client, date, location, guests, value, status }: EventCardProps) => {
   const config = statusConfig[status];
+
+  const formattedValue = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
 
   return (
     <div className={cn("event-card", config.cardClass)}>
@@ -63,7 +68,7 @@ const EventCard = ({ title, client, date, location, guests, value, status }: Eve
           </div>
           <div className="flex items-center gap-1 font-semibold text-foreground">
             <DollarSign size={16} />
-            <span>{value}</span>
+            <span>{formattedValue}</span>
           </div>
         </div>
       </div>
