@@ -38,12 +38,11 @@ const Financeiro = () => {
     const custosFixos = custosFixosStorage.getByMes(mesReferencia);
     const notas = notasFiscaisStorage.getAll();
 
-    // Filtrar eventos do mês e que já foram executados (data passada)
+    // Filtrar eventos do mês
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-      const jaExecutado = eventoData < new Date();
-      return eventoMes === mesReferencia && jaExecutado;
+      return eventoMes === mesReferencia;
     });
 
     // Calcular faturamento total
@@ -111,8 +110,7 @@ const Financeiro = () => {
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-      const jaExecutado = eventoData < new Date();
-      return eventoMes === mesAnterior && jaExecutado;
+      return eventoMes === mesAnterior;
     });
 
     const faturamentoTotal = eventosMes.reduce(
@@ -183,8 +181,7 @@ const Financeiro = () => {
       const eventosMes = eventos.filter((evento) => {
         const eventoData = parseLocalDate(evento.data);
         const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-        const jaExecutado = eventoData < new Date();
-        return eventoMes === mes && jaExecutado;
+        return eventoMes === mes;
       });
 
       const faturamento = eventosMes.reduce(
