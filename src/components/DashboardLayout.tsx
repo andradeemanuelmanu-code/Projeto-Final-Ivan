@@ -69,14 +69,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1">
           {menuItems.map((item) => (
             <NavLink
               key={item.url}
               to={item.url}
               onClick={handleNavClick}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                "flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm",
                 "hover:bg-sidebar-accent text-sidebar-foreground"
               )}
               activeClassName="bg-sidebar-primary text-sidebar-primary-foreground font-medium"
