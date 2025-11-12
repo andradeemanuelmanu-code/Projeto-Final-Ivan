@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import EventCard from "@/components/EventCard";
 import CalendarWidget from "@/components/CalendarWidget";
-import { Calendar, DollarSign, TrendingUp, Users } from "lucide-react";
+import { Calendar, DollarSign, Users, Clock } from "lucide-react";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { Evento } from "@/types/evento";
 import { parseLocalDate } from "@/lib/utils";
@@ -28,11 +28,9 @@ const Index = () => {
     // 2. Receita Total (Mês Atual)
     const receitaMes = eventosEsteMes.reduce((acc, e) => acc + e.valor, 0);
 
-    // 3. Taxa de Conversão (Orçamentos -> Contratos)
-    const totalOrcamentos = eventos.filter(e => e.statusPagamento === 'quote').length;
-    const totalContratos = eventos.filter(e => e.statusPagamento !== 'quote').length;
-    const totalEventosRegistrados = totalOrcamentos + totalContratos;
-    const taxaConversao = totalEventosRegistrados > 0 ? (totalContratos / totalEventosRegistrados) * 100 : 0;
+    // 3. Pagamentos Pendentes
+    const eventosPendentes = eventos.filter(e => e.statusPagamento === 'pending');
+    const totalPendente = eventosPendentes.reduce((acc, e) => acc + e.valor, 0);
 
     // 4. Média de Convidados
     const totalConvidados = eventosEsteMes.reduce((acc, e) => acc + e.convidados, 0);
@@ -52,10 +50,10 @@ const Index = () => {
         icon: DollarSign,
       },
       {
-        title: "Taxa de Conversão",
-        value: `${taxaConversao.toFixed(0)}%`,
-        subtitle: "Orçamentos → Contratos",
-        icon: TrendingUp,
+        title: "Pagamentos Pendentes",
+        value: eventosPendentes.length,
+        subtitle: `Totalizando ${totalPendente.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+        icon: Clock,
       },
       {
         title: "Média de Convidados",
