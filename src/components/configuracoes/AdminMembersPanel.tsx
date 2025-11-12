@@ -18,13 +18,13 @@ import {
 } from "@/components/ui/select";
 
 const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
+  { value: "cozinheira", label: "Cozinheira" },
+  { value: "ajudante-cozinheira", label: "Ajudante de Cozinheira" },
   { value: "churrasqueiro", label: "Churrasqueiro" },
-  { value: "auxiliar", label: "Ajudante de Churrasqueiro" },
-  { value: "cozinheiro", label: "Cozinheira" },
+  { value: "ajudante-churrasqueiro", label: "Ajudante de Churrasqueiro" },
   { value: "garcom", label: "Garçom" },
-  { value: "motorista", label: "Metri" },
-  { value: "bartender", label: "Barman" },
-  { value: "gerente", label: "Gerente" },
+  { value: "barman", label: "Barman" },
+  { value: "maitre", label: "Maître" },
 ];
 
 export const AdminMembersPanel = () => {
@@ -184,7 +184,7 @@ export const AdminMembersPanel = () => {
                           value={membro.funcao}
                           onValueChange={(value) => handleEditarFuncao(membro.id, value as FuncaoEquipe)}
                         >
-                          <SelectTrigger className="w-[180px]">
+                          <SelectTrigger className="w-[220px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>

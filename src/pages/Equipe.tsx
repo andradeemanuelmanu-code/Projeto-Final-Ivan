@@ -38,13 +38,13 @@ import { Plus, Pencil, Trash2, Users, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const FUNCOES_LABEL: Record<string, string> = {
+  cozinheira: "Cozinheira",
+  "ajudante-cozinheira": "Ajudante de Cozinheira",
   churrasqueiro: "Churrasqueiro",
-  auxiliar: "Auxiliar",
+  "ajudante-churrasqueiro": "Ajudante de Churrasqueiro",
   garcom: "Garçom",
-  cozinheiro: "Cozinheiro",
-  motorista: "Motorista",
-  bartender: "Bartender",
-  gerente: "Gerente",
+  barman: "Barman",
+  maitre: "Maître",
 };
 
 export default function Equipe() {

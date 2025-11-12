@@ -26,13 +26,13 @@ interface ApprovalModalProps {
 }
 
 const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
+  { value: "cozinheira", label: "Cozinheira" },
+  { value: "ajudante-cozinheira", label: "Ajudante de Cozinheira" },
   { value: "churrasqueiro", label: "Churrasqueiro" },
-  { value: "auxiliar", label: "Ajudante de Churrasqueiro" },
-  { value: "cozinheiro", label: "Cozinheira" },
+  { value: "ajudante-churrasqueiro", label: "Ajudante de Churrasqueiro" },
   { value: "garcom", label: "Garçom" },
-  { value: "motorista", label: "Metri" },
-  { value: "bartender", label: "Barman" },
-  { value: "gerente", label: "Gerente" },
+  { value: "barman", label: "Barman" },
+  { value: "maitre", label: "Maître" },
 ];
 
 export const ApprovalModal = ({ open, onOpenChange, usuarioNome, onAprovar }: ApprovalModalProps) => {

@@ -17,13 +17,13 @@ interface ModalEquipeAvaliacaoProps {
 }
 
 const FUNCAO_LABELS: Record<string, string> = {
+  cozinheira: "Cozinheira",
+  "ajudante-cozinheira": "Ajudante de Cozinheira",
   churrasqueiro: "Churrasqueiro",
-  auxiliar: "Auxiliar",
+  "ajudante-churrasqueiro": "Ajudante de Churrasqueiro",
   garcom: "Garçom",
-  cozinheiro: "Cozinheiro",
-  motorista: "Motorista",
-  bartender: "Bartender",
-  gerente: "Gerente",
+  barman: "Barman",
+  maitre: "Maître",
 };
 
 export const ModalEquipeAvaliacao = ({

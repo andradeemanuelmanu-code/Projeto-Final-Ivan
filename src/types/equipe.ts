@@ -1,11 +1,11 @@
 export type FuncaoEquipe = 
+  | "cozinheira"
+  | "ajudante-cozinheira"
   | "churrasqueiro"
-  | "auxiliar"
+  | "ajudante-churrasqueiro"
   | "garcom"
-  | "cozinheiro"
-  | "motorista"
-  | "bartender"
-  | "gerente";
+  | "barman"
+  | "maitre";
 
 export interface MembroEquipe {
   id: string;

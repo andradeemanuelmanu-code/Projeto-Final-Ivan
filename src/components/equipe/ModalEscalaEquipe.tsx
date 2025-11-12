@@ -26,13 +26,13 @@ interface ModalEscalaEquipeProps {
 }
 
 const FUNCOES: { value: FuncaoEquipe; label: string }[] = [
+  { value: "cozinheira", label: "Cozinheira" },
+  { value: "ajudante-cozinheira", label: "Ajudante de Cozinheira" },
   { value: "churrasqueiro", label: "Churrasqueiro" },
-  { value: "auxiliar", label: "Auxiliar" },
+  { value: "ajudante-churrasqueiro", label: "Ajudante de Churrasqueiro" },
   { value: "garcom", label: "Garçom" },
-  { value: "cozinheiro", label: "Cozinheiro" },
-  { value: "motorista", label: "Motorista" },
-  { value: "bartender", label: "Bartender" },
-  { value: "gerente", label: "Gerente" },
+  { value: "barman", label: "Barman" },
+  { value: "maitre", label: "Maître" },
 ];
 
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
