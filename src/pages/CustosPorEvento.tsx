@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { EventCostCard } from "@/components/custos/EventCostCard";
 import { AddCostModal } from "@/components/custos/AddCostModal";
+import { CostListModal } from "@/components/custos/CostListModal";
 import { ExecutedEventsList } from "@/components/custos/ExecutedEventsList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,12 +21,16 @@ import { ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseLocalDate } from "@/lib/utils";
+import { Custo } from "@/types/custo";
 
 export default function CustosPorEvento() {
   const [eventos] = useState(() => eventosStorage.getAllSorted());
-  const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
-  const [showAllEventsModal, setShowAllEventsModal] = useState(false);
   const [isLoading] = useState(false);
+  const [showAllEventsModal, setShowAllEventsModal] = useState(false);
+
+  // State for modals
+  const [eventoForList, setEventoForList] = useState<{ id: string; custos: Custo[] } | null>(null);
+  const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
 
   const eventosFuturos = useMemo(
     () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
@@ -53,16 +58,25 @@ export default function CustosPorEvento() {
   const firstEightEvents = eventosSorted.slice(0, 8);
   const remainingEvents = eventosSorted.slice(8);
 
-  const handleOpenCostModal = (eventoId: string) => {
-    setSelectedEventoId(eventoId);
+  const handleOpenCostListModal = (eventoId: string) => {
+    const custosDoEvento = custosStorage.getByEventoId(eventoId);
+    setEventoForList({ id: eventoId, custos: custosDoEvento });
+  };
+
+  const handleOpenAddCostFromList = () => {
+    setEventoForList(null); // Fecha o modal de lista
+    setIsAddCostModalOpen(true); // Abre o modal de adição
   };
 
   const handleSaveCost = (custoData: any) => {
-    if (!selectedEventoId) return;
+    if (!eventoForList?.id && !isAddCostModalOpen) return;
+    
+    const eventoId = eventoForList?.id;
+    if (!eventoId) return;
 
     custosStorage.create({
       ...custoData,
-      eventoId: selectedEventoId,
+      eventoId: eventoId,
     });
 
     toast({
@@ -70,11 +84,12 @@ export default function CustosPorEvento() {
       description: "O custo foi registrado no evento.",
     });
 
-    setSelectedEventoId(null);
+    setIsAddCostModalOpen(false);
+    // Recarregar os dados para refletir a mudança no card
     window.location.reload();
   };
 
-  const selectedEvento = eventos.find((e) => e.id === selectedEventoId);
+  const selectedEvento = eventoForList ? eventos.find((e) => e.id === eventoForList.id) : null;
 
   return (
     <DashboardLayout>
@@ -130,7 +145,7 @@ export default function CustosPorEvento() {
                   key={evento.id}
                   evento={evento}
                   hasCosts={hasCosts}
-                  onClick={() => handleOpenCostModal(evento.id)}
+                  onClick={() => handleOpenCostListModal(evento.id)}
                 />
               ))}
             </div>
@@ -175,7 +190,7 @@ export default function CustosPorEvento() {
                   hasCosts={hasCosts}
                   onClick={() => {
                     setShowAllEventsModal(false);
-                    handleOpenCostModal(evento.id);
+                    handleOpenCostListModal(evento.id);
                   }}
                 />
               ))}
@@ -184,11 +199,20 @@ export default function CustosPorEvento() {
         </DialogContent>
       </Dialog>
 
+      {/* Modal: Lista de Custos */}
+      <CostListModal
+        open={!!eventoForList}
+        onClose={() => setEventoForList(null)}
+        onAddCost={handleOpenAddCostFromList}
+        evento={selectedEvento}
+        custos={eventoForList?.custos || []}
+      />
+
       {/* Modal: Adicionar Custo */}
       {selectedEvento && (
         <AddCostModal
-          open={!!selectedEventoId}
-          onClose={() => setSelectedEventoId(null)}
+          open={isAddCostModalOpen}
+          onClose={() => setIsAddCostModalOpen(false)}
           onSave={handleSaveCost}
           eventoMotivo={selectedEvento.motivo}
         />
