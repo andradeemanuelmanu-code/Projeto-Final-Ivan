@@ -24,7 +24,6 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
     { title: "Avaliações", icon: Star, url: "/avaliacoes" },
     { title: "Gestão Fiscal", icon: FileText, url: "/gestao-fiscal" },
     { title: "Financeiro", icon: TrendingUp, url: "/financeiro" },
-    { title: "Configurações", icon: Settings, url: "/configuracoes" },
   ];
 
   const handleNavClick = () => {
@@ -133,6 +132,14 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full" />
             </Button>
+            <NavLink
+              to="/configuracoes"
+              activeClassName="text-primary bg-accent/10 rounded-lg"
+            >
+              <Button variant="ghost" size="icon">
+                <Settings size={20} />
+              </Button>
+            </NavLink>
           </div>
         </header>
 
