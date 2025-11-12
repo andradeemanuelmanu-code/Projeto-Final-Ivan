@@ -120,7 +120,7 @@ export function AddCostModal({ open, onClose, onSave, eventoMotivo }: AddCostMod
               onChange={handleValorChange}
               placeholder="R$ 0,00"
               required
-              className="text-right"
+              className={cn({ "text-right": formData.valor > 0 })}
             />
           </div>
 
