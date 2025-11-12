@@ -49,9 +49,19 @@ export function AddCostModal({ open, onClose, onSave, eventoMotivo }: AddCostMod
     onClose();
   };
 
-  const handleValorChange = (value: string) => {
-    const numericValue = value.replace(/[^\d,]/g, "").replace(",", ".");
-    setFormData({ ...formData, valor: parseFloat(numericValue) || 0 });
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    // Remove all non-digit characters
+    const numericString = rawValue.replace(/\D/g, "");
+
+    if (numericString === "") {
+      setFormData({ ...formData, valor: 0 });
+      return;
+    }
+
+    // Convert the string of digits to a number, treating it as cents
+    const valueAsNumber = Number(numericString) / 100;
+    setFormData({ ...formData, valor: valueAsNumber });
   };
 
   return (
@@ -99,10 +109,18 @@ export function AddCostModal({ open, onClose, onSave, eventoMotivo }: AddCostMod
             <Input
               id="valor"
               type="text"
-              value={formData.valor > 0 ? formData.valor.toFixed(2) : ""}
-              onChange={(e) => handleValorChange(e.target.value)}
-              placeholder="0,00"
+              value={
+                formData.valor > 0
+                  ? new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(formData.valor)
+                  : ""
+              }
+              onChange={handleValorChange}
+              placeholder="R$ 0,00"
               required
+              className="text-right"
             />
           </div>
 
