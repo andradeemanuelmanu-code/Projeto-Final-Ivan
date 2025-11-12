@@ -45,11 +45,10 @@ const Financeiro = () => {
       return eventoMes === mesReferencia;
     });
 
-    // Calcular faturamento total
-    const faturamentoTotal = eventosMes.reduce(
-      (acc, evento) => acc + evento.valor,
-      0
-    );
+    // Calcular faturamento total (apenas eventos pagos)
+    const faturamentoTotal = eventosMes
+      .filter(evento => evento.statusPagamento === 'paid')
+      .reduce((acc, evento) => acc + evento.valor, 0);
 
     // Calcular custos variáveis (custos por evento)
     const eventosIds = eventosMes.map((e) => e.id);
@@ -113,10 +112,9 @@ const Financeiro = () => {
       return eventoMes === mesAnterior;
     });
 
-    const faturamentoTotal = eventosMes.reduce(
-      (acc, evento) => acc + evento.valor,
-      0
-    );
+    const faturamentoTotal = eventosMes
+      .filter(evento => evento.statusPagamento === 'paid')
+      .reduce((acc, evento) => acc + evento.valor, 0);
 
     const eventosIds = eventosMes.map((e) => e.id);
     const custosVariaveis = custos
@@ -184,10 +182,9 @@ const Financeiro = () => {
         return eventoMes === mes;
       });
 
-      const faturamento = eventosMes.reduce(
-        (acc, evento) => acc + evento.valor,
-        0
-      );
+      const faturamento = eventosMes
+        .filter(evento => evento.statusPagamento === 'paid')
+        .reduce((acc, evento) => acc + evento.valor, 0);
 
       const eventosIds = eventosMes.map((e) => e.id);
       const custosVariaveis = custos
@@ -270,14 +267,14 @@ const Financeiro = () => {
           <ResumoFinanceiroCard
             titulo="Total de Eventos"
             valor={dadosMes.totalEventos}
-            subtitulo="Eventos realizados"
+            subtitulo="Eventos no período"
             icon={Calendar}
           />
 
           <ResumoFinanceiroCard
             titulo="Faturamento Total"
             valor={formatarMoeda(dadosMes.faturamentoTotal)}
-            subtitulo="Receita bruta"
+            subtitulo="Receita de eventos pagos"
             icon={DollarSign}
             tendencia={calcularTendencia(
               dadosMes.faturamentoTotal,
