@@ -27,18 +27,17 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
   ];
 
   const handleNavClick = () => {
-    // md breakpoint is 768px
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 1024) {
       setMobileMenuOpen(false);
     }
   };
 
   return (
-    <div className="h-screen bg-background flex w-full">
+    <div className="min-h-screen bg-background flex w-full">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -47,14 +46,14 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       <aside
         className={cn(
           "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
-          "fixed top-0 left-0 h-full z-50", // Alterado para h-full
-          "md:sticky md:z-auto",
+          "fixed top-0 left-0 h-screen z-50",
+          "lg:sticky lg:z-auto",
           sidebarCollapsed ? "w-20" : "w-72",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border flex-shrink-0">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border">
           {!sidebarCollapsed && (
             <h1 className="font-display font-bold text-xl text-sidebar-foreground">
               Gestão Buffet
@@ -64,14 +63,14 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hover:bg-sidebar-accent hidden md:flex"
+            className="hover:bg-sidebar-accent hidden lg:flex"
           >
             {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </Button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1">
           {menuItems.map((item) => (
             <NavLink
               key={item.url}
@@ -90,7 +89,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-sidebar-border flex-shrink-0">
+        <div className="p-4 border-t border-sidebar-border">
           <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
               AD
@@ -106,15 +105,15 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto">
         {/* Header */}
-        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 flex-shrink-0">
+        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden"
+              className="lg:hidden"
             >
               <Menu size={20} />
             </Button>
