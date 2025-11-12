@@ -114,6 +114,19 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
     }));
   };
 
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const numericString = rawValue.replace(/\D/g, "");
+
+    if (numericString === "") {
+      setFormData(prev => ({ ...prev, valor: 0 }));
+      return;
+    }
+
+    const valueAsNumber = Number(numericString) / 100;
+    setFormData(prev => ({ ...prev, valor: valueAsNumber }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl w-[90vw] max-h-[90vh] p-4 sm:p-6">
@@ -299,12 +312,17 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
                 <Label htmlFor="valor">Valor Total *</Label>
                 <Input
                   id="valor"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.valor || ""}
-                  onChange={e => setFormData(prev => ({ ...prev, valor: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
+                  type="text"
+                  value={
+                    formData.valor > 0
+                      ? new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(formData.valor)
+                      : ""
+                  }
+                  onChange={handleValorChange}
+                  placeholder="R$ 0,00"
                   required
                 />
               </div>
