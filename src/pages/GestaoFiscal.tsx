@@ -71,15 +71,12 @@ export default function GestaoFiscal() {
   });
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Gestão Fiscal"
+      description="Controle de notas fiscais e impostos por evento"
+    >
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Gestão Fiscal</h1>
-            <p className="text-muted-foreground mt-1">
-              Controle de notas fiscais e impostos por evento
-            </p>
-          </div>
+        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
           <Button onClick={() => setIsModalOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Registrar Nota Fiscal

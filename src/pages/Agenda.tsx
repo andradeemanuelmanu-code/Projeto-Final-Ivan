@@ -10,19 +10,13 @@ const Agenda = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("month");
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Agenda de Eventos"
+      description="Visualize e gerencie todos os eventos cadastrados"
+    >
       <div className="space-y-6">
         {/* Header with View Mode Filters */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display font-semibold text-2xl text-foreground">
-              Agenda de Eventos
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Visualize e gerencie todos os eventos cadastrados
-            </p>
-          </div>
-
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-4">
           {/* View Mode Toggle */}
           <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
             <Button

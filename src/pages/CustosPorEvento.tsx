@@ -104,7 +104,10 @@ export default function CustosPorEvento() {
   );
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Custos por Evento"
+      description="Gerencie os gastos de cada evento e acompanhe os custos registrados"
+    >
       <div className="space-y-6">
         {/* Header */}
         <div className="space-y-2">
@@ -133,13 +136,6 @@ export default function CustosPorEvento() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
-          <h1 className="font-display text-3xl font-bold text-foreground">
-            Custos por Evento
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie os gastos de cada evento e acompanhe os custos registrados.
-          </p>
         </div>
 
         {/* Cards de Eventos */}

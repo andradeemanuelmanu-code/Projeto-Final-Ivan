@@ -92,23 +92,11 @@ const Avaliacoes = () => {
   const eventosRestantes = eventos.slice(CARDS_POR_PAGINA);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Avaliações"
+      description="Avalie o desempenho da equipe após os eventos"
+    >
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-lg bg-primary/10">
-            <Star className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-display text-3xl font-semibold text-foreground">
-              Avaliações
-            </h1>
-            <p className="text-muted-foreground">
-              Avalie o desempenho da equipe após os eventos
-            </p>
-          </div>
-        </div>
-
         {/* Cards de Eventos */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

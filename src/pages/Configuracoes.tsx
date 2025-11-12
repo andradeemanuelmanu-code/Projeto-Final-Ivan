@@ -32,17 +32,11 @@ const Configuracoes = () => {
   }, []);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Configurações"
+      description="Gerencie suas preferências e configurações do sistema"
+    >
       <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-display font-semibold text-foreground mb-2">
-            Configurações
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie suas preferências e configurações do sistema
-          </p>
-        </div>
-
         <Tabs defaultValue="conta" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="conta" className="flex items-center gap-2">

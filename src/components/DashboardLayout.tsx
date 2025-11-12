@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  title?: string;
+  description?: string;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children, title, description }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -118,10 +120,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Button>
             <div>
               <h2 className="font-display font-semibold text-xl sm:text-2xl text-foreground">
-                Dashboard
+                {title || "Dashboard"}
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-                Bem-vindo ao sistema de gestão
+                {description || "Bem-vindo ao sistema de gestão"}
               </p>
             </div>
           </div>

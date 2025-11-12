@@ -241,7 +241,10 @@ const Financeiro = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Resumo Financeiro"
+      description="Acompanhe o desempenho financeiro do seu buffet"
+    >
       <div className="space-y-6">
         {/* Breadcrumb */}
         <Breadcrumb>
@@ -258,15 +261,6 @@ const Financeiro = () => {
 
         {/* Header */}
         <div className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground mb-2">
-              Resumo Financeiro
-            </h1>
-            <p className="text-muted-foreground">
-              Acompanhe o desempenho financeiro do seu buffet
-            </p>
-          </div>
-
           {/* Filtro de Período */}
           <FiltroPeriodo
             mesReferencia={mesReferencia}

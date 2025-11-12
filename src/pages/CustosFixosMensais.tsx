@@ -98,7 +98,10 @@ const CustosFixosMensais = () => {
   const totalMes = custosFixosStorage.getTotalByMes(mesReferencia);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Custos Fixos Mensais"
+      description="Gerencie os gastos mensais e acompanhe o histórico"
+    >
       <div className="space-y-6">
         {/* Breadcrumb */}
         <Breadcrumb>
@@ -122,15 +125,7 @@ const CustosFixosMensais = () => {
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">
-              Custos Fixos Mensais
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie os gastos de cada evento e acompanhe os custos registrados.
-            </p>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
           <Button onClick={() => setModalOpen(true)} className="bg-accent hover:bg-accent/90">
             <Plus size={20} />
             Adicionar Gasto

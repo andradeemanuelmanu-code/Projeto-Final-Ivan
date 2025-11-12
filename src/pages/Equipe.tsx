@@ -136,16 +136,11 @@ export default function Equipe() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Equipe"
+      description="Gerencie a escala de trabalho e os membros da equipe"
+    >
       <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="font-display font-semibold text-3xl text-foreground">Equipe</h1>
-          <p className="text-muted-foreground mt-1">
-            Gerencie a escala de trabalho e os membros da equipe
-          </p>
-        </div>
-
         {/* Seção: Escala de Eventos */}
         <section className="space-y-6">
           <div className="flex items-center gap-2">

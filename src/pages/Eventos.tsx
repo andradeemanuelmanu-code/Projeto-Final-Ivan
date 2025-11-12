@@ -80,18 +80,13 @@ const Eventos = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      title="Administração de Eventos"
+      description="Gerencie todos os eventos do buffet"
+    >
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
-              Administração de Eventos
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              Gerencie todos os eventos do buffet
-            </p>
-          </div>
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-end">
           <Button
             onClick={handleNovoEvento}
             className="bg-primary hover:bg-primary/90 font-medium hidden sm:flex"
