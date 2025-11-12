@@ -34,7 +34,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
   };
 
   return (
-    <div className="min-h-screen bg-background flex w-full">
+    <div className="h-screen bg-background flex w-full">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
@@ -47,14 +47,14 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       <aside
         className={cn(
           "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
-          "fixed top-0 left-0 h-screen z-50",
+          "fixed top-0 left-0 h-full z-50", // Alterado para h-full
           "md:sticky md:z-auto",
           sidebarCollapsed ? "w-20" : "w-72",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Logo */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border flex-shrink-0">
           {!sidebarCollapsed && (
             <h1 className="font-display font-bold text-xl text-sidebar-foreground">
               Gestão Buffet
@@ -71,7 +71,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <NavLink
               key={item.url}
@@ -90,7 +90,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border flex-shrink-0">
           <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
               AD
@@ -106,9 +106,9 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto">
+      <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto overflow-hidden">
         {/* Header */}
-        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
+        <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
