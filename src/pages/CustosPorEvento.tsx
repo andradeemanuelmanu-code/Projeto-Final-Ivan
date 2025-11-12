@@ -21,16 +21,16 @@ import { ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseLocalDate } from "@/lib/utils";
-import { Custo } from "@/types/custo";
+import { CustoFormData } from "@/types/custo";
 
 export default function CustosPorEvento() {
   const [eventos] = useState(() => eventosStorage.getAllSorted());
   const [isLoading] = useState(false);
   const [showAllEventsModal, setShowAllEventsModal] = useState(false);
 
-  // State for modals
-  const [eventoForList, setEventoForList] = useState<{ id: string; custos: Custo[] } | null>(null);
-  const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
+  // --- State Management Refatorado ---
+  const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
+  const [modalView, setModalView] = useState<'list' | 'add' | null>(null);
 
   const eventosFuturos = useMemo(
     () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
@@ -58,25 +58,27 @@ export default function CustosPorEvento() {
   const firstEightEvents = eventosSorted.slice(0, 8);
   const remainingEvents = eventosSorted.slice(8);
 
-  const handleOpenCostListModal = (eventoId: string) => {
-    const custosDoEvento = custosStorage.getByEventoId(eventoId);
-    setEventoForList({ id: eventoId, custos: custosDoEvento });
+  // --- Funções de Manipulação de Modais Refatoradas ---
+  const handleCardClick = (eventoId: string) => {
+    setSelectedEventoId(eventoId);
+    setModalView('list');
   };
 
-  const handleOpenAddCostFromList = () => {
-    setEventoForList(null); // Fecha o modal de lista
-    setIsAddCostModalOpen(true); // Abre o modal de adição
+  const handleSwitchToAddCost = () => {
+    setModalView('add');
   };
 
-  const handleSaveCost = (custoData: any) => {
-    if (!eventoForList?.id && !isAddCostModalOpen) return;
-    
-    const eventoId = eventoForList?.id;
-    if (!eventoId) return;
+  const handleCloseModals = () => {
+    setSelectedEventoId(null);
+    setModalView(null);
+  };
+
+  const handleSaveCost = (custoData: Omit<CustoFormData, "eventoId">) => {
+    if (!selectedEventoId) return;
 
     custosStorage.create({
       ...custoData,
-      eventoId: eventoId,
+      eventoId: selectedEventoId,
     });
 
     toast({
@@ -84,12 +86,22 @@ export default function CustosPorEvento() {
       description: "O custo foi registrado no evento.",
     });
 
-    setIsAddCostModalOpen(false);
-    // Recarregar os dados para refletir a mudança no card
-    window.location.reload();
+    handleCloseModals();
+    // Recarregar para atualizar o status do card "hasCosts"
+    // Em uma aplicação maior, usaríamos um gerenciador de estado para evitar o reload.
+    window.location.reload(); 
   };
 
-  const selectedEvento = eventoForList ? eventos.find((e) => e.id === eventoForList.id) : null;
+  // --- Variáveis Derivadas do Estado ---
+  const selectedEvento = useMemo(
+    () => (selectedEventoId ? eventos.find((e) => e.id === selectedEventoId) : null),
+    [selectedEventoId, eventos]
+  );
+
+  const custosForSelectedEvento = useMemo(
+    () => (selectedEventoId ? custosStorage.getByEventoId(selectedEventoId) : []),
+    [selectedEventoId]
+  );
 
   return (
     <DashboardLayout>
@@ -145,7 +157,7 @@ export default function CustosPorEvento() {
                   key={evento.id}
                   evento={evento}
                   hasCosts={hasCosts}
-                  onClick={() => handleOpenCostListModal(evento.id)}
+                  onClick={() => handleCardClick(evento.id)}
                 />
               ))}
             </div>
@@ -190,7 +202,7 @@ export default function CustosPorEvento() {
                   hasCosts={hasCosts}
                   onClick={() => {
                     setShowAllEventsModal(false);
-                    handleOpenCostListModal(evento.id);
+                    handleCardClick(evento.id);
                   }}
                 />
               ))}
@@ -201,22 +213,20 @@ export default function CustosPorEvento() {
 
       {/* Modal: Lista de Custos */}
       <CostListModal
-        open={!!eventoForList}
-        onClose={() => setEventoForList(null)}
-        onAddCost={handleOpenAddCostFromList}
+        open={modalView === 'list'}
+        onClose={handleCloseModals}
+        onAddCost={handleSwitchToAddCost}
         evento={selectedEvento}
-        custos={eventoForList?.custos || []}
+        custos={custosForSelectedEvento}
       />
 
       {/* Modal: Adicionar Custo */}
-      {selectedEvento && (
-        <AddCostModal
-          open={isAddCostModalOpen}
-          onClose={() => setIsAddCostModalOpen(false)}
-          onSave={handleSaveCost}
-          eventoMotivo={selectedEvento.motivo}
-        />
-      )}
+      <AddCostModal
+        open={modalView === 'add'}
+        onClose={handleCloseModals}
+        onSave={handleSaveCost}
+        eventoMotivo={selectedEvento?.motivo || ""}
+      />
     </DashboardLayout>
   );
 }
