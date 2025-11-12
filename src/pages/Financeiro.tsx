@@ -24,6 +24,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
 import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
+import { parseLocalDate } from "@/lib/utils";
 
 const Financeiro = () => {
   const hoje = new Date();
@@ -39,7 +40,7 @@ const Financeiro = () => {
 
     // Filtrar eventos do mês e que já foram executados (data passada)
     const eventosMes = eventos.filter((evento) => {
-      const eventoData = new Date(evento.data);
+      const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       const jaExecutado = eventoData < new Date();
       return eventoMes === mesReferencia && jaExecutado;
@@ -67,7 +68,7 @@ const Financeiro = () => {
     const notasMes = notas.filter((nota) => {
       const evento = eventos.find((e) => e.id === nota.eventoId);
       if (!evento) return false;
-      const eventoData = new Date(evento.data);
+      const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       return eventoMes === mesReferencia;
     });
@@ -108,7 +109,7 @@ const Financeiro = () => {
     const notas = notasFiscaisStorage.getAll();
 
     const eventosMes = eventos.filter((evento) => {
-      const eventoData = new Date(evento.data);
+      const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       const jaExecutado = eventoData < new Date();
       return eventoMes === mesAnterior && jaExecutado;
@@ -132,7 +133,7 @@ const Financeiro = () => {
     const notasMes = notas.filter((nota) => {
       const evento = eventos.find((e) => e.id === nota.eventoId);
       if (!evento) return false;
-      const eventoData = new Date(evento.data);
+      const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       return eventoMes === mesAnterior;
     });
@@ -180,7 +181,7 @@ const Financeiro = () => {
       const notas = notasFiscaisStorage.getAll();
 
       const eventosMes = eventos.filter((evento) => {
-        const eventoData = new Date(evento.data);
+        const eventoData = parseLocalDate(evento.data);
         const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
         const jaExecutado = eventoData < new Date();
         return eventoMes === mes && jaExecutado;
@@ -204,7 +205,7 @@ const Financeiro = () => {
       const notasMes = notas.filter((nota) => {
         const evento = eventos.find((e) => e.id === nota.eventoId);
         if (!evento) return false;
-        const eventoData = new Date(evento.data);
+        const eventoData = parseLocalDate(evento.data);
         const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
         return eventoMes === mes;
       });

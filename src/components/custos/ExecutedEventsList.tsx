@@ -2,6 +2,7 @@ import { Evento } from "@/types/evento";
 import { custosStorage } from "@/lib/custosStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -17,7 +18,7 @@ interface ExecutedEventsListProps {
 
 export function ExecutedEventsList({ eventos }: ExecutedEventsListProps) {
   const eventosExecutados = eventos.filter(
-    (evento) => new Date(evento.data) < new Date()
+    (evento) => parseLocalDate(evento.data) < new Date()
   );
 
   if (eventosExecutados.length === 0) {
@@ -47,7 +48,7 @@ export function ExecutedEventsList({ eventos }: ExecutedEventsListProps) {
                 <TableCell className="font-medium">{evento.motivo}</TableCell>
                 <TableCell>{evento.cliente.nome}</TableCell>
                 <TableCell>
-                  {format(new Date(evento.data), "dd/MM/yyyy", { locale: ptBR })}
+                  {format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR })}
                 </TableCell>
                 <TableCell className="text-right font-semibold">
                   {totalGastos > 0 ? (

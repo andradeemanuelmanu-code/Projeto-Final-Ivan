@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { eventosStorage } from "@/lib/eventosStorage";
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventoModal } from "@/components/eventos/EventoModal";
 
@@ -85,7 +85,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   }, [currentDate, viewMode]);
 
   const getEventosForDate = (date: Date) => {
-    return eventos.filter(evento => isSameDay(new Date(evento.data), date));
+    return eventos.filter(evento => isSameDay(parseLocalDate(evento.data), date));
   };
 
   const handleEventClick = (evento: Evento) => {
@@ -146,7 +146,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   // Mobile: Lista cronológica
   if (isMobile) {
     const upcomingEventos = eventos
-      .filter(evento => new Date(evento.data) >= new Date())
+      .filter(evento => parseLocalDate(evento.data) >= new Date())
       .slice(0, 20);
 
     return (
@@ -188,7 +188,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock size={12} />
-                          <span>{format(new Date(evento.data), "d 'de' MMM", { locale: ptBR })} • {evento.horario.inicio}</span>
+                          <span>{format(parseLocalDate(evento.data), "d 'de' MMM", { locale: ptBR })} • {evento.horario.inicio}</span>
                         </div>
                       </div>
                     </div>
@@ -214,7 +214,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-muted-foreground" />
                   <span>
-                    {selectedEvento && format(new Date(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {selectedEvento && format(parseLocalDate(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
                     {" • "}
                     {selectedEvento?.horario.inicio} - {selectedEvento?.horario.termino}
                   </span>
@@ -529,7 +529,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-muted-foreground" />
                   <span>
-                    {selectedEvento && format(new Date(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {selectedEvento && format(parseLocalDate(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
                     {" • "}
                     {selectedEvento?.horario.inicio} - {selectedEvento?.horario.termino}
                   </span>

@@ -2,6 +2,7 @@ import { Evento } from "@/types/evento";
 import { CalendarDays, User, UtensilsCrossed } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 
 interface EventCostCardProps {
   evento: Evento;
@@ -49,7 +50,7 @@ export function EventCostCard({ evento, hasCosts, onClick }: EventCostCardProps)
           <div className="flex items-center gap-2">
             <CalendarDays className="h-4 w-4 shrink-0" />
             <span>
-              {format(new Date(evento.data), "dd 'de' MMMM 'de' yyyy", {
+              {format(parseLocalDate(evento.data), "dd 'de' MMMM 'de' yyyy", {
                 locale: ptBR,
               })}
             </span>

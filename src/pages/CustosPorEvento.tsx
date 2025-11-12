@@ -19,6 +19,7 @@ import { custosStorage } from "@/lib/custosStorage";
 import { ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { parseLocalDate } from "@/lib/utils";
 
 export default function CustosPorEvento() {
   const [eventos] = useState(() => eventosStorage.getAllSorted());
@@ -27,7 +28,7 @@ export default function CustosPorEvento() {
   const [isLoading] = useState(false);
 
   const eventosFuturos = useMemo(
-    () => eventos.filter((evento) => new Date(evento.data) >= new Date()),
+    () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
     [eventos]
   );
 

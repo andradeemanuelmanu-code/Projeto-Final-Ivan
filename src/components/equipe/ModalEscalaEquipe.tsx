@@ -22,6 +22,7 @@ import {
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 
 interface ModalEscalaEquipeProps {
   open: boolean;
@@ -86,7 +87,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
 
   if (!evento) return null;
 
-  const dataFormatada = format(new Date(evento.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const dataFormatada = format(parseLocalDate(evento.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

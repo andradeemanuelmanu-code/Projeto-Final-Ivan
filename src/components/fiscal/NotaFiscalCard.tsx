@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, User, DollarSign, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
@@ -60,7 +61,7 @@ export function NotaFiscalCard({ nota, evento }: NotaFiscalCardProps) {
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                <span>{format(new Date(evento.data), "dd 'de' MMMM", { locale: ptBR })}</span>
+                <span>{format(parseLocalDate(evento.data), "dd 'de' MMMM", { locale: ptBR })}</span>
               </div>
             </div>
           </div>

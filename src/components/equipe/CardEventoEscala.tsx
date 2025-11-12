@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, User, UtensilsCrossed } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 
 interface CardEventoEscalaProps {
   evento: Evento;
@@ -23,7 +23,7 @@ const CARDAPIO_LABELS: Record<string, string> = {
 };
 
 export const CardEventoEscala = ({ evento, hasEscala, onClick }: CardEventoEscalaProps) => {
-  const dataFormatada = format(new Date(evento.data), "dd/MM/yyyy", { locale: ptBR });
+  const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
   const cardapioPrincipal = evento.cardapio[0] ? CARDAPIO_LABELS[evento.cardapio[0]] || evento.cardapio[0] : "Não definido";
 
   return (

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TipoCustoFixo } from "@/types/custoFixo";
 import { Evento } from "@/types/evento";
+import { parseLocalDate } from "@/lib/utils";
 
 interface AddFixedCostModalProps {
   open: boolean;
@@ -84,7 +85,7 @@ export const AddFixedCostModal = ({
 
   // Filtrar eventos do mês atual
   const eventosDoMes = eventos.filter(evento => {
-    const eventoData = new Date(evento.data);
+    const eventoData = parseLocalDate(evento.data);
     const [ano, mes] = mesReferencia.split("-");
     return (
       eventoData.getFullYear() === parseInt(ano) &&
@@ -151,7 +152,7 @@ export const AddFixedCostModal = ({
                   <SelectItem value="none">Nenhum evento</SelectItem>
                   {eventosDoMes.map((evento) => (
                     <SelectItem key={evento.id} value={evento.id}>
-                      {evento.motivo} - {new Date(evento.data).toLocaleDateString("pt-BR")}
+                      {evento.motivo} - {parseLocalDate(evento.data).toLocaleDateString("pt-BR")}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NotaFiscalFormData } from "@/types/notaFiscal";
 import { Evento } from "@/types/evento";
+import { parseLocalDate } from "@/lib/utils";
 
 interface ModalRegistrarNotaProps {
   open: boolean;
@@ -76,7 +77,7 @@ export function ModalRegistrarNota({ open, onOpenChange, eventos, onSave }: Moda
               <SelectContent>
                 {eventos.map((evento) => (
                   <SelectItem key={evento.id} value={evento.id}>
-                    {evento.motivo} - {evento.cliente.nome} ({new Date(evento.data).toLocaleDateString("pt-BR")})
+                    {evento.motivo} - {evento.cliente.nome} ({parseLocalDate(evento.data).toLocaleDateString("pt-BR")})
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -2,7 +2,7 @@ import { Calendar, MapPin, Users, DollarSign, Edit, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/evento";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -44,7 +44,7 @@ const cardapioLabels: Record<string, string> = {
 export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
   const config = statusConfig[evento.statusPagamento];
   
-  const dataFormatada = format(new Date(evento.data), "dd/MM/yyyy", { locale: ptBR });
+  const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
   
   return (
     <div className={cn(

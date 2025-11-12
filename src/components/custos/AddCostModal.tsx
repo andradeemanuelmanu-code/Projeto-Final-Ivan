@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { CustoFormData, TipoCusto } from "@/types/custo";
 
 interface AddCostModalProps {
@@ -119,14 +119,14 @@ export function AddCostModal({ open, onClose, onSave, eventoMotivo }: AddCostMod
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {formData.data
-                    ? format(new Date(formData.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                    ? format(parseLocalDate(formData.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
                     : "Selecione uma data"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={formData.data ? new Date(formData.data) : undefined}
+                  selected={formData.data ? parseLocalDate(formData.data) : undefined}
                   onSelect={(date) =>
                     setFormData({
                       ...formData,
