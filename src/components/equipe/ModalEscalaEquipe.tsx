@@ -12,13 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -63,14 +57,11 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     if (jaExiste) {
       setMembrosSelecionados(prev => prev.filter(m => m.membroId !== membroId));
     } else {
-      setMembrosSelecionados(prev => [...prev, { membroId, funcao: "auxiliar" }]);
+      const membro = membros.find(m => m.id === membroId);
+      if (membro) {
+        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao }]);
+      }
     }
-  };
-
-  const handleChangeFuncao = (membroId: string, funcao: FuncaoEquipe) => {
-    setMembrosSelecionados(prev =>
-      prev.map(m => m.membroId === membroId ? { ...m, funcao } : m)
-    );
   };
 
   const handleSave = () => {
@@ -95,7 +86,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
           <DialogDescription>
-            Selecione os membros da equipe e defina suas funções para este evento.
+            Selecione os membros da equipe para este evento. A função principal de cada um será atribuída automaticamente.
           </DialogDescription>
         </DialogHeader>
 
@@ -124,8 +115,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
             ) : (
               <div className="space-y-3">
                 {membros.map(membro => {
-                  const membroSelecionado = membrosSelecionados.find(m => m.membroId === membro.id);
-                  const isChecked = !!membroSelecionado;
+                  const isChecked = membrosSelecionados.some(m => m.membroId === membro.id);
 
                   return (
                     <div key={membro.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
@@ -140,21 +130,9 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                       </div>
 
                       {isChecked && (
-                        <Select
-                          value={membroSelecionado?.funcao}
-                          onValueChange={(value) => handleChangeFuncao(membro.id, value as FuncaoEquipe)}
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Função" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {FUNCOES.map(funcao => (
-                              <SelectItem key={funcao.value} value={funcao.value}>
-                                {funcao.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Badge variant="secondary" className="whitespace-nowrap">
+                          {FUNCOES.find(f => f.value === membro.funcao)?.label || membro.funcao}
+                        </Badge>
                       )}
                     </div>
                   );
