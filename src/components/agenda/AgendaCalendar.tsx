@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, addDays, isSameMonth, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { eventosStorage } from "@/lib/eventosStorage";
+import { escalasStorage, membrosStorage } from "@/lib/equipeStorage";
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
 import { cn, parseLocalDate } from "@/lib/utils";
@@ -42,6 +43,16 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   const loadEventos = () => {
     const loadedEventos = eventosStorage.getAllSorted();
     setEventos(loadedEventos);
+  };
+
+  const getEquipeNomes = (eventoId: string): string[] => {
+    const escala = escalasStorage.getByEventoId(eventoId);
+    if (!escala || escala.membros.length === 0) {
+      return [];
+    }
+    return escala.membros
+      .map(m => membrosStorage.getById(m.membroId)?.nome)
+      .filter((nome): nome is string => !!nome);
   };
 
   const handlePrevious = () => {
@@ -143,6 +154,56 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
     }
   };
 
+  const renderActionDialogContent = () => {
+    if (!selectedEvento) return null;
+    const equipeNomes = getEquipeNomes(selectedEvento.id);
+
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{selectedEvento.motivo}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <User size={16} className="text-muted-foreground" />
+              <span>{selectedEvento.cliente.nome}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-muted-foreground" />
+              <span>
+                {format(parseLocalDate(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                {" • "}
+                {selectedEvento.horario.inicio} - {selectedEvento.horario.termino}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} className="text-muted-foreground" />
+              <span className="text-xs">{selectedEvento.endereco}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard size={16} className="text-muted-foreground" />
+              <Badge variant="secondary" className={cn(statusConfig[selectedEvento.statusPagamento].textColor, statusConfig[selectedEvento.statusPagamento].bgLight)}>
+                {statusConfig[selectedEvento.statusPagamento].label}
+              </Badge>
+            </div>
+            <div className="flex items-start gap-2 pt-2 mt-2 border-t">
+              <Users size={16} className="text-muted-foreground mt-0.5" />
+              <div className="flex flex-col text-sm">
+                <span className="font-medium mb-1">Equipe Escalada</span>
+                {equipeNomes.length > 0 ? (
+                  <span className="text-muted-foreground">{equipeNomes.join(', ')}</span>
+                ) : (
+                  <span className="text-muted-foreground">Nenhuma equipe escalada</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   // Mobile: Lista cronológica
   if (isMobile) {
     const upcomingEventos = eventos
@@ -202,35 +263,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
         {/* Action Dialog */}
         <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{selectedEvento?.motivo}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-muted-foreground" />
-                  <span>{selectedEvento?.cliente.nome}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-muted-foreground" />
-                  <span>
-                    {selectedEvento && format(parseLocalDate(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                    {" • "}
-                    {selectedEvento?.horario.inicio} - {selectedEvento?.horario.termino}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-muted-foreground" />
-                  <span className="text-xs">{selectedEvento?.endereco}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CreditCard size={16} className="text-muted-foreground" />
-                  <Badge variant="secondary" className={cn(selectedEvento && statusConfig[selectedEvento.statusPagamento].textColor, selectedEvento && statusConfig[selectedEvento.statusPagamento].bgLight)}>
-                    {selectedEvento && statusConfig[selectedEvento.statusPagamento].label}
-                  </Badge>
-                </div>
-              </div>
-            </div>
+            {renderActionDialogContent()}
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button onClick={handleEdit} className="w-full sm:w-auto gap-2">
                 <Edit size={16} />
@@ -335,6 +368,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                       <div className="space-y-1">
                         {dayEventos.slice(0, 3).map(evento => {
                           const status = statusConfig[evento.statusPagamento];
+                          const equipeNomes = getEquipeNomes(evento.id);
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -370,6 +404,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <MapPin size={12} />
                                       <span>{evento.endereco}</span>
                                     </div>
+                                    {equipeNomes.length > 0 && (
+                                      <div className="flex items-start gap-1 pt-1 mt-1 border-t">
+                                        <Users size={12} className="mt-0.5" />
+                                        <span className="line-clamp-2">{equipeNomes.join(', ')}</span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </TooltipContent>
@@ -409,6 +449,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                       <div className="space-y-2">
                         {dayEventos.map(evento => {
                           const status = statusConfig[evento.statusPagamento];
+                          const equipeNomes = getEquipeNomes(evento.id);
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -442,6 +483,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <MapPin size={12} />
                                       <span>{evento.endereco}</span>
                                     </div>
+                                    {equipeNomes.length > 0 && (
+                                      <div className="flex items-start gap-1 pt-1 mt-1 border-t">
+                                        <Users size={12} className="mt-0.5" />
+                                        <span className="line-clamp-2">{equipeNomes.join(', ')}</span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </TooltipContent>
@@ -517,35 +564,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
         {/* Action Dialog */}
         <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{selectedEvento?.motivo}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-muted-foreground" />
-                  <span>{selectedEvento?.cliente.nome}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-muted-foreground" />
-                  <span>
-                    {selectedEvento && format(parseLocalDate(selectedEvento.data), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                    {" • "}
-                    {selectedEvento?.horario.inicio} - {selectedEvento?.horario.termino}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-muted-foreground" />
-                  <span className="text-xs">{selectedEvento?.endereco}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CreditCard size={16} className="text-muted-foreground" />
-                  <Badge variant="secondary" className={cn(selectedEvento && statusConfig[selectedEvento.statusPagamento].textColor, selectedEvento && statusConfig[selectedEvento.statusPagamento].bgLight)}>
-                    {selectedEvento && statusConfig[selectedEvento.statusPagamento].label}
-                  </Badge>
-                </div>
-              </div>
-            </div>
+            {renderActionDialogContent()}
             <DialogFooter>
               <Button onClick={handleEdit} className="gap-2">
                 <Edit size={16} />
