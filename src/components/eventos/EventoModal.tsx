@@ -51,6 +51,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
     horario: { inicio: "", termino: "" },
     endereco: "",
     valor: 0,
+    valorEntrada: 0,
     metodoPagamento: "pix",
     statusPagamento: "pending",
     observacoes: "",
@@ -68,6 +69,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
         horario: evento.horario,
         endereco: evento.endereco,
         valor: evento.valor,
+        valorEntrada: evento.valorEntrada || 0,
         metodoPagamento: evento.metodoPagamento,
         statusPagamento: evento.statusPagamento,
         observacoes: evento.observacoes,
@@ -83,6 +85,7 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
         horario: { inicio: "", termino: "" },
         endereco: "",
         valor: 0,
+        valorEntrada: 0,
         metodoPagamento: "pix",
         statusPagamento: "pending",
         observacoes: "",
@@ -125,6 +128,19 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
 
     const valueAsNumber = Number(numericString) / 100;
     setFormData(prev => ({ ...prev, valor: valueAsNumber }));
+  };
+
+  const handleValorEntradaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const numericString = rawValue.replace(/\D/g, "");
+
+    if (numericString === "") {
+      setFormData(prev => ({ ...prev, valorEntrada: 0 }));
+      return;
+    }
+
+    const valueAsNumber = Number(numericString) / 100;
+    setFormData(prev => ({ ...prev, valorEntrada: valueAsNumber }));
   };
 
   return (
@@ -324,6 +340,23 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
                   onChange={handleValorChange}
                   placeholder="R$ 0,00"
                   required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="valorEntrada">Valor de Entrada (Opcional)</Label>
+                <Input
+                  id="valorEntrada"
+                  type="text"
+                  value={
+                    formData.valorEntrada && formData.valorEntrada > 0
+                      ? new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(formData.valorEntrada)
+                      : ""
+                  }
+                  onChange={handleValorEntradaChange}
+                  placeholder="R$ 0,00"
                 />
               </div>
               <div className="space-y-2">

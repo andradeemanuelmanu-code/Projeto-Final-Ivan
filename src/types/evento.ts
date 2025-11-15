@@ -28,6 +28,7 @@ export interface Evento {
   };
   endereco: string;
   valor: number;
+  valorEntrada?: number; // Campo adicionado
   metodoPagamento: MetodoPagamento;
   statusPagamento: StatusPagamento;
   observacoes: string;
