@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Award, Plus, Equal } from "lucide-react";
 
 interface ModalMembroAvaliacaoProps {
   open: boolean;
@@ -32,29 +32,46 @@ export const ModalMembroAvaliacao = ({
 }: ModalMembroAvaliacaoProps) => {
   const [trabalho, setTrabalho] = useState<AvaliacaoTrabalho>("bom");
   const [pontualidade, setPontualidade] = useState<AvaliacaoPontualidade>("no-horario");
-  const [valor, setValor] = useState(0);
+  const [valorBase, setValorBase] = useState(0);
+  const [bonus, setBonus] = useState(0);
+  const [valorTotal, setValorTotal] = useState(0);
 
   useEffect(() => {
     if (open && avaliacaoExistente) {
+      // Se existe avaliação, não podemos deduzir o valor base, então usamos o valor total salvo.
+      // A lógica de bônus se aplica principalmente a novas avaliações.
       setTrabalho(avaliacaoExistente.trabalho);
       setPontualidade(avaliacaoExistente.pontualidade);
-      setValor(avaliacaoExistente.valorEscala);
+      setValorBase(avaliacaoExistente.valorEscala); // Assume que o valor salvo é o total
     } else if (open) {
+      // Reseta para uma nova avaliação
       setTrabalho("bom");
       setPontualidade("no-horario");
-      setValor(0);
+      setValorBase(0);
     }
   }, [open, avaliacaoExistente]);
+
+  useEffect(() => {
+    let bonusCalculado = 0;
+    if (trabalho === "excelente") {
+      bonusCalculado += 30;
+    }
+    if (pontualidade === "no-horario" || pontualidade === "adiantado") {
+      bonusCalculado += 30;
+    }
+    setBonus(bonusCalculado);
+    setValorTotal(valorBase + bonusCalculado);
+  }, [valorBase, trabalho, pontualidade]);
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const numericString = rawValue.replace(/\D/g, "");
     const valueAsNumber = numericString ? Number(numericString) / 100 : 0;
-    setValor(valueAsNumber);
+    setValorBase(valueAsNumber);
   };
 
   const handleSave = () => {
-    onSave(eventoId, membroId, trabalho, pontualidade, valor);
+    onSave(eventoId, membroId, trabalho, pontualidade, valorTotal);
     onOpenChange(false);
   };
 
@@ -68,16 +85,17 @@ export const ModalMembroAvaliacao = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Valor Base */}
           <div className="space-y-2">
-            <Label htmlFor="valorEscala">Valor da Escala (R$)</Label>
+            <Label htmlFor="valorBase">Valor Base da Escala (R$)</Label>
             <div className="relative">
               <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                id="valorEscala"
+                id="valorBase"
                 placeholder="0,00"
                 value={
-                  valor > 0
-                    ? new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2 }).format(valor)
+                  valorBase > 0
+                    ? new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2 }).format(valorBase)
                     : ""
                 }
                 onChange={handleValorChange}
@@ -86,6 +104,7 @@ export const ModalMembroAvaliacao = ({
             </div>
           </div>
 
+          {/* Avaliações */}
           <div className="space-y-2">
             <Label htmlFor="trabalho">Avaliação do Trabalho</Label>
             <Select value={trabalho} onValueChange={(value) => setTrabalho(value as AvaliacaoTrabalho)}>
@@ -96,7 +115,7 @@ export const ModalMembroAvaliacao = ({
                 <SelectItem value="ruim">Ruim</SelectItem>
                 <SelectItem value="razoavel">Razoável</SelectItem>
                 <SelectItem value="bom">Bom</SelectItem>
-                <SelectItem value="excelente">Excelente</SelectItem>
+                <SelectItem value="excelente">Excelente (+ R$ 30,00)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -109,10 +128,32 @@ export const ModalMembroAvaliacao = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="atrasado">Atrasado</SelectItem>
-                <SelectItem value="no-horario">No horário</SelectItem>
-                <SelectItem value="adiantado">Adiantado</SelectItem>
+                <SelectItem value="no-horario">No horário (+ R$ 30,00)</SelectItem>
+                <SelectItem value="adiantado">Adiantado (+ R$ 30,00)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Resumo Financeiro */}
+          <div className="space-y-3 pt-4 border-t">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Award size={16} />
+                <span>Bônus por Desempenho</span>
+              </div>
+              <span className="font-medium text-primary">
+                {bonus.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-lg font-semibold p-3 bg-muted rounded-md">
+              <div className="flex items-center gap-2">
+                <Equal size={18} />
+                <span>Valor Total a Pagar</span>
+              </div>
+              <span className="text-primary">
+                {valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
+            </div>
           </div>
         </div>
 
