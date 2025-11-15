@@ -21,9 +21,24 @@ interface AgendaCalendarProps {
 }
 
 const statusConfig = {
-  pending: { label: "Pendente", color: "bg-red-500", textColor: "text-red-700", bgLight: "bg-red-50" },
-  paid: { label: "Pago", color: "bg-green-500", textColor: "text-green-700", bgLight: "bg-green-50" },
-  quote: { label: "Orçamento", color: "bg-yellow-500", textColor: "text-yellow-700", bgLight: "bg-yellow-50" },
+  pending: { 
+    label: "Pendente", 
+    textColor: "text-destructive", 
+    bgLight: "bg-destructive/10",
+    borderColor: "border-destructive"
+  },
+  paid: { 
+    label: "Pago", 
+    textColor: "text-[hsl(var(--status-paid))]", 
+    bgLight: "bg-[hsl(var(--status-paid))/0.1]",
+    borderColor: "border-[hsl(var(--status-paid))]"
+  },
+  quote: { 
+    label: "Orçamento", 
+    textColor: "text-[hsl(var(--status-quote))]", 
+    bgLight: "bg-[hsl(var(--status-quote))/0.1]",
+    borderColor: "border-[hsl(var(--status-quote))]"
+  },
 };
 
 const FUNCAO_LABELS: Record<string, string> = {
@@ -251,8 +266,10 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
               return (
                 <Card
                   key={evento.id}
-                  className="p-4 cursor-pointer hover:shadow-md transition-shadow border-l-4"
-                  style={{ borderLeftColor: status.color.replace("bg-", "").replace("500", "") }}
+                  className={cn(
+                    "p-4 cursor-pointer hover:shadow-md transition-shadow border-l-4",
+                    status.borderColor
+                  )}
                   onClick={() => handleEventClick(evento)}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -396,9 +413,9 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                 <div
                                   className={cn(
                                     "text-xs px-2 py-1 rounded cursor-pointer truncate border-l-2 transition-all hover:shadow-md",
-                                    status.bgLight
+                                    status.bgLight,
+                                    status.borderColor
                                   )}
-                                  style={{ borderLeftColor: status.color.replace("bg-", "").replace("500", "") }}
                                   onClick={() => handleEventClick(evento)}
                                 >
                                   <div className="font-medium truncate">{evento.motivo}</div>
@@ -477,8 +494,11 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
                                 <Card
-                                  className={cn("p-2 cursor-pointer hover:shadow-md transition-shadow border-l-4", status.bgLight)}
-                                  style={{ borderLeftColor: status.color.replace("bg-", "").replace("500", "") }}
+                                  className={cn(
+                                    "p-2 cursor-pointer hover:shadow-md transition-shadow border-l-4", 
+                                    status.bgLight,
+                                    status.borderColor
+                                  )}
                                   onClick={() => handleEventClick(evento)}
                                 >
                                   <div className="text-xs font-medium truncate">{evento.motivo}</div>
@@ -550,8 +570,11 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                     return (
                       <Card
                         key={evento.id}
-                        className={cn("p-4 cursor-pointer hover:shadow-md transition-shadow border-l-4", status.bgLight)}
-                        style={{ borderLeftColor: status.color.replace("bg-", "").replace("500", "") }}
+                        className={cn(
+                          "p-4 cursor-pointer hover:shadow-md transition-shadow border-l-4", 
+                          status.bgLight,
+                          status.borderColor
+                        )}
                         onClick={() => handleEventClick(evento)}
                       >
                         <div className="space-y-2">
