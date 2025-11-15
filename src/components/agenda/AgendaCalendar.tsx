@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, addDays, isSameMonth, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2, Users, DollarSign, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +49,17 @@ const FUNCAO_LABELS: Record<string, string> = {
   garcom: "Garçom",
   barman: "Barman",
   maitre: "Maître",
+};
+
+const CARDAPIO_LABELS: Record<string, string> = {
+  "churrasco-tradicional": "Churrasco Tradicional",
+  "churrasco-prime": "Churrasco Prime",
+  "churrasco-vip": "Churrasco VIP",
+  "massas": "Massas",
+  "roda-boteco": "Roda de Boteco",
+  "coffee-break": "Coffee Break",
+  "evento-kids": "Evento Kids",
+  "jantar": "Jantar",
 };
 
 const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
@@ -189,6 +200,8 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   const renderActionDialogContent = () => {
     if (!selectedEvento) return null;
     const equipeInfo = getEquipeInfo(selectedEvento.id);
+    const cardapioFormatado = selectedEvento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+    const valorFormatado = selectedEvento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     return (
       <>
@@ -212,6 +225,14 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
             <div className="flex items-center gap-2">
               <MapPin size={16} className="text-muted-foreground" />
               <span className="text-xs">{selectedEvento.endereco}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign size={16} className="text-muted-foreground" />
+              <span>{valorFormatado}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <UtensilsCrossed size={16} className="text-muted-foreground mt-0.5" />
+              <span className="flex-1">{cardapioFormatado}</span>
             </div>
             <div className="flex items-center gap-2">
               <CreditCard size={16} className="text-muted-foreground" />
@@ -263,6 +284,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
           ) : (
             upcomingEventos.map(evento => {
               const status = statusConfig[evento.statusPagamento];
+              const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
               return (
                 <Card
                   key={evento.id}
@@ -288,6 +310,10 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         <div className="flex items-center gap-1">
                           <Clock size={12} />
                           <span>{format(parseLocalDate(evento.data), "d 'de' MMM", { locale: ptBR })} • {evento.horario.inicio}</span>
+                        </div>
+                        <div className="flex items-center gap-1 font-medium text-foreground">
+                          <DollarSign size={12} />
+                          <span>{valorFormatado}</span>
                         </div>
                       </div>
                     </div>
@@ -407,6 +433,8 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         {dayEventos.slice(0, 3).map(evento => {
                           const status = statusConfig[evento.statusPagamento];
                           const equipeInfo = getEquipeInfo(evento.id);
+                          const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                          const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -439,8 +467,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <span>{evento.horario.inicio} - {evento.horario.termino}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <MapPin size={12} />
-                                      <span>{evento.endereco}</span>
+                                      <DollarSign size={12} />
+                                      <span>{valorFormatado}</span>
+                                    </div>
+                                    <div className="flex items-start gap-1">
+                                      <UtensilsCrossed size={12} className="mt-0.5" />
+                                      <span className="flex-1">{cardapioFormatado}</span>
                                     </div>
                                     {equipeInfo.length > 0 && (
                                       <div className="flex items-start gap-1 pt-1 mt-1 border-t">
@@ -490,6 +522,8 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         {dayEventos.map(evento => {
                           const status = statusConfig[evento.statusPagamento];
                           const equipeInfo = getEquipeInfo(evento.id);
+                          const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                          const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -523,8 +557,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <span>{evento.horario.inicio} - {evento.horario.termino}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <MapPin size={12} />
-                                      <span>{evento.endereco}</span>
+                                      <DollarSign size={12} />
+                                      <span>{valorFormatado}</span>
+                                    </div>
+                                    <div className="flex items-start gap-1">
+                                      <UtensilsCrossed size={12} className="mt-0.5" />
+                                      <span className="flex-1">{cardapioFormatado}</span>
                                     </div>
                                     {equipeInfo.length > 0 && (
                                       <div className="flex items-start gap-1 pt-1 mt-1 border-t">
@@ -567,6 +605,8 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                 ) : (
                   getEventosForDate(currentDate).map(evento => {
                     const status = statusConfig[evento.statusPagamento];
+                    const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                    const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     return (
                       <Card
                         key={evento.id}
@@ -595,8 +635,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                               <span>{evento.cliente.nome}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <MapPin size={14} />
-                              <span>{evento.endereco}</span>
+                              <DollarSign size={14} />
+                              <span>{valorFormatado}</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <UtensilsCrossed size={14} className="mt-0.5" />
+                              <span className="flex-1">{cardapioFormatado}</span>
                             </div>
                           </div>
                         </div>
