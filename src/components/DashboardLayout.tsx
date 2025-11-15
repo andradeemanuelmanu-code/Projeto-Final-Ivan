@@ -1,8 +1,9 @@
 import { ReactNode, useState } from "react";
-import { Calendar, LayoutDashboard, Users, Settings, Menu, Bell, ChevronLeft, DollarSign, Receipt, Star, FileText, TrendingUp } from "lucide-react";
+import { Calendar, LayoutDashboard, Users, Settings, Menu, ChevronLeft, DollarSign, Receipt, Star, FileText, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -128,10 +129,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full" />
-            </Button>
+            <NotificationDropdown />
             <NavLink
               to="/configuracoes"
               activeClassName="text-primary bg-accent/10 rounded-lg"
