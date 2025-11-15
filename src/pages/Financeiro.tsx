@@ -13,14 +13,6 @@ import {
   Wallet,
   Users,
 } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
@@ -188,18 +180,6 @@ const Financeiro = () => {
       description="Acompanhe o desempenho financeiro do seu buffet"
     >
       <div className="space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Financeiro</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
         <div className="flex flex-col gap-4">
           <FiltroPeriodo
             mesReferencia={mesReferencia}

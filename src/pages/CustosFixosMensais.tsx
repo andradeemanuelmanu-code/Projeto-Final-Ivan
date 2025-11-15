@@ -11,14 +11,6 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -103,27 +95,6 @@ const CustosFixosMensais = () => {
       description="Gerencie os gastos mensais e acompanhe o histórico"
     >
       <div className="space-y-6">
-        {/* Breadcrumb */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/eventos">Eventos</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/agenda">Agenda</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Custos Fixos Mensais</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
           <Button onClick={() => setModalOpen(true)} className="bg-accent hover:bg-accent/90">
