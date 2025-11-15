@@ -49,6 +49,42 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
   const cardapioFormatado = evento.cardapio.map(c => cardapioLabels[c] || c).join(", ");
   const bebidasFormatadas = evento.bebidas.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(", ");
 
+  const renderValor = () => {
+    if (evento.statusPagamento === 'pending') {
+      const valorPago = evento.valorEntrada || 0;
+      const valorPendente = evento.valor - valorPago;
+
+      return (
+        <div className="flex flex-col items-start text-xs sm:text-sm">
+          <div className="flex items-center gap-1 text-green-600">
+            <span className="font-medium">Pago:</span>
+            <span className="font-semibold">
+              {valorPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-destructive">
+            <span className="font-medium">Pendente:</span>
+            <span className="font-semibold">
+              {valorPendente.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1 font-semibold text-foreground text-base sm:text-lg min-w-0">
+        <DollarSign size={16} className="flex-shrink-0" />
+        <span className="truncate">
+          {new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          }).format(evento.valor)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className={cn(
       "bg-card rounded-lg shadow-sm border-l-4 p-4 sm:p-5 transition-all duration-200",
@@ -95,15 +131,7 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
       </div>
 
       <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1 font-semibold text-foreground text-base sm:text-lg min-w-0">
-          <DollarSign size={16} className="flex-shrink-0" />
-          <span className="truncate">
-            {new Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            }).format(evento.valor)}
-          </span>
-        </div>
+        {renderValor()}
         
         <div className="flex gap-1 sm:gap-2 flex-shrink-0">
           <Button
