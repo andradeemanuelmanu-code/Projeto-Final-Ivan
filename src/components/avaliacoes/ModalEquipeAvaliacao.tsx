@@ -5,7 +5,7 @@ import { CheckCircle2, Clock } from "lucide-react";
 import { MembroEquipe } from "@/types/equipe";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { ModalMembroAvaliacao } from "./ModalMembroAvaliacao";
-import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
+import { AvaliacaoFormData } from "@/types/avaliacao";
 
 interface ModalEquipeAvaliacaoProps {
   open: boolean;
@@ -42,20 +42,8 @@ export const ModalEquipeAvaliacao = ({
     setModalMembroOpen(true);
   };
 
-  const handleSaveAvaliacao = (
-    eventoId: string,
-    membroId: string,
-    trabalho: AvaliacaoTrabalho,
-    pontualidade: AvaliacaoPontualidade,
-    valorEscala: number
-  ) => {
-    avaliacoesStorage.create({
-      eventoId,
-      membroId,
-      avaliacaoTrabalho: trabalho,
-      pontualidade,
-      valorEscala,
-    });
+  const handleSaveAvaliacao = (data: AvaliacaoFormData) => {
+    avaliacoesStorage.create(data);
     onAvaliacaoSaved();
   };
 
@@ -121,15 +109,7 @@ export const ModalEquipeAvaliacao = ({
           eventoId={eventoId}
           membroId={membroSelecionado.id}
           onSave={handleSaveAvaliacao}
-          avaliacaoExistente={
-            avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)
-              ? {
-                  trabalho: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.avaliacaoTrabalho,
-                  pontualidade: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.pontualidade,
-                  valorEscala: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.valorEscala,
-                }
-              : undefined
-          }
+          avaliacaoExistente={avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)}
         />
       )}
     </>

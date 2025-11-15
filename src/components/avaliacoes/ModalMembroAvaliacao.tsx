@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
-import { DollarSign, Award, Plus, Equal } from "lucide-react";
+import { Avaliacao, AvaliacaoTrabalho, AvaliacaoPontualidade, AvaliacaoFormData } from "@/types/avaliacao";
+import { DollarSign, Award, Equal } from "lucide-react";
 
 interface ModalMembroAvaliacaoProps {
   open: boolean;
@@ -13,12 +13,8 @@ interface ModalMembroAvaliacaoProps {
   membroNome: string;
   eventoId: string;
   membroId: string;
-  onSave: (eventoId: string, membroId: string, trabalho: AvaliacaoTrabalho, pontualidade: AvaliacaoPontualidade, valor: number) => void;
-  avaliacaoExistente?: {
-    trabalho: AvaliacaoTrabalho;
-    pontualidade: AvaliacaoPontualidade;
-    valorEscala: number;
-  };
+  onSave: (data: AvaliacaoFormData) => void;
+  avaliacaoExistente?: Avaliacao;
 }
 
 export const ModalMembroAvaliacao = ({
@@ -38,11 +34,9 @@ export const ModalMembroAvaliacao = ({
 
   useEffect(() => {
     if (open && avaliacaoExistente) {
-      // Se existe avaliação, não podemos deduzir o valor base, então usamos o valor total salvo.
-      // A lógica de bônus se aplica principalmente a novas avaliações.
-      setTrabalho(avaliacaoExistente.trabalho);
+      setTrabalho(avaliacaoExistente.avaliacaoTrabalho);
       setPontualidade(avaliacaoExistente.pontualidade);
-      setValorBase(avaliacaoExistente.valorEscala); // Assume que o valor salvo é o total
+      setValorBase(avaliacaoExistente.valorBase || 0);
     } else if (open) {
       // Reseta para uma nova avaliação
       setTrabalho("bom");
@@ -71,7 +65,15 @@ export const ModalMembroAvaliacao = ({
   };
 
   const handleSave = () => {
-    onSave(eventoId, membroId, trabalho, pontualidade, valorTotal);
+    onSave({
+      eventoId,
+      membroId,
+      avaliacaoTrabalho: trabalho,
+      pontualidade,
+      valorBase: valorBase,
+      valorBonus: bonus,
+      valorEscala: valorTotal,
+    });
     onOpenChange(false);
   };
 
