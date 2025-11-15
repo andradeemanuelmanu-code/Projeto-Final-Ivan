@@ -22,7 +22,6 @@ export interface MembroEquipeFormData extends Omit<MembroEquipe, "id" | "criadoE
 export interface MembroEscalado {
   membroId: string;
   funcao: FuncaoEquipe;
-  valor: number;
 }
 
 export interface EscalaEvento {

@@ -25,7 +25,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
 import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
-import { escalasStorage } from "@/lib/equipeStorage";
+import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { parseLocalDate } from "@/lib/utils";
 
 const Financeiro = () => {
@@ -39,7 +39,7 @@ const Financeiro = () => {
     const custos = custosStorage.getAll();
     const custosFixos = custosFixosStorage.getByMes(mesReferencia);
     const notas = notasFiscaisStorage.getAll();
-    const escalas = escalasStorage.getAll();
+    const avaliacoes = avaliacoesStorage.getAll();
 
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
@@ -61,10 +61,9 @@ const Financeiro = () => {
     const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
     const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
 
-    const custoEquipe = escalas
-      .filter(escala => eventosIds.includes(escala.eventoId))
-      .flatMap(escala => escala.membros)
-      .reduce((acc, membro) => acc + membro.valor, 0);
+    const custoEquipe = avaliacoes
+      .filter(av => eventosIds.includes(av.eventoId))
+      .reduce((acc, av) => acc + av.valorEscala, 0);
 
     const lucroLiquido = faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos - custoEquipe;
     const margemLucro = faturamentoTotal > 0 ? (lucroLiquido / faturamentoTotal) * 100 : 0;
@@ -91,7 +90,7 @@ const Financeiro = () => {
     const custos = custosStorage.getAll();
     const custosFixos = custosFixosStorage.getByMes(mesAnterior);
     const notas = notasFiscaisStorage.getAll();
-    const escalas = escalasStorage.getAll();
+    const avaliacoes = avaliacoesStorage.getAll();
 
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
@@ -113,10 +112,9 @@ const Financeiro = () => {
     const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
     const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
 
-    const custoEquipe = escalas
-      .filter(escala => eventosIds.includes(escala.eventoId))
-      .flatMap(escala => escala.membros)
-      .reduce((acc, membro) => acc + membro.valor, 0);
+    const custoEquipe = avaliacoes
+      .filter(av => eventosIds.includes(av.eventoId))
+      .reduce((acc, av) => acc + av.valorEscala, 0);
 
     const lucroLiquido = faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos - custoEquipe;
 
@@ -148,7 +146,7 @@ const Financeiro = () => {
       const custos = custosStorage.getAll();
       const custosFixos = custosFixosStorage.getByMes(mes);
       const notas = notasFiscaisStorage.getAll();
-      const escalas = escalasStorage.getAll();
+      const avaliacoes = avaliacoesStorage.getAll();
 
       const eventosMes = eventos.filter((evento) => {
         const eventoData = parseLocalDate(evento.data);
@@ -165,10 +163,9 @@ const Financeiro = () => {
         .filter((custo) => eventosIds.includes(custo.eventoId))
         .reduce((acc, custo) => acc + custo.valor, 0);
       
-      const custoEquipe = escalas
-        .filter(escala => eventosIds.includes(escala.eventoId))
-        .flatMap(escala => escala.membros)
-        .reduce((acc, membro) => acc + membro.valor, 0);
+      const custoEquipe = avaliacoes
+        .filter(av => eventosIds.includes(av.eventoId))
+        .reduce((acc, av) => acc + av.valorEscala, 0);
 
       const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
       const impostos = notas.filter(n => eventosIds.includes(n.eventoId)).reduce((acc, nota) => acc + nota.valorImposto, 0);

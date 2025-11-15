@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock } from "lucide-react";
 import { MembroEquipe } from "@/types/equipe";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
-import { escalasStorage } from "@/lib/equipeStorage";
 import { ModalMembroAvaliacao } from "./ModalMembroAvaliacao";
 import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
 
@@ -38,8 +37,6 @@ export const ModalEquipeAvaliacao = ({
   const [membroSelecionado, setMembroSelecionado] = useState<MembroEquipe | null>(null);
   const [modalMembroOpen, setModalMembroOpen] = useState(false);
 
-  const escala = escalasStorage.getByEventoId(eventoId);
-
   const handleMembroClick = (membro: MembroEquipe) => {
     setMembroSelecionado(membro);
     setModalMembroOpen(true);
@@ -49,19 +46,17 @@ export const ModalEquipeAvaliacao = ({
     eventoId: string,
     membroId: string,
     trabalho: AvaliacaoTrabalho,
-    pontualidade: AvaliacaoPontualidade
+    pontualidade: AvaliacaoPontualidade,
+    valorEscala: number
   ) => {
     avaliacoesStorage.create({
       eventoId,
       membroId,
       avaliacaoTrabalho: trabalho,
       pontualidade,
+      valorEscala,
     });
     onAvaliacaoSaved();
-  };
-
-  const getValorEscala = (membroId: string) => {
-    return escala?.membros.find(m => m.membroId === membroId)?.valor;
   };
 
   return (
@@ -126,12 +121,12 @@ export const ModalEquipeAvaliacao = ({
           eventoId={eventoId}
           membroId={membroSelecionado.id}
           onSave={handleSaveAvaliacao}
-          valorEscala={getValorEscala(membroSelecionado.id)}
           avaliacaoExistente={
             avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)
               ? {
                   trabalho: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.avaliacaoTrabalho,
                   pontualidade: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.pontualidade,
+                  valorEscala: avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)!.valorEscala,
                 }
               : undefined
           }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Evento } from "@/types/evento";
-import { FuncaoEquipe, MembroEscalado } from "@/types/equipe";
+import { MembroEscalado } from "@/types/equipe";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -48,18 +47,9 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     } else {
       const membro = membros.find(m => m.id === membroId);
       if (membro) {
-        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao, valor: 0 }]);
+        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao }]);
       }
     }
-  };
-
-  const handleValorChange = (membroId: string, valorString: string) => {
-    const numericString = valorString.replace(/\D/g, "");
-    const valor = numericString ? Number(numericString) / 100 : 0;
-
-    setMembrosSelecionados(prev => 
-      prev.map(m => m.membroId === membroId ? { ...m, valor } : m)
-    );
   };
 
   const handleSave = () => {
@@ -84,7 +74,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
           <DialogDescription>
-            Selecione os membros e defina o valor da escala para este evento.
+            Selecione os membros para este evento.
           </DialogDescription>
         </DialogHeader>
 
@@ -110,8 +100,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
             ) : (
               <div className="space-y-3">
                 {membros.map(membro => {
-                  const selecionado = membrosSelecionados.find(m => m.membroId === membro.id);
-                  const isChecked = !!selecionado;
+                  const isChecked = !!membrosSelecionados.find(m => m.membroId === membro.id);
 
                   return (
                     <div key={membro.id} className="p-3 border rounded-lg hover:bg-muted/30 transition-colors">
@@ -124,21 +113,6 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                           <p className="font-medium truncate">{membro.nome}</p>
                           <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
                         </div>
-                        {isChecked && (
-                          <div className="w-40">
-                            <Label htmlFor={`valor-${membro.id}`} className="text-xs">Valor (R$)</Label>
-                            <Input
-                              id={`valor-${membro.id}`}
-                              placeholder="R$ 0,00"
-                              value={
-                                selecionado.valor > 0
-                                  ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(selecionado.valor)
-                                  : ""
-                              }
-                              onChange={(e) => handleValorChange(membro.id, e.target.value)}
-                            />
-                          </div>
-                        )}
                       </div>
                     </div>
                   );

@@ -7,6 +7,7 @@ export interface Avaliacao {
   membroId: string;
   avaliacaoTrabalho: AvaliacaoTrabalho;
   pontualidade: AvaliacaoPontualidade;
+  valorEscala: number;
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -16,4 +17,5 @@ export interface AvaliacaoFormData {
   membroId: string;
   avaliacaoTrabalho: AvaliacaoTrabalho;
   pontualidade: AvaliacaoPontualidade;
+  valorEscala: number;
 }
