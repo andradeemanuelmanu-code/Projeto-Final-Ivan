@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, DollarSign, Edit, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Edit, Trash2, UtensilsCrossed, GlassWater } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/evento";
@@ -46,6 +46,9 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
   
   const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
   
+  const cardapioFormatado = evento.cardapio.map(c => cardapioLabels[c] || c).join(", ");
+  const bebidasFormatadas = evento.bebidas.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(", ");
+
   return (
     <div className={cn(
       "bg-card rounded-lg shadow-sm border-l-4 p-4 sm:p-5 transition-all duration-200",
@@ -77,6 +80,18 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
           <Users size={14} className="flex-shrink-0" />
           <span>{evento.convidados} convidados</span>
         </div>
+        {cardapioFormatado && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <UtensilsCrossed size={14} className="flex-shrink-0" />
+            <span className="line-clamp-1">{cardapioFormatado}</span>
+          </div>
+        )}
+        {bebidasFormatadas && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <GlassWater size={14} className="flex-shrink-0" />
+            <span className="line-clamp-1">{bebidasFormatadas}</span>
+          </div>
+        )}
       </div>
 
       <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
