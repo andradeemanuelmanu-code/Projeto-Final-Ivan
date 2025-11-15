@@ -24,9 +24,11 @@ export function CostItem({ custo }: CostItemProps) {
     currency: "BRL",
   });
 
-  const dataFormatada = format(parseLocalDate(custo.data), "dd/MM/yyyy", {
-    locale: ptBR,
-  });
+  const dataFormatada = custo.data
+    ? format(parseLocalDate(custo.data), "dd/MM/yyyy", {
+        locale: ptBR,
+      })
+    : "Data não informada";
 
   return (
     <div className="flex items-start justify-between gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50">
