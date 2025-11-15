@@ -19,21 +19,21 @@ export interface MembroEquipe {
 
 export interface MembroEquipeFormData extends Omit<MembroEquipe, "id" | "criadoEm" | "atualizadoEm"> {}
 
+export interface MembroEscalado {
+  membroId: string;
+  funcao: FuncaoEquipe;
+  valor: number;
+}
+
 export interface EscalaEvento {
   id: string;
   eventoId: string;
-  membros: {
-    membroId: string;
-    funcao: FuncaoEquipe;
-  }[];
+  membros: MembroEscalado[];
   criadoEm: string;
   atualizadoEm: string;
 }
 
 export interface EscalaEventoFormData {
   eventoId: string;
-  membros: {
-    membroId: string;
-    funcao: FuncaoEquipe;
-  }[];
+  membros: MembroEscalado[];
 }

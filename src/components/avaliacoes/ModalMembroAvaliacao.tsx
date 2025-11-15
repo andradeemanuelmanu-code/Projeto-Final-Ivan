@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
+import { DollarSign } from "lucide-react";
 
 interface ModalMembroAvaliacaoProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface ModalMembroAvaliacaoProps {
   eventoId: string;
   membroId: string;
   onSave: (eventoId: string, membroId: string, trabalho: AvaliacaoTrabalho, pontualidade: AvaliacaoPontualidade) => void;
+  valorEscala?: number;
   avaliacaoExistente?: {
     trabalho: AvaliacaoTrabalho;
     pontualidade: AvaliacaoPontualidade;
@@ -25,6 +27,7 @@ export const ModalMembroAvaliacao = ({
   eventoId,
   membroId,
   onSave,
+  valorEscala,
   avaliacaoExistente,
 }: ModalMembroAvaliacaoProps) => {
   const [trabalho, setTrabalho] = useState<AvaliacaoTrabalho>(avaliacaoExistente?.trabalho || "bom");
@@ -45,6 +48,19 @@ export const ModalMembroAvaliacao = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Valor da Escala */}
+          {valorEscala !== undefined && (
+            <div className="flex items-center justify-between p-3 bg-muted rounded-md">
+              <div className="flex items-center gap-2">
+                <DollarSign size={16} className="text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">Valor da Escala</span>
+              </div>
+              <span className="font-semibold text-lg text-primary">
+                {valorEscala.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
+            </div>
+          )}
+
           {/* Avaliação do Trabalho */}
           <div className="space-y-2">
             <Label htmlFor="trabalho">Avaliação do Trabalho</Label>

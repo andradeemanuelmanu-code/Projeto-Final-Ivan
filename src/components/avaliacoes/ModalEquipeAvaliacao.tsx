@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock } from "lucide-react";
 import { MembroEquipe } from "@/types/equipe";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
+import { escalasStorage } from "@/lib/equipeStorage";
 import { ModalMembroAvaliacao } from "./ModalMembroAvaliacao";
 import { AvaliacaoTrabalho, AvaliacaoPontualidade } from "@/types/avaliacao";
 
@@ -37,6 +38,8 @@ export const ModalEquipeAvaliacao = ({
   const [membroSelecionado, setMembroSelecionado] = useState<MembroEquipe | null>(null);
   const [modalMembroOpen, setModalMembroOpen] = useState(false);
 
+  const escala = escalasStorage.getByEventoId(eventoId);
+
   const handleMembroClick = (membro: MembroEquipe) => {
     setMembroSelecionado(membro);
     setModalMembroOpen(true);
@@ -57,6 +60,10 @@ export const ModalEquipeAvaliacao = ({
     onAvaliacaoSaved();
   };
 
+  const getValorEscala = (membroId: string) => {
+    return escala?.membros.find(m => m.membroId === membroId)?.valor;
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -75,8 +82,6 @@ export const ModalEquipeAvaliacao = ({
             ) : (
               membros.map((membro) => {
                 const isAvaliado = avaliacoesStorage.isMembroAvaliado(membro.id, eventoId);
-                const avaliacao = avaliacoesStorage.getByMembroAndEvento(membro.id, eventoId);
-
                 return (
                   <Button
                     key={membro.id}
@@ -121,6 +126,7 @@ export const ModalEquipeAvaliacao = ({
           eventoId={eventoId}
           membroId={membroSelecionado.id}
           onSave={handleSaveAvaliacao}
+          valorEscala={getValorEscala(membroSelecionado.id)}
           avaliacaoExistente={
             avaliacoesStorage.getByMembroAndEvento(membroSelecionado.id, eventoId)
               ? {

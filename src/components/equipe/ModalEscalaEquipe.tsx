@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Evento } from "@/types/evento";
-import { FuncaoEquipe } from "@/types/equipe";
+import { FuncaoEquipe, MembroEscalado } from "@/types/equipe";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,23 +25,12 @@ interface ModalEscalaEquipeProps {
   onSave: () => void;
 }
 
-const FUNCOES: { value: FuncaoEquipe; label: string }[] = [
-  { value: "cozinheira", label: "Cozinheira" },
-  { value: "ajudante-cozinheira", label: "Ajudante de Cozinheira" },
-  { value: "churrasqueiro", label: "Churrasqueiro" },
-  { value: "ajudante-churrasqueiro", label: "Ajudante de Churrasqueiro" },
-  { value: "garcom", label: "Garçom" },
-  { value: "barman", label: "Barman" },
-  { value: "maitre", label: "Maître" },
-];
-
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
-  const [membrosSelecionados, setMembrosSelecionados] = useState<{ membroId: string; funcao: FuncaoEquipe }[]>([]);
+  const [membrosSelecionados, setMembrosSelecionados] = useState<MembroEscalado[]>([]);
   const membros = membrosStorage.getAll();
 
   useEffect(() => {
     if (evento && open) {
-      // Carregar escala existente se houver
       const escalaExistente = escalasStorage.getByEventoId(evento.id);
       if (escalaExistente) {
         setMembrosSelecionados(escalaExistente.membros);
@@ -59,9 +48,18 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     } else {
       const membro = membros.find(m => m.id === membroId);
       if (membro) {
-        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao }]);
+        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao, valor: 0 }]);
       }
     }
+  };
+
+  const handleValorChange = (membroId: string, valorString: string) => {
+    const numericString = valorString.replace(/\D/g, "");
+    const valor = numericString ? Number(numericString) / 100 : 0;
+
+    setMembrosSelecionados(prev => 
+      prev.map(m => m.membroId === membroId ? { ...m, valor } : m)
+    );
   };
 
   const handleSave = () => {
@@ -86,12 +84,11 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
           <DialogDescription>
-            Selecione os membros da equipe para este evento. A função principal de cada um será atribuída automaticamente.
+            Selecione os membros e defina o valor da escala para este evento.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Informações do Evento */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div>
               <Label className="text-muted-foreground text-xs">Evento</Label>
@@ -103,37 +100,46 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
             </div>
           </div>
 
-          {/* Lista de Membros */}
           <div className="space-y-4">
             <Label className="text-base font-display">Equipe Designada</Label>
             
             {membros.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <p>Nenhum membro cadastrado.</p>
-                <p className="text-sm">Cadastre membros na seção "Membros da Equipe" abaixo.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {membros.map(membro => {
-                  const isChecked = membrosSelecionados.some(m => m.membroId === membro.id);
+                  const selecionado = membrosSelecionados.find(m => m.membroId === membro.id);
+                  const isChecked = !!selecionado;
 
                   return (
-                    <div key={membro.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                      <Checkbox
-                        checked={isChecked}
-                        onCheckedChange={() => handleToggleMembro(membro.id)}
-                      />
-                      
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{membro.nome}</p>
-                        <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
+                    <div key={membro.id} className="p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => handleToggleMembro(membro.id)}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{membro.nome}</p>
+                          <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
+                        </div>
+                        {isChecked && (
+                          <div className="w-40">
+                            <Label htmlFor={`valor-${membro.id}`} className="text-xs">Valor (R$)</Label>
+                            <Input
+                              id={`valor-${membro.id}`}
+                              placeholder="R$ 0,00"
+                              value={
+                                selecionado.valor > 0
+                                  ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(selecionado.valor)
+                                  : ""
+                              }
+                              onChange={(e) => handleValorChange(membro.id, e.target.value)}
+                            />
+                          </div>
+                        )}
                       </div>
-
-                      {isChecked && (
-                        <Badge variant="secondary" className="whitespace-nowrap">
-                          {FUNCOES.find(f => f.value === membro.funcao)?.label || membro.funcao}
-                        </Badge>
-                      )}
                     </div>
                   );
                 })}
@@ -149,7 +155,6 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
           <Button 
             onClick={handleSave}
             className="bg-[#C44536] hover:bg-[#C44536]/90"
-            disabled={membrosSelecionados.length === 0}
           >
             Salvar Escala
           </Button>

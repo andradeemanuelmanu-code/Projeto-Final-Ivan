@@ -11,6 +11,7 @@ import {
   Percent,
   Receipt,
   Wallet,
+  Users,
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -24,6 +25,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
 import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
+import { escalasStorage } from "@/lib/equipeStorage";
 import { parseLocalDate } from "@/lib/utils";
 
 const Financeiro = () => {
@@ -37,52 +39,35 @@ const Financeiro = () => {
     const custos = custosStorage.getAll();
     const custosFixos = custosFixosStorage.getByMes(mesReferencia);
     const notas = notasFiscaisStorage.getAll();
+    const escalas = escalasStorage.getAll();
 
-    // Filtrar eventos do mês
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       return eventoMes === mesReferencia;
     });
+    const eventosIds = eventosMes.map((e) => e.id);
 
-    // Calcular faturamento total (apenas eventos pagos)
     const faturamentoTotal = eventosMes
       .filter(evento => evento.statusPagamento === 'paid')
       .reduce((acc, evento) => acc + evento.valor, 0);
 
-    // Calcular custos variáveis (custos por evento)
-    const eventosIds = eventosMes.map((e) => e.id);
     const custosVariaveis = custos
       .filter((custo) => eventosIds.includes(custo.eventoId))
       .reduce((acc, custo) => acc + custo.valor, 0);
 
-    // Calcular custos fixos
-    const totalCustosFixos = custosFixos.reduce(
-      (acc, custo) => acc + custo.valor,
-      0
-    );
+    const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
 
-    // Calcular impostos
-    const notasMes = notas.filter((nota) => {
-      const evento = eventos.find((e) => e.id === nota.eventoId);
-      if (!evento) return false;
-      const eventoData = parseLocalDate(evento.data);
-      const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-      return eventoMes === mesReferencia;
-    });
+    const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
+    const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
 
-    const totalImpostos = notasMes.reduce(
-      (acc, nota) => acc + nota.valorImposto,
-      0
-    );
+    const custoEquipe = escalas
+      .filter(escala => eventosIds.includes(escala.eventoId))
+      .flatMap(escala => escala.membros)
+      .reduce((acc, membro) => acc + membro.valor, 0);
 
-    // Calcular lucro líquido
-    const lucroLiquido =
-      faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos;
-
-    // Calcular margem de lucro
-    const margemLucro =
-      faturamentoTotal > 0 ? (lucroLiquido / faturamentoTotal) * 100 : 0;
+    const lucroLiquido = faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos - custoEquipe;
+    const margemLucro = faturamentoTotal > 0 ? (lucroLiquido / faturamentoTotal) * 100 : 0;
 
     return {
       totalEventos: eventosMes.length,
@@ -90,6 +75,7 @@ const Financeiro = () => {
       custosVariaveis,
       custosFixos: totalCustosFixos,
       impostos: totalImpostos,
+      custoEquipe,
       lucroLiquido,
       margemLucro,
     };
@@ -105,50 +91,38 @@ const Financeiro = () => {
     const custos = custosStorage.getAll();
     const custosFixos = custosFixosStorage.getByMes(mesAnterior);
     const notas = notasFiscaisStorage.getAll();
+    const escalas = escalasStorage.getAll();
 
     const eventosMes = eventos.filter((evento) => {
       const eventoData = parseLocalDate(evento.data);
       const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
       return eventoMes === mesAnterior;
     });
+    const eventosIds = eventosMes.map((e) => e.id);
 
     const faturamentoTotal = eventosMes
       .filter(evento => evento.statusPagamento === 'paid')
       .reduce((acc, evento) => acc + evento.valor, 0);
 
-    const eventosIds = eventosMes.map((e) => e.id);
     const custosVariaveis = custos
       .filter((custo) => eventosIds.includes(custo.eventoId))
       .reduce((acc, custo) => acc + custo.valor, 0);
 
-    const totalCustosFixos = custosFixos.reduce(
-      (acc, custo) => acc + custo.valor,
-      0
-    );
+    const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
 
-    const notasMes = notas.filter((nota) => {
-      const evento = eventos.find((e) => e.id === nota.eventoId);
-      if (!evento) return false;
-      const eventoData = parseLocalDate(evento.data);
-      const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-      return eventoMes === mesAnterior;
-    });
+    const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
+    const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
 
-    const totalImpostos = notasMes.reduce(
-      (acc, nota) => acc + nota.valorImposto,
-      0
-    );
+    const custoEquipe = escalas
+      .filter(escala => eventosIds.includes(escala.eventoId))
+      .flatMap(escala => escala.membros)
+      .reduce((acc, membro) => acc + membro.valor, 0);
 
-    const lucroLiquido =
-      faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos;
+    const lucroLiquido = faturamentoTotal - custosVariaveis - totalCustosFixos - totalImpostos - custoEquipe;
 
-    return {
-      lucroLiquido,
-      faturamentoTotal,
-    };
+    return { lucroLiquido, faturamentoTotal, custoEquipe };
   }, [mesReferencia]);
 
-  // Calcular tendências
   const calcularTendencia = (valorAtual: number, valorAnterior: number) => {
     if (valorAnterior === 0) {
       return { valor: "N/A", positiva: valorAtual > 0 };
@@ -160,7 +134,6 @@ const Financeiro = () => {
     };
   };
 
-  // Dados para gráficos (últimos 6 meses)
   const dadosGraficos = useMemo(() => {
     const hoje = new Date();
     const dadosLinha = [];
@@ -175,63 +148,41 @@ const Financeiro = () => {
       const custos = custosStorage.getAll();
       const custosFixos = custosFixosStorage.getByMes(mes);
       const notas = notasFiscaisStorage.getAll();
+      const escalas = escalasStorage.getAll();
 
       const eventosMes = eventos.filter((evento) => {
         const eventoData = parseLocalDate(evento.data);
         const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
         return eventoMes === mes;
       });
+      const eventosIds = eventosMes.map((e) => e.id);
 
       const faturamento = eventosMes
         .filter(evento => evento.statusPagamento === 'paid')
         .reduce((acc, evento) => acc + evento.valor, 0);
 
-      const eventosIds = eventosMes.map((e) => e.id);
-      const custosVariaveis = custos
+      const custosVariaveisEvento = custos
         .filter((custo) => eventosIds.includes(custo.eventoId))
         .reduce((acc, custo) => acc + custo.valor, 0);
+      
+      const custoEquipe = escalas
+        .filter(escala => eventosIds.includes(escala.eventoId))
+        .flatMap(escala => escala.membros)
+        .reduce((acc, membro) => acc + membro.valor, 0);
 
-      const totalCustosFixos = custosFixos.reduce(
-        (acc, custo) => acc + custo.valor,
-        0
-      );
+      const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
+      const impostos = notas.filter(n => eventosIds.includes(n.eventoId)).reduce((acc, nota) => acc + nota.valorImposto, 0);
+      const lucro = faturamento - custosVariaveisEvento - custoEquipe - totalCustosFixos - impostos;
 
-      const notasMes = notas.filter((nota) => {
-        const evento = eventos.find((e) => e.id === nota.eventoId);
-        if (!evento) return false;
-        const eventoData = parseLocalDate(evento.data);
-        const eventoMes = `${eventoData.getFullYear()}-${String(eventoData.getMonth() + 1).padStart(2, "0")}`;
-        return eventoMes === mes;
-      });
-
-      const impostos = notasMes.reduce(
-        (acc, nota) => acc + nota.valorImposto,
-        0
-      );
-
-      const lucro = faturamento - custosVariaveis - totalCustosFixos - impostos;
-
-      dadosLinha.push({
-        mes: mesLabel,
-        faturamento,
-        lucro,
-      });
-
-      dadosBarras.push({
-        mes: mesLabel,
-        custosFixos: totalCustosFixos,
-        custosVariaveis,
-      });
+      dadosLinha.push({ mes: mesLabel, faturamento, lucro });
+      dadosBarras.push({ mes: mesLabel, custosFixos: totalCustosFixos, custosVariaveis: custosVariaveisEvento + custoEquipe });
     }
 
     return { dadosLinha, dadosBarras };
   }, []);
 
   const formatarMoeda = (valor: number) => {
-    return valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
 
   return (
@@ -240,7 +191,6 @@ const Financeiro = () => {
       description="Acompanhe o desempenho financeiro do seu buffet"
     >
       <div className="space-y-6">
-        {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -253,70 +203,62 @@ const Financeiro = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
         <div className="flex flex-col gap-4">
-          {/* Filtro de Período */}
           <FiltroPeriodo
             mesReferencia={mesReferencia}
             onMesChange={setMesReferencia}
           />
         </div>
 
-        {/* Cards de Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ResumoFinanceiroCard
-            titulo="Total de Eventos"
-            valor={dadosMes.totalEventos}
-            subtitulo="Eventos no período"
-            icon={Calendar}
-          />
-
           <ResumoFinanceiroCard
             titulo="Faturamento Total"
             valor={formatarMoeda(dadosMes.faturamentoTotal)}
             subtitulo="Receita de eventos pagos"
             icon={DollarSign}
-            tendencia={calcularTendencia(
-              dadosMes.faturamentoTotal,
-              dadosMesAnterior.faturamentoTotal
-            )}
+            tendencia={calcularTendencia(dadosMes.faturamentoTotal, dadosMesAnterior.faturamentoTotal)}
           />
-
           <ResumoFinanceiroCard
             titulo="Lucro Líquido"
             valor={formatarMoeda(dadosMes.lucroLiquido)}
             subtitulo="Após custos e impostos"
             icon={dadosMes.lucroLiquido >= 0 ? TrendingUp : TrendingDown}
-            tendencia={calcularTendencia(
-              dadosMes.lucroLiquido,
-              dadosMesAnterior.lucroLiquido
-            )}
+            tendencia={calcularTendencia(dadosMes.lucroLiquido, dadosMesAnterior.lucroLiquido)}
           />
-
           <ResumoFinanceiroCard
             titulo="Margem de Lucro"
             valor={`${dadosMes.margemLucro.toFixed(1)}%`}
             subtitulo="Sobre faturamento"
             icon={Percent}
           />
+          <ResumoFinanceiroCard
+            titulo="Total de Eventos"
+            valor={dadosMes.totalEventos}
+            subtitulo="Eventos no período"
+            icon={Calendar}
+          />
         </div>
 
-        {/* Cards de Custos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ResumoFinanceiroCard
             titulo="Custos Variáveis"
             valor={formatarMoeda(dadosMes.custosVariaveis)}
             subtitulo="Custos por evento"
             icon={Receipt}
           />
-
+          <ResumoFinanceiroCard
+            titulo="Custo com Equipe"
+            valor={formatarMoeda(dadosMes.custoEquipe)}
+            subtitulo="Pagamento da equipe"
+            icon={Users}
+            tendencia={calcularTendencia(dadosMes.custoEquipe, dadosMesAnterior.custoEquipe)}
+          />
           <ResumoFinanceiroCard
             titulo="Custos Fixos"
             valor={formatarMoeda(dadosMes.custosFixos)}
             subtitulo="Despesas mensais"
             icon={Wallet}
           />
-
           <ResumoFinanceiroCard
             titulo="Impostos"
             valor={formatarMoeda(dadosMes.impostos)}
@@ -325,7 +267,6 @@ const Financeiro = () => {
           />
         </div>
 
-        {/* Gráficos */}
         <GraficoEvolucao
           dadosLinha={dadosGraficos.dadosLinha}
           dadosBarras={dadosGraficos.dadosBarras}
