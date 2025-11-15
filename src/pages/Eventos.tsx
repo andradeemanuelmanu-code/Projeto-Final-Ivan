@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ListPlus } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { EventoCard } from "@/components/eventos/EventoCard";
 import { EventoModal } from "@/components/eventos/EventoModal";
+import { GerenciarOpcoesModal } from "@/components/eventos/GerenciarOpcoesModal";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { Evento, EventoFormData } from "@/types/evento";
 import { toast } from "@/hooks/use-toast";
@@ -21,6 +22,7 @@ import {
 const Eventos = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [gerenciarOpcoesOpen, setGerenciarOpcoesOpen] = useState(false);
   const [eventoEditando, setEventoEditando] = useState<Evento | undefined>();
   const [eventoParaDeletar, setEventoParaDeletar] = useState<string | null>(null);
 
@@ -86,7 +88,15 @@ const Eventos = () => {
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-end">
+        <div className="flex flex-col gap-4 sm:gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <Button
+            onClick={() => setGerenciarOpcoesOpen(true)}
+            variant="outline"
+            className="hidden sm:flex"
+          >
+            <ListPlus size={20} className="mr-2" />
+            Gerenciar Opções
+          </Button>
           <Button
             onClick={handleNovoEvento}
             className="bg-primary hover:bg-primary/90 font-medium hidden sm:flex"
@@ -133,6 +143,12 @@ const Eventos = () => {
           }}
           onSave={handleSalvar}
           evento={eventoEditando}
+        />
+
+        {/* Modal de Gerenciamento de Opções */}
+        <GerenciarOpcoesModal
+          open={gerenciarOpcoesOpen}
+          onOpenChange={setGerenciarOpcoesOpen}
         />
 
         {/* Dialog de Confirmação de Exclusão */}

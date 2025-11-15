@@ -1,14 +1,6 @@
 export type StatusPagamento = "pending" | "quote" | "paid";
 export type MetodoPagamento = "pix" | "credito" | "debito" | "boleto";
-export type TipoCardapio = 
-  | "churrasco-tradicional"
-  | "churrasco-prime"
-  | "churrasco-vip"
-  | "massas"
-  | "roda-boteco"
-  | "coffee-break"
-  | "evento-kids"
-  | "jantar";
+export type TipoCardapio = string; // Alterado para string para permitir opções dinâmicas
 
 export interface Evento {
   id: string;

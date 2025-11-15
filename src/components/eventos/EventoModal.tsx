@@ -17,7 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Evento, EventoFormData, TipoCardapio, MetodoPagamento, StatusPagamento } from "@/types/evento";
+import { Evento, EventoFormData, MetodoPagamento, StatusPagamento } from "@/types/evento";
+import { Opcao } from "@/types/opcoes";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EventoModalProps {
@@ -26,19 +28,6 @@ interface EventoModalProps {
   onSave: (data: EventoFormData) => void;
   evento?: Evento;
 }
-
-const cardapioOptions: { value: TipoCardapio; label: string }[] = [
-  { value: "churrasco-tradicional", label: "Churrasco Tradicional" },
-  { value: "churrasco-prime", label: "Churrasco Prime" },
-  { value: "churrasco-vip", label: "Churrasco VIP" },
-  { value: "massas", label: "Massas" },
-  { value: "roda-boteco", label: "Roda de Boteco" },
-  { value: "coffee-break", label: "Coffee Break" },
-  { value: "evento-kids", label: "Evento Kids" },
-  { value: "jantar", label: "Jantar" },
-];
-
-const bebidasOptions = ["Água", "Refrigerante", "Suco", "Cerveja", "Vinho"];
 
 export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps) => {
   const [formData, setFormData] = useState<EventoFormData>({
@@ -57,39 +46,47 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
     observacoes: "",
   });
 
+  const [cardapioOptions, setCardapioOptions] = useState<Opcao[]>([]);
+  const [bebidasOptions, setBebidasOptions] = useState<Opcao[]>([]);
+
   useEffect(() => {
-    if (evento) {
-      setFormData({
-        motivo: evento.motivo,
-        cliente: evento.cliente,
-        data: evento.data,
-        convidados: evento.convidados,
-        cardapio: evento.cardapio,
-        bebidas: evento.bebidas,
-        horario: evento.horario,
-        endereco: evento.endereco,
-        valor: evento.valor,
-        valorEntrada: evento.valorEntrada || 0,
-        metodoPagamento: evento.metodoPagamento,
-        statusPagamento: evento.statusPagamento,
-        observacoes: evento.observacoes,
-      });
-    } else {
-      setFormData({
-        motivo: "",
-        cliente: { nome: "", celular: "", email: "" },
-        data: "",
-        convidados: 0,
-        cardapio: [],
-        bebidas: [],
-        horario: { inicio: "", termino: "" },
-        endereco: "",
-        valor: 0,
-        valorEntrada: 0,
-        metodoPagamento: "pix",
-        statusPagamento: "pending",
-        observacoes: "",
-      });
+    if (open) {
+      setCardapioOptions(opcoesStorage.getCardapioOptions());
+      setBebidasOptions(opcoesStorage.getBebidasOptions());
+
+      if (evento) {
+        setFormData({
+          motivo: evento.motivo,
+          cliente: evento.cliente,
+          data: evento.data,
+          convidados: evento.convidados,
+          cardapio: evento.cardapio,
+          bebidas: evento.bebidas,
+          horario: evento.horario,
+          endereco: evento.endereco,
+          valor: evento.valor,
+          valorEntrada: evento.valorEntrada || 0,
+          metodoPagamento: evento.metodoPagamento,
+          statusPagamento: evento.statusPagamento,
+          observacoes: evento.observacoes,
+        });
+      } else {
+        setFormData({
+          motivo: "",
+          cliente: { nome: "", celular: "", email: "" },
+          data: "",
+          convidados: 0,
+          cardapio: [],
+          bebidas: [],
+          horario: { inicio: "", termino: "" },
+          endereco: "",
+          valor: 0,
+          valorEntrada: 0,
+          metodoPagamento: "pix",
+          statusPagamento: "pending",
+          observacoes: "",
+        });
+      }
     }
   }, [evento, open]);
 
@@ -99,21 +96,21 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
     onClose();
   };
 
-  const toggleCardapio = (item: TipoCardapio) => {
+  const toggleCardapio = (itemValue: string) => {
     setFormData(prev => ({
       ...prev,
-      cardapio: prev.cardapio.includes(item)
-        ? prev.cardapio.filter(i => i !== item)
-        : [...prev.cardapio, item]
+      cardapio: prev.cardapio.includes(itemValue)
+        ? prev.cardapio.filter(i => i !== itemValue)
+        : [...prev.cardapio, itemValue]
     }));
   };
 
-  const toggleBebida = (bebida: string) => {
+  const toggleBebida = (bebidaValue: string) => {
     setFormData(prev => ({
       ...prev,
-      bebidas: prev.bebidas.includes(bebida)
-        ? prev.bebidas.filter(b => b !== bebida)
-        : [...prev.bebidas, bebida]
+      bebidas: prev.bebidas.includes(bebidaValue)
+        ? prev.bebidas.filter(b => b !== bebidaValue)
+        : [...prev.bebidas, bebidaValue]
     }));
   };
 
@@ -263,17 +260,17 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
               <Label>Bebidas</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {bebidasOptions.map(bebida => (
-                  <div key={bebida} className="flex items-center space-x-2">
+                  <div key={bebida.value} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`bebida-${bebida}`}
-                      checked={formData.bebidas.includes(bebida)}
-                      onCheckedChange={() => toggleBebida(bebida)}
+                      id={`bebida-${bebida.value}`}
+                      checked={formData.bebidas.includes(bebida.value)}
+                      onCheckedChange={() => toggleBebida(bebida.value)}
                     />
                     <label
-                      htmlFor={`bebida-${bebida}`}
+                      htmlFor={`bebida-${bebida.value}`}
                       className="text-sm cursor-pointer"
                     >
-                      {bebida}
+                      {bebida.label}
                     </label>
                   </div>
                 ))}
