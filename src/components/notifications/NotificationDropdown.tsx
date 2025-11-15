@@ -49,28 +49,36 @@ export const NotificationDropdown = () => {
         <Separator />
         {notifications.length > 0 ? (
           <div className="max-h-96 overflow-y-auto">
-            {notifications.map(evento => (
-              <Link
-                key={evento.id}
-                to="/eventos"
-                className="block p-4 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-5 h-5 text-primary" />
+            {notifications.map(evento => {
+              const valorRestante = evento.valor - (evento.valorEntrada || 0);
+              const temEntrada = evento.valorEntrada && evento.valorEntrada > 0;
+
+              return (
+                <Link
+                  key={evento.id}
+                  to="/eventos"
+                  className="block p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <DollarSign className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm truncate">{evento.motivo}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(parseLocalDate(evento.data), { locale: ptBR, addSuffix: true })}
+                      </p>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        {temEntrada && <span className="text-xs text-muted-foreground">Restante:</span>}
+                        <p className="text-sm font-semibold text-primary">
+                          {valorRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm truncate">{evento.motivo}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(parseLocalDate(evento.data), { locale: ptBR, addSuffix: true })}
-                    </p>
-                    <p className="text-sm font-semibold text-primary mt-1">
-                      {evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="p-8 text-center">
