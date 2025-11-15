@@ -26,6 +26,16 @@ const statusConfig = {
   quote: { label: "Orçamento", color: "bg-yellow-500", textColor: "text-yellow-700", bgLight: "bg-yellow-50" },
 };
 
+const FUNCAO_LABELS: Record<string, string> = {
+  cozinheira: "Cozinheira",
+  "ajudante-cozinheira": "Ajudante de Cozinheira",
+  churrasqueiro: "Churrasqueiro",
+  "ajudante-churrasqueiro": "Ajudante de Churrasqueiro",
+  garcom: "Garçom",
+  barman: "Barman",
+  maitre: "Maître",
+};
+
 const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -45,14 +55,21 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
     setEventos(loadedEventos);
   };
 
-  const getEquipeNomes = (eventoId: string): string[] => {
+  const getEquipeInfo = (eventoId: string): string[] => {
     const escala = escalasStorage.getByEventoId(eventoId);
     if (!escala || escala.membros.length === 0) {
       return [];
     }
     return escala.membros
-      .map(m => membrosStorage.getById(m.membroId)?.nome)
-      .filter((nome): nome is string => !!nome);
+      .map(membroEscalado => {
+        const membro = membrosStorage.getById(membroEscalado.membroId);
+        if (membro) {
+          const funcaoLabel = FUNCAO_LABELS[membroEscalado.funcao] || membroEscalado.funcao;
+          return `${membro.nome} - ${funcaoLabel}`;
+        }
+        return null;
+      })
+      .filter((info): info is string => !!info);
   };
 
   const handlePrevious = () => {
@@ -156,7 +173,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
 
   const renderActionDialogContent = () => {
     if (!selectedEvento) return null;
-    const equipeNomes = getEquipeNomes(selectedEvento.id);
+    const equipeInfo = getEquipeInfo(selectedEvento.id);
 
     return (
       <>
@@ -191,8 +208,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
               <Users size={16} className="text-muted-foreground mt-0.5" />
               <div className="flex flex-col text-sm">
                 <span className="font-medium mb-1">Equipe Escalada</span>
-                {equipeNomes.length > 0 ? (
-                  <span className="text-muted-foreground">{equipeNomes.join(', ')}</span>
+                {equipeInfo.length > 0 ? (
+                  <div className="text-muted-foreground flex flex-col">
+                    {equipeInfo.map((info, index) => (
+                      <span key={index}>{info}</span>
+                    ))}
+                  </div>
                 ) : (
                   <span className="text-muted-foreground">Nenhuma equipe escalada</span>
                 )}
@@ -368,7 +389,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                       <div className="space-y-1">
                         {dayEventos.slice(0, 3).map(evento => {
                           const status = statusConfig[evento.statusPagamento];
-                          const equipeNomes = getEquipeNomes(evento.id);
+                          const equipeInfo = getEquipeInfo(evento.id);
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -404,10 +425,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <MapPin size={12} />
                                       <span>{evento.endereco}</span>
                                     </div>
-                                    {equipeNomes.length > 0 && (
+                                    {equipeInfo.length > 0 && (
                                       <div className="flex items-start gap-1 pt-1 mt-1 border-t">
                                         <Users size={12} className="mt-0.5" />
-                                        <span className="line-clamp-2">{equipeNomes.join(', ')}</span>
+                                        <div className="flex flex-col">
+                                          {equipeInfo.map((info, i) => <span key={i}>{info}</span>)}
+                                        </div>
                                       </div>
                                     )}
                                   </div>
@@ -449,7 +472,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                       <div className="space-y-2">
                         {dayEventos.map(evento => {
                           const status = statusConfig[evento.statusPagamento];
-                          const equipeNomes = getEquipeNomes(evento.id);
+                          const equipeInfo = getEquipeInfo(evento.id);
                           return (
                             <Tooltip key={evento.id}>
                               <TooltipTrigger asChild>
@@ -483,10 +506,12 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                                       <MapPin size={12} />
                                       <span>{evento.endereco}</span>
                                     </div>
-                                    {equipeNomes.length > 0 && (
+                                    {equipeInfo.length > 0 && (
                                       <div className="flex items-start gap-1 pt-1 mt-1 border-t">
                                         <Users size={12} className="mt-0.5" />
-                                        <span className="line-clamp-2">{equipeNomes.join(', ')}</span>
+                                        <div className="flex flex-col">
+                                          {equipeInfo.map((info, i) => <span key={i}>{info}</span>)}
+                                        </div>
                                       </div>
                                     )}
                                   </div>
