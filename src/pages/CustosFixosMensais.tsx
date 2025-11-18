@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { AddFixedCostModal } from "@/components/custos-fixos/AddFixedCostModal";
-import { FixedCostCard } from "@/components/custos-fixos/FixedCostCard";
+import { TabelaCustosFixos } from "@/components/custos-fixos/TabelaCustosFixos";
 import { MonthSelector } from "@/components/custos-fixos/MonthSelector";
 import { HistoricoMeses } from "@/components/custos-fixos/HistoricoMeses";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
@@ -30,8 +30,10 @@ const CustosFixosMensais = () => {
 
   // Mês atual como padrão
   const mesAtual = new Date();
-  const mesReferenciaInicial = `${mesAtual.getFullYear()}-${String(mesAtual.getMonth() + 1).padStart(2, "0")}`;
-  
+  const mesReferenciaInicial = `${mesAtual.getFullYear()}-${String(
+    mesAtual.getMonth() + 1,
+  ).padStart(2, "0")}`;
+
   const [mesReferencia, setMesReferencia] = useState(mesReferenciaInicial);
   const [custos, setCustos] = useState(custosFixosStorage.getByMes(mesReferencia));
   const [eventos, setEventos] = useState(eventosStorage.getAll());
@@ -77,7 +79,7 @@ const CustosFixosMensais = () => {
       custosFixosStorage.delete(custoToDelete);
       setCustos(custosFixosStorage.getByMes(mesReferencia));
       setHistorico(custosFixosStorage.getHistoricoMeses(3));
-      
+
       toast({
         title: "Custo excluído",
         description: "O custo fixo foi removido com sucesso.",
@@ -108,59 +110,31 @@ const CustosFixosMensais = () => {
           <MonthSelector value={mesReferencia} onChange={setMesReferencia} />
         </div>
 
-        {/* Lista de Custos */}
+        {/* Tabela de Custos */}
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-lg" />
-            ))}
-          </div>
-        ) : custos.length === 0 ? (
-          <div className="bg-card border border-border rounded-lg p-12 text-center">
-            <p className="text-muted-foreground text-lg">
-              Nenhum custo fixo registrado para este mês.
-            </p>
-            <Button
-              onClick={() => setModalOpen(true)}
-              variant="outline"
-              className="mt-4"
-            >
-              <Plus size={20} />
-              Adicionar Primeiro Gasto
-            </Button>
-          </div>
+          <Skeleton className="h-64 w-full rounded-lg" />
         ) : (
           <>
-            <div className="space-y-3">
-              {custos.map((custo) => {
-                const evento = custo.eventoId
-                  ? eventos.find((e) => e.id === custo.eventoId)
-                  : undefined;
-                return (
-                  <FixedCostCard
-                    key={custo.id}
-                    custo={custo}
-                    evento={evento}
-                    onDelete={handleDelete}
-                  />
-                );
-              })}
-            </div>
-
-            {/* Total do Mês */}
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
-              <div className="flex items-center justify-between">
-                <span className="font-display text-lg font-semibold text-foreground">
-                  Total do Mês
-                </span>
-                <span className="font-display text-2xl font-bold text-primary">
-                  {totalMes.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </span>
+            <TabelaCustosFixos
+              custos={custos}
+              eventos={eventos}
+              onDelete={handleDelete}
+            />
+            {custos.length > 0 && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-lg font-semibold text-foreground">
+                    Total do Mês
+                  </span>
+                  <span className="font-display text-2xl font-bold text-primary">
+                    {totalMes.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
 
@@ -187,7 +161,10 @@ const CustosFixosMensais = () => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-destructive hover:bg-destructive/90"
+              >
                 Excluir
               </AlertDialogAction>
             </AlertDialogFooter>
