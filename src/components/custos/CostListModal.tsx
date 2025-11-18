@@ -51,9 +51,9 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 py-4">
           {custos.length > 0 ? (
-            <ScrollArea className="h-72 rounded-md border">
+            <ScrollArea className="h-full rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -80,7 +80,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
               </Table>
             </ScrollArea>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center h-full">
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-8 text-center h-full">
               <Receipt className="h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">Nenhum Gasto Registrado</h3>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -91,7 +91,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
         </div>
 
         {custos.length > 0 && (
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-muted p-4">
+          <div className="flex items-center justify-between rounded-lg bg-muted p-4">
             <span className="font-semibold text-muted-foreground">Total de Gastos</span>
             <span className="font-bold text-xl text-foreground">
               {totalGastos.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
