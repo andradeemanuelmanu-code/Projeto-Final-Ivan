@@ -34,7 +34,7 @@ import { MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Users, Calendar } from "lucide-react";
+import { Pencil, Trash2, Users, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const FUNCOES_LABEL: Record<string, string> = {
@@ -96,11 +96,6 @@ export default function Equipe() {
       description: "A equipe foi designada para o evento.",
     });
     loadData();
-  };
-
-  const handleAddMembro = () => {
-    setMembroSelecionado(null);
-    setModalMembroOpen(true);
   };
 
   const handleEditMembro = (membro: MembroEquipe) => {
@@ -197,13 +192,6 @@ export default function Equipe() {
               <Users className="text-primary" size={24} />
               <h2 className="font-display font-semibold text-2xl text-foreground">Membros da Equipe</h2>
             </div>
-            <Button
-              onClick={handleAddMembro}
-              className="bg-[#C44536] hover:bg-[#C44536]/90"
-            >
-              <Plus size={20} />
-              Adicionar Membro
-            </Button>
           </div>
 
           {loading ? (
