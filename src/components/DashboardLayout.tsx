@@ -13,7 +13,6 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children, title, description }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, url: "/" },
@@ -28,32 +27,23 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
   ];
 
   const handleNavClick = () => {
+    // Em telas pequenas, recolhe o menu ao clicar em um item
     if (window.innerWidth < 1024) {
-      setMobileMenuOpen(false);
+      setSidebarCollapsed(true);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex w-full">
-      {/* Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-
       {/* Sidebar */}
       <aside
         className={cn(
-          "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
-          "fixed top-0 left-0 h-screen z-50",
-          "lg:sticky lg:z-auto",
-          sidebarCollapsed ? "w-20" : "w-72",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col z-40",
+          "h-screen sticky top-0",
+          sidebarCollapsed ? "w-20" : "w-72"
         )}
       >
-        {/* Logo */}
+        {/* Logo e Botão de Toggle */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border">
           {!sidebarCollapsed && (
             <h1 className="font-display font-bold text-xl text-sidebar-foreground">
@@ -64,7 +54,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hover:bg-sidebar-accent hidden lg:flex"
+            className="hover:bg-sidebar-accent"
           >
             {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </Button>
@@ -110,14 +100,6 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
         {/* Header */}
         <header className="h-20 border-b border-border bg-card flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden"
-            >
-              <Menu size={20} />
-            </Button>
             <div>
               <h2 className="font-display font-semibold text-xl sm:text-2xl text-foreground">
                 {title || "Dashboard"}
