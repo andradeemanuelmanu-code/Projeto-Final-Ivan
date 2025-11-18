@@ -1,6 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Evento } from "@/types/evento";
 import { Custo, TipoCusto } from "@/types/custo";
 import { Receipt } from "lucide-react";
@@ -51,9 +50,9 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 py-4">
+        <div className="flex-1 min-h-0 overflow-y-auto py-4">
           {custos.length > 0 ? (
-            <ScrollArea className="h-full rounded-md border">
+            <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -78,7 +77,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-8 text-center h-full">
               <Receipt className="h-12 w-12 text-muted-foreground" />
