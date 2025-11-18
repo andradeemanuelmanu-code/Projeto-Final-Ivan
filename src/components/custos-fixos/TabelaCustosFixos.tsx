@@ -1,11 +1,3 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustoFixo } from "@/types/custoFixo";
@@ -47,34 +39,56 @@ export const TabelaCustosFixos = ({ custos, eventos, onDelete }: TabelaCustosFix
   }
 
   return (
-    <div className="relative max-h-[500px] overflow-y-auto rounded-lg border">
-      <Table>
-        <TableHeader className="sticky top-0 z-10 bg-card shadow-sm">
-          <TableRow>
-            <TableHead className="w-[40%]">Descrição</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Evento Associado</TableHead>
-            <TableHead className="text-right">Valor</TableHead>
-            <TableHead className="w-[100px] text-center">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <div className="md:border md:rounded-lg">
+      {/* Header for Desktop */}
+      <div className="hidden md:grid md:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-2 border-b font-medium text-muted-foreground bg-muted/50">
+        <div className="text-left">Descrição</div>
+        <div className="text-left">Tipo</div>
+        <div className="text-left">Evento Associado</div>
+        <div className="text-right">Valor</div>
+        <div className="text-center">Ações</div>
+      </div>
+
+      {/* Scrollable container */}
+      <div className="max-h-[500px] overflow-y-auto">
+        <div className="space-y-4 p-4 md:p-0 md:space-y-0">
           {custos.map((custo) => (
-            <TableRow key={custo.id}>
-              <TableCell className="font-medium">{custo.descricao}</TableCell>
-              <TableCell>
+            <div
+              key={custo.id}
+              className="p-4 border rounded-lg 
+                         md:p-0 md:border-0 md:rounded-none 
+                         md:grid md:grid-cols-[2fr_1fr_1fr_1fr_auto] md:gap-4 md:items-center 
+                         md:px-4 md:py-3 md:border-t first:md:border-t-0"
+            >
+              {/* Coluna 1: Descrição e Valor (Mobile) */}
+              <div className="flex justify-between items-start md:block">
+                <div className="font-medium md:font-normal pr-2">{custo.descricao}</div>
+                <div className="md:hidden font-semibold text-lg shrink-0">
+                  {custo.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </div>
+              </div>
+
+              {/* Coluna 2: Tipo */}
+              <div className="flex justify-between items-center mt-2 md:mt-0">
+                <span className="md:hidden text-sm text-muted-foreground">Tipo</span>
                 <Badge variant="outline">{tiposGastoLabels[custo.tipo] || "N/A"}</Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {getEventoNome(custo.eventoId)}
-              </TableCell>
-              <TableCell className="text-right font-semibold">
-                {custo.valor.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-              </TableCell>
-              <TableCell className="text-center">
+              </div>
+
+              {/* Coluna 3: Evento */}
+              <div className="flex justify-between items-center mt-1 md:mt-0">
+                <span className="md:hidden text-sm text-muted-foreground">Evento</span>
+                <span className="text-sm text-right md:text-left text-muted-foreground">
+                  {getEventoNome(custo.eventoId)}
+                </span>
+              </div>
+
+              {/* Coluna 4: Valor (Desktop) */}
+              <div className="hidden md:block text-right font-semibold">
+                {custo.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </div>
+
+              {/* Coluna 5: Ações */}
+              <div className="flex justify-end mt-2 md:mt-0 md:justify-center">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -83,11 +97,11 @@ export const TabelaCustosFixos = ({ custos, eventos, onDelete }: TabelaCustosFix
                 >
                   <Trash2 size={18} />
                 </Button>
-              </TableCell>
-            </TableRow>
+              </div>
+            </div>
           ))}
-        </TableBody>
-      </Table>
+        </div>
+      </div>
     </div>
   );
 };
