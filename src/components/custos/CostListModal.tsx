@@ -54,7 +54,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           {custos.length > 0 ? (
             <div className="rounded-md border">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 z-10 bg-card">
                   <TableRow>
                     <TableHead>Descrição</TableHead>
                     <TableHead className="hidden md:table-cell">Tipo</TableHead>
