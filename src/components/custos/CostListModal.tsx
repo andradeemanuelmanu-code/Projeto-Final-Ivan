@@ -2,9 +2,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Evento } from "@/types/evento";
-import { Custo } from "@/types/custo";
-import { CostItem } from "./CostItem";
+import { Custo, TipoCusto } from "@/types/custo";
 import { Receipt } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 
 interface CostListModalProps {
   open: boolean;
@@ -13,6 +23,16 @@ interface CostListModalProps {
   evento: Evento | null;
   custos: Custo[];
 }
+
+const tipoCustoLabels: Record<TipoCusto, string> = {
+  ingredientes: "Ingredientes",
+  carvao: "Carvão",
+  mercado: "Mercado",
+  bebidas: "Bebidas",
+  descartaveis: "Descartáveis",
+  transporte: "Transporte",
+  locacao: "Locação",
+};
 
 export function CostListModal({ open, onClose, onAddCost, evento, custos }: CostListModalProps) {
   if (!evento) return null;
@@ -33,19 +53,40 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
 
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full pr-4">
-            <div className="space-y-3">
-              {custos.length > 0 ? (
-                custos.map((custo) => <CostItem key={custo.id} custo={custo} />)
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
-                  <Receipt className="h-12 w-12 text-muted-foreground" />
-                  <h3 className="mt-4 text-lg font-semibold">Nenhum Gasto Registrado</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Clique em "Adicionar Gasto" para começar.
-                  </p>
-                </div>
-              )}
-            </div>
+            {custos.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead className="hidden md:table-cell">Tipo</TableHead>
+                    <TableHead className="hidden md:table-cell">Data</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {custos.map((custo) => (
+                    <TableRow key={custo.id}>
+                      <TableCell className="font-medium">{custo.descricao}</TableCell>
+                      <TableCell className="hidden md:table-cell">{tipoCustoLabels[custo.tipo] || "Outro"}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {custo.data ? format(parseLocalDate(custo.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {custo.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
+                <Receipt className="h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Nenhum Gasto Registrado</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Clique em "Adicionar Gasto" para começar.
+                </p>
+              </div>
+            )}
           </ScrollArea>
         </div>
 
