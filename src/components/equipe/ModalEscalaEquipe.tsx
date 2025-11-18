@@ -9,19 +9,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate } from "@/lib/utils";
+import { Users } from "lucide-react";
+import { ModalSelecaoFuncao } from "./ModalSelecaoFuncao";
 
 interface ModalEscalaEquipeProps {
   open: boolean;
@@ -42,6 +38,9 @@ const FUNCAO_LABELS: Record<FuncaoEquipe, string> = {
 
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
   const [membrosSelecionados, setMembrosSelecionados] = useState<MembroEscalado[]>([]);
+  const [modalFuncaoOpen, setModalFuncaoOpen] = useState(false);
+  const [funcaoSelecionada, setFuncaoSelecionada] = useState<FuncaoEquipe | null>(null);
+  
   const membros = useMemo(() => membrosStorage.getAll(), []);
 
   const membrosAgrupados = useMemo(() => {
@@ -58,35 +57,30 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   useEffect(() => {
     if (evento && open) {
       const escalaExistente = escalasStorage.getByEventoId(evento.id);
-      if (escalaExistente) {
-        setMembrosSelecionados(escalaExistente.membros);
-      } else {
-        setMembrosSelecionados([]);
-      }
+      setMembrosSelecionados(escalaExistente ? escalaExistente.membros : []);
     }
   }, [evento, open]);
 
-  const handleToggleMembro = (membroId: string) => {
-    const jaExiste = membrosSelecionados.find(m => m.membroId === membroId);
-    
-    if (jaExiste) {
-      setMembrosSelecionados(prev => prev.filter(m => m.membroId !== membroId));
-    } else {
-      const membro = membros.find(m => m.id === membroId);
-      if (membro) {
-        setMembrosSelecionados(prev => [...prev, { membroId, funcao: membro.funcao }]);
-      }
-    }
+  const handleAbrirModalFuncao = (funcao: FuncaoEquipe) => {
+    setFuncaoSelecionada(funcao);
+    setModalFuncaoOpen(true);
+  };
+
+  const handleSalvarSelecaoFuncao = (novosMembrosIds: string[]) => {
+    if (!funcaoSelecionada) return;
+
+    const outrosMembros = membrosSelecionados.filter(m => m.funcao !== funcaoSelecionada);
+    const novosMembrosParaFuncao = novosMembrosIds.map(id => ({
+      membroId: id,
+      funcao: funcaoSelecionada,
+    }));
+
+    setMembrosSelecionados([...outrosMembros, ...novosMembrosParaFuncao]);
   };
 
   const handleSave = () => {
     if (!evento) return;
-
-    escalasStorage.create({
-      eventoId: evento.id,
-      membros: membrosSelecionados,
-    });
-
+    escalasStorage.create({ eventoId: evento.id, membros: membrosSelecionados });
     onSave();
     onOpenChange(false);
   };
@@ -96,80 +90,81 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   const dataFormatada = format(parseLocalDate(evento.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
-          <DialogDescription>
-            Selecione os membros para este evento.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
+            <DialogDescription>
+              Clique em uma função para selecionar os membros para este evento.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div>
-              <Label className="text-muted-foreground text-xs">Evento</Label>
-              <p className="font-medium">{evento.motivo}</p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground text-xs">Data</Label>
-              <p className="font-medium">{dataFormatada}</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label className="text-base font-display">Equipe Designada</Label>
-            
-            {membros.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>Nenhum membro cadastrado.</p>
+          <div className="space-y-6 py-4">
+            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+              <div>
+                <Label className="text-muted-foreground text-xs">Evento</Label>
+                <p className="font-medium">{evento.motivo}</p>
               </div>
-            ) : (
-              <Accordion type="multiple" className="w-full" defaultValue={Object.keys(FUNCAO_LABELS)}>
-                {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => (
-                  <AccordionItem value={funcao} key={funcao}>
-                    <AccordionTrigger className="font-medium">
-                      {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao} ({membrosDoGrupo.length})
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 pl-2">
-                        {membrosDoGrupo.map(membro => {
-                          const isChecked = !!membrosSelecionados.find(m => m.membroId === membro.id);
-                          return (
-                            <div key={membro.id} className="flex items-center gap-4 p-2 rounded-md hover:bg-muted/50">
-                              <Checkbox
-                                id={`membro-${membro.id}`}
-                                checked={isChecked}
-                                onCheckedChange={() => handleToggleMembro(membro.id)}
-                              />
-                              <Label htmlFor={`membro-${membro.id}`} className="flex-1 min-w-0 cursor-pointer">
-                                <p className="font-medium truncate">{membro.nome}</p>
-                                <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
-                              </Label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
-          </div>
-        </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Data</Label>
+                <p className="font-medium">{dataFormatada}</p>
+              </div>
+            </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleSave}
-            className="bg-[#C44536] hover:bg-[#C44536]/90"
-          >
-            Salvar Escala
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => {
+                const selecionadosNestaFuncao = membrosSelecionados.filter(m => m.funcao === funcao).length;
+                return (
+                  <Card
+                    key={funcao}
+                    className="cursor-pointer hover:shadow-md hover:border-primary transition-all"
+                    onClick={() => handleAbrirModalFuncao(funcao as FuncaoEquipe)}
+                  >
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Users size={20} className="text-primary" />
+                        {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">
+                        {selecionadosNestaFuncao}
+                        <span className="text-base font-normal text-muted-foreground">
+                          {" "}
+                          / {membrosDoGrupo.length} selecionados
+                        </span>
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} className="bg-[#C44536] hover:bg-[#C44536]/90">
+              Salvar Escala
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {funcaoSelecionada && (
+        <ModalSelecaoFuncao
+          open={modalFuncaoOpen}
+          onOpenChange={setModalFuncaoOpen}
+          funcaoLabel={FUNCAO_LABELS[funcaoSelecionada]}
+          membrosDaFuncao={membrosAgrupados[funcaoSelecionada] || []}
+          membrosJaSelecionados={membrosSelecionados
+            .filter(m => m.funcao === funcaoSelecionada)
+            .map(m => m.membroId)}
+          onSaveSelecao={handleSalvarSelecaoFuncao}
+        />
+      )}
+    </>
   );
 };
