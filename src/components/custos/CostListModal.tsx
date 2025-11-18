@@ -50,9 +50,9 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-y-auto py-4">
+        <div className="flex-1 min-h-0 py-4 flex flex-col">
           {custos.length > 0 ? (
-            <div className="rounded-md border">
+            <div className="relative flex-1 overflow-y-auto rounded-md border">
               <Table>
                 <TableHeader className="sticky top-0 z-10 bg-card">
                   <TableRow>
