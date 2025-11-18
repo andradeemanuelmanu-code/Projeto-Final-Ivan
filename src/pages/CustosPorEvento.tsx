@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { EventCostCard } from "@/components/custos/EventCostCard";
+import { AddCostModal } from "@/components/custos/AddCostModal";
 import { CostListModal } from "@/components/custos/CostListModal";
 import { ExecutedEventsList } from "@/components/custos/ExecutedEventsList";
 import { Button } from "@/components/ui/button";
@@ -14,29 +15,26 @@ import { parseLocalDate } from "@/lib/utils";
 import { CustoFormData } from "@/types/custo";
 
 export default function CustosPorEvento() {
-  const [eventos, setEventos] = useState(() => eventosStorage.getAllSorted());
+  const [eventos] = useState(() => eventosStorage.getAllSorted());
   const [isLoading] = useState(false);
   const [showAllEventsModal, setShowAllEventsModal] = useState(false);
-  const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
-  const [isCostModalOpen, setIsCostModalOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    setEventos(eventosStorage.getAllSorted());
-  }, [refreshKey]);
+  // --- State Management Refatorado ---
+  const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
+  const [modalView, setModalView] = useState<'list' | 'add' | null>(null);
 
   const eventosFuturos = useMemo(
-    () => eventos.filter(evento => parseLocalDate(evento.data) >= new Date()),
+    () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
     [eventos]
   );
 
   const eventosComCustos = useMemo(
     () =>
-      eventosFuturos.map(evento => ({
+      eventosFuturos.map((evento) => ({
         evento,
         hasCosts: custosStorage.hasEventoCosts(evento.id),
       })),
-    [eventosFuturos, refreshKey]
+    [eventosFuturos]
   );
 
   const eventosSorted = useMemo(
@@ -51,14 +49,19 @@ export default function CustosPorEvento() {
   const firstEightEvents = eventosSorted.slice(0, 8);
   const remainingEvents = eventosSorted.slice(8);
 
+  // --- Funções de Manipulação de Modais Refatoradas ---
   const handleCardClick = (eventoId: string) => {
     setSelectedEventoId(eventoId);
-    setIsCostModalOpen(true);
+    setModalView('list');
+  };
+
+  const handleSwitchToAddCost = () => {
+    setModalView('add');
   };
 
   const handleCloseModals = () => {
     setSelectedEventoId(null);
-    setIsCostModalOpen(false);
+    setModalView(null);
   };
 
   const handleSaveCost = (custoData: Omit<CustoFormData, "eventoId">) => {
@@ -74,17 +77,21 @@ export default function CustosPorEvento() {
       description: "O custo foi registrado no evento.",
     });
 
-    setRefreshKey(prev => prev + 1);
+    handleCloseModals();
+    // Recarregar para atualizar o status do card "hasCosts"
+    // Em uma aplicação maior, usaríamos um gerenciador de estado para evitar o reload.
+    window.location.reload(); 
   };
 
+  // --- Variáveis Derivadas do Estado ---
   const selectedEvento = useMemo(
-    () => (selectedEventoId ? eventos.find(e => e.id === selectedEventoId) : null),
+    () => (selectedEventoId ? eventos.find((e) => e.id === selectedEventoId) : null),
     [selectedEventoId, eventos]
   );
 
   const custosForSelectedEvento = useMemo(
     () => (selectedEventoId ? custosStorage.getByEventoId(selectedEventoId) : []),
-    [selectedEventoId, refreshKey]
+    [selectedEventoId]
   );
 
   return (
@@ -162,13 +169,21 @@ export default function CustosPorEvento() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Unificado: Lista e Adição de Custos */}
+      {/* Modal: Lista de Custos */}
       <CostListModal
-        open={isCostModalOpen}
+        open={modalView === 'list'}
         onClose={handleCloseModals}
-        onSave={handleSaveCost}
+        onAddCost={handleSwitchToAddCost}
         evento={selectedEvento}
         custos={custosForSelectedEvento}
+      />
+
+      {/* Modal: Adicionar Custo */}
+      <AddCostModal
+        open={modalView === 'add'}
+        onClose={handleCloseModals}
+        onSave={handleSaveCost}
+        eventoMotivo={selectedEvento?.motivo || ""}
       />
     </DashboardLayout>
   );
