@@ -52,8 +52,8 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
         </DialogHeader>
 
         <div className="flex-1 min-h-0">
-          <ScrollArea className="h-full pr-4">
-            {custos.length > 0 ? (
+          {custos.length > 0 ? (
+            <ScrollArea className="h-72 rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -78,16 +78,16 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
                   ))}
                 </TableBody>
               </Table>
-            ) : (
-              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
-                <Receipt className="h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-semibold">Nenhum Gasto Registrado</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Clique em "Adicionar Gasto" para começar.
-                </p>
-              </div>
-            )}
-          </ScrollArea>
+            </ScrollArea>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center h-full">
+              <Receipt className="h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-semibold">Nenhum Gasto Registrado</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Clique em "Adicionar Gasto" para começar.
+              </p>
+            </div>
+          )}
         </div>
 
         {custos.length > 0 && (
