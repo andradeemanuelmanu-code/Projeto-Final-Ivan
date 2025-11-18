@@ -42,7 +42,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader>
           <DialogTitle className="font-display text-xl">
             Gastos do Evento: {evento.motivo}
           </DialogTitle>
@@ -51,9 +51,9 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 py-4">
+        <div className="flex-1 min-h-0">
           {custos.length > 0 ? (
-            <ScrollArea className="h-full rounded-md border">
+            <ScrollArea className="h-72 rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -91,7 +91,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
         </div>
 
         {custos.length > 0 && (
-          <div className="flex-shrink-0 flex items-center justify-between rounded-lg bg-muted p-4">
+          <div className="mt-4 flex items-center justify-between rounded-lg bg-muted p-4">
             <span className="font-semibold text-muted-foreground">Total de Gastos</span>
             <span className="font-bold text-xl text-foreground">
               {totalGastos.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
@@ -99,7 +99,7 @@ export function CostListModal({ open, onClose, onAddCost, evento, custos }: Cost
           </div>
         )}
 
-        <DialogFooter className="pt-4 border-t flex-shrink-0">
+        <DialogFooter className="pt-4 border-t">
           <Button variant="outline" onClick={onClose}>
             Sair
           </Button>
