@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children, title, description }: DashboardLayoutProps) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
