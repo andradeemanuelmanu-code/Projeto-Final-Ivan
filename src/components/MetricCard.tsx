@@ -32,7 +32,7 @@ const MetricCard = ({ title, value, subtitle, icon: Icon, trend, className }: Me
       
       <div>
         <p className="text-white/80 text-sm font-medium mb-2">{title}</p>
-        <p className="text-4xl font-display font-bold mb-1">{value}</p>
+        <p className="text-3xl sm:text-4xl font-display font-bold mb-1">{value}</p>
         {subtitle && (
           <p className="text-white/70 text-sm">{subtitle}</p>
         )}
