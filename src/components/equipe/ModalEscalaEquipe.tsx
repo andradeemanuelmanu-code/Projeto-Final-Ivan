@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Evento } from "@/types/evento";
-import { MembroEscalado } from "@/types/equipe";
+import { MembroEscalado, MembroEquipe, FuncaoEquipe } from "@/types/equipe";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,9 +30,30 @@ interface ModalEscalaEquipeProps {
   onSave: () => void;
 }
 
+const FUNCAO_LABELS: Record<FuncaoEquipe, string> = {
+  cozinheira: "Cozinheiras",
+  "ajudante-cozinheira": "Ajudantes de Cozinha",
+  churrasqueiro: "Churrasqueiros",
+  "ajudante-churrasqueiro": "Ajudantes de Churrasqueiro",
+  garcom: "Garçons",
+  barman: "Barmen",
+  maitre: "Maîtres",
+};
+
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
   const [membrosSelecionados, setMembrosSelecionados] = useState<MembroEscalado[]>([]);
-  const membros = membrosStorage.getAll();
+  const membros = useMemo(() => membrosStorage.getAll(), []);
+
+  const membrosAgrupados = useMemo(() => {
+    return membros.reduce((acc, membro) => {
+      const funcao = membro.funcao;
+      if (!acc[funcao]) {
+        acc[funcao] = [];
+      }
+      acc[funcao].push(membro);
+      return acc;
+    }, {} as Record<FuncaoEquipe, MembroEquipe[]>);
+  }, [membros]);
 
   useEffect(() => {
     if (evento && open) {
@@ -98,26 +125,35 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                 <p>Nenhum membro cadastrado.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {membros.map(membro => {
-                  const isChecked = !!membrosSelecionados.find(m => m.membroId === membro.id);
-
-                  return (
-                    <div key={membro.id} className="p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={() => handleToggleMembro(membro.id)}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{membro.nome}</p>
-                          <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
-                        </div>
+              <Accordion type="multiple" className="w-full" defaultValue={Object.keys(FUNCAO_LABELS)}>
+                {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => (
+                  <AccordionItem value={funcao} key={funcao}>
+                    <AccordionTrigger className="font-medium">
+                      {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao} ({membrosDoGrupo.length})
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 pl-2">
+                        {membrosDoGrupo.map(membro => {
+                          const isChecked = !!membrosSelecionados.find(m => m.membroId === membro.id);
+                          return (
+                            <div key={membro.id} className="flex items-center gap-4 p-2 rounded-md hover:bg-muted/50">
+                              <Checkbox
+                                id={`membro-${membro.id}`}
+                                checked={isChecked}
+                                onCheckedChange={() => handleToggleMembro(membro.id)}
+                              />
+                              <Label htmlFor={`membro-${membro.id}`} className="flex-1 min-w-0 cursor-pointer">
+                                <p className="font-medium truncate">{membro.nome}</p>
+                                <p className="text-sm text-muted-foreground truncate">{membro.email}</p>
+                              </Label>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             )}
           </div>
         </div>
