@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { UserSettingsForm } from "@/components/configuracoes/UserSettingsForm";
 import { ThemeToggle } from "@/components/configuracoes/ThemeToggle";
 import { AdminMembersPanel } from "@/components/configuracoes/AdminMembersPanel";
-import { usuarioStorage } from "@/lib/usuariosStorage";
+import { usuarioLogadoStorage } from "@/lib/usuarioLogadoStorage";
 import { initializeMockUsuariosPendentes } from "@/lib/initializeMockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Palette, Shield } from "lucide-react";
@@ -13,7 +13,7 @@ const Configuracoes = () => {
 
   useEffect(() => {
     // Inicializa usuário padrão se não existir
-    let usuario = usuarioStorage.get();
+    let usuario = usuarioLogadoStorage.get();
     if (!usuario) {
       usuario = {
         id: crypto.randomUUID(),
@@ -21,7 +21,7 @@ const Configuracoes = () => {
         email: "admin@buffet.com",
         isAdmin: true,
       };
-      usuarioStorage.set(usuario);
+      usuarioLogadoStorage.set(usuario);
     }
     setIsAdmin(usuario.isAdmin);
 

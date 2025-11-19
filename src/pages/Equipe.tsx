@@ -25,7 +25,7 @@ import {
 import { Evento } from "@/types/evento";
 import { MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
 import { eventosStorage } from "@/lib/eventosStorage";
-import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
+import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Users, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -60,7 +60,7 @@ export default function Equipe() {
     setLoading(true);
     setTimeout(() => {
       const eventosData = eventosStorage.getAllSorted();
-      const membrosData = membrosStorage.getAll();
+      const membrosData = equipeStorage.getAtivos();
       setEventos(eventosData);
       setMembros(membrosData);
       setLoading(false);
@@ -98,13 +98,13 @@ export default function Equipe() {
 
   const handleSaveMembro = (data: MembroEquipeFormData) => {
     if (membroSelecionado) {
-      membrosStorage.update(membroSelecionado.id, data);
+      equipeStorage.update(membroSelecionado.id, data);
       toast({
         title: "Membro atualizado!",
         description: "As informações do membro foram atualizadas.",
       });
     } else {
-      membrosStorage.create(data);
+      equipeStorage.create(data);
       toast({
         title: "Membro adicionado!",
         description: "Novo membro cadastrado na equipe.",
@@ -114,7 +114,7 @@ export default function Equipe() {
   };
 
   const handleDeleteMembro = (id: string) => {
-    membrosStorage.delete(id);
+    equipeStorage.delete(id);
     toast({
       title: "Membro excluído",
       description: "O membro foi removido da equipe.",

@@ -1,23 +1,22 @@
-import { usuariosPendentesStorage } from "./usuariosStorage";
+import { equipeStorage } from "./equipeStorage";
 
 export const initializeMockUsuariosPendentes = () => {
-  const existentes = usuariosPendentesStorage.getAll();
+  const pendentes = equipeStorage.getPendentes();
   
-  // Só adiciona usuários mock se não houver nenhum pendente
-  if (existentes.filter(u => u.status === "pendente").length === 0) {
-    usuariosPendentesStorage.create({
+  if (pendentes.length === 0) {
+    equipeStorage.solicitarAdesao({
       nome: "João Silva",
       email: "joao.silva@email.com",
       telefone: "(11) 98765-4321",
     });
 
-    usuariosPendentesStorage.create({
+    equipeStorage.solicitarAdesao({
       nome: "Maria Santos",
       email: "maria.santos@email.com",
       telefone: "(11) 97654-3210",
     });
 
-    usuariosPendentesStorage.create({
+    equipeStorage.solicitarAdesao({
       nome: "Carlos Oliveira",
       email: "carlos.oliveira@email.com",
       telefone: "(11) 96543-2109",

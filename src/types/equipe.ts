@@ -13,11 +13,18 @@ export interface MembroEquipe {
   funcao: FuncaoEquipe;
   telefone: string;
   email: string;
+  status: "pendente" | "ativo";
   criadoEm: string;
   atualizadoEm: string;
 }
 
-export interface MembroEquipeFormData extends Omit<MembroEquipe, "id" | "criadoEm" | "atualizadoEm"> {}
+export interface MembroEquipeFormData extends Omit<MembroEquipe, "id" | "criadoEm" | "atualizadoEm" | "status"> {}
+
+export interface SolicitacaoMembroData {
+  nome: string;
+  email: string;
+  telefone: string;
+}
 
 export interface MembroEscalado {
   membroId: string;

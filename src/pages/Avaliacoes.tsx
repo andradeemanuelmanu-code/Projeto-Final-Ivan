@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { eventosStorage } from "@/lib/eventosStorage";
-import { escalasStorage, membrosStorage } from "@/lib/equipeStorage";
+import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { Evento } from "@/types/evento";
 import { MembroEquipe } from "@/types/equipe";
@@ -72,7 +72,7 @@ const Avaliacoes = () => {
     }
 
     const membros = escala.membros
-      .map(m => membrosStorage.getById(m.membroId))
+      .map(m => equipeStorage.getById(m.membroId))
       .filter((m): m is MembroEquipe => m !== undefined);
 
     setEventoSelecionado(evento);

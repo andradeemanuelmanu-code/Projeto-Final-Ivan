@@ -1,10 +1,10 @@
-import { MembroEquipe, MembroEquipeFormData, EscalaEvento, EscalaEventoFormData } from "@/types/equipe";
+import { MembroEquipe, MembroEquipeFormData, EscalaEvento, EscalaEventoFormData, FuncaoEquipe, SolicitacaoMembroData } from "@/types/equipe";
 
 const MEMBROS_KEY = "buffet_membros_equipe";
 const ESCALAS_KEY = "buffet_escalas_eventos";
 
-// MEMBROS DA EQUIPE
-export const membrosStorage = {
+// MEMBROS DA EQUIPE (UNIFICADO)
+export const equipeStorage = {
   getAll: (): MembroEquipe[] => {
     try {
       const data = localStorage.getItem(MEMBROS_KEY);
@@ -15,16 +15,25 @@ export const membrosStorage = {
     }
   },
 
-  getById: (id: string): MembroEquipe | undefined => {
-    const membros = membrosStorage.getAll();
-    return membros.find(membro => membro.id === id);
+  getAtivos: (): MembroEquipe[] => {
+    return equipeStorage.getAll().filter(m => m.status === 'ativo');
   },
 
+  getPendentes: (): MembroEquipe[] => {
+    return equipeStorage.getAll().filter(m => m.status === 'pendente');
+  },
+
+  getById: (id: string): MembroEquipe | undefined => {
+    return equipeStorage.getAll().find(membro => membro.id === id);
+  },
+
+  // Para criar um membro já ativo (ex: pela página Equipe)
   create: (data: MembroEquipeFormData): MembroEquipe => {
-    const membros = membrosStorage.getAll();
+    const membros = equipeStorage.getAll();
     const novoMembro: MembroEquipe = {
       ...data,
       id: crypto.randomUUID(),
+      status: "ativo",
       criadoEm: new Date().toISOString(),
       atualizadoEm: new Date().toISOString(),
     };
@@ -33,8 +42,24 @@ export const membrosStorage = {
     return novoMembro;
   },
 
+  // Para criar uma solicitação de novo membro (status pendente)
+  solicitarAdesao: (data: SolicitacaoMembroData): MembroEquipe => {
+    const membros = equipeStorage.getAll();
+    const novaSolicitacao: MembroEquipe = {
+      ...data,
+      id: crypto.randomUUID(),
+      funcao: "garcom", // Função padrão, será definida na aprovação
+      status: "pendente",
+      criadoEm: new Date().toISOString(),
+      atualizadoEm: new Date().toISOString(),
+    };
+    membros.push(novaSolicitacao);
+    localStorage.setItem(MEMBROS_KEY, JSON.stringify(membros));
+    return novaSolicitacao;
+  },
+
   update: (id: string, data: Partial<MembroEquipeFormData>): MembroEquipe | null => {
-    const membros = membrosStorage.getAll();
+    const membros = equipeStorage.getAll();
     const index = membros.findIndex(membro => membro.id === id);
     
     if (index === -1) return null;
@@ -49,8 +74,22 @@ export const membrosStorage = {
     return membros[index];
   },
 
+  aprovar: (id: string, funcao: FuncaoEquipe): MembroEquipe | null => {
+    const membros = equipeStorage.getAll();
+    const index = membros.findIndex(membro => membro.id === id);
+
+    if (index === -1) return null;
+
+    membros[index].status = "ativo";
+    membros[index].funcao = funcao;
+    membros[index].atualizadoEm = new Date().toISOString();
+
+    localStorage.setItem(MEMBROS_KEY, JSON.stringify(membros));
+    return membros[index];
+  },
+
   delete: (id: string): boolean => {
-    const membros = membrosStorage.getAll();
+    const membros = equipeStorage.getAll();
     const filtered = membros.filter(membro => membro.id !== id);
     
     if (filtered.length === membros.length) return false;

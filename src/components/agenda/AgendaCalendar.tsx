@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { eventosStorage } from "@/lib/eventosStorage";
-import { escalasStorage, membrosStorage } from "@/lib/equipeStorage";
+import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
 import { cn, parseLocalDate } from "@/lib/utils";
@@ -88,7 +88,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
     }
     return escala.membros
       .map(membroEscalado => {
-        const membro = membrosStorage.getById(membroEscalado.membroId);
+        const membro = equipeStorage.getById(membroEscalado.membroId);
         if (membro) {
           const funcaoLabel = FUNCAO_LABELS[membroEscalado.funcao] || membroEscalado.funcao;
           return `${membro.nome} - ${funcaoLabel}`;

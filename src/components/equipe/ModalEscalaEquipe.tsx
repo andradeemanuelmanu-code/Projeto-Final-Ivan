@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { membrosStorage, escalasStorage } from "@/lib/equipeStorage";
+import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate } from "@/lib/utils";
@@ -41,17 +41,17 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   const [modalFuncaoOpen, setModalFuncaoOpen] = useState(false);
   const [funcaoSelecionada, setFuncaoSelecionada] = useState<FuncaoEquipe | null>(null);
   
-  const membros = useMemo(() => membrosStorage.getAll(), []);
+  const membros = useMemo(() => equipeStorage.getAtivos(), []);
 
   const membrosAgrupados = useMemo(() => {
-    return membros.reduce((acc, membro) => {
+    return membros.reduce((acc: Record<string, MembroEquipe[]>, membro) => {
       const funcao = membro.funcao;
       if (!acc[funcao]) {
         acc[funcao] = [];
       }
       acc[funcao].push(membro);
       return acc;
-    }, {} as Record<FuncaoEquipe, MembroEquipe[]>);
+    }, {});
   }, [membros]);
 
   useEffect(() => {

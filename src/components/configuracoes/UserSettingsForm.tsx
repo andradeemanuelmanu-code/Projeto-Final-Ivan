@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { usuarioStorage } from "@/lib/usuariosStorage";
+import { usuarioLogadoStorage } from "@/lib/usuarioLogadoStorage";
 import { User, Mail, Lock } from "lucide-react";
 
 export const UserSettingsForm = () => {
@@ -16,7 +16,7 @@ export const UserSettingsForm = () => {
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
   useEffect(() => {
-    const usuario = usuarioStorage.get();
+    const usuario = usuarioLogadoStorage.get();
     if (usuario) {
       setNome(usuario.nome);
       setEmail(usuario.email);
@@ -33,7 +33,7 @@ export const UserSettingsForm = () => {
       return;
     }
 
-    usuarioStorage.update({ nome, email });
+    usuarioLogadoStorage.update({ nome, email });
     toast({
       title: "Sucesso",
       description: "Configurações salvas com sucesso!",

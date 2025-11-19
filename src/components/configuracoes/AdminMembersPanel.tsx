@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { usuariosPendentesStorage } from "@/lib/usuariosStorage";
-import { membrosStorage } from "@/lib/equipeStorage";
+import { equipeStorage } from "@/lib/equipeStorage";
 import { ApprovalModal } from "./ApprovalModal";
-import { UsuarioPendente } from "@/types/usuario";
-import { FuncaoEquipe, MembroEquipe } from "@/types/equipe";
-import { UserCheck, UserX, Users, UserPlus, Edit2 } from "lucide-react";
+import { ModalMembro } from "@/components/equipe/ModalMembro";
+import { FuncaoEquipe, MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
+import { UserCheck, UserX, Users, UserPlus, Edit, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,7 +27,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
+const funcoesDisponiveis: { value: FuncaoEquipe | "todas"; label: string }[] = [
+  { value: "todas", label: "Todas as Funções" },
   { value: "cozinheira", label: "Cozinheira" },
   { value: "ajudante-cozinheira", label: "Ajudante de Cozinheira" },
   { value: "churrasqueiro", label: "Churrasqueiro" },
@@ -39,77 +40,88 @@ const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
 
 export const AdminMembersPanel = () => {
   const { toast } = useToast();
-  const [pendentes, setPendentes] = useState<UsuarioPendente[]>([]);
+  const [pendentes, setPendentes] = useState<MembroEquipe[]>([]);
   const [aprovados, setAprovados] = useState<MembroEquipe[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioPendente | null>(null);
+  
+  // Estados para modais e diálogos
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
-  const [usuarioParaRejeitar, setUsuarioParaRejeitar] = useState<UsuarioPendente | null>(null);
+  
+  // Estados para seleção
+  const [usuarioParaAprovar, setUsuarioParaAprovar] = useState<MembroEquipe | null>(null);
+  const [usuarioParaRejeitar, setUsuarioParaRejeitar] = useState<MembroEquipe | null>(null);
+  const [membroParaEditar, setMembroParaEditar] = useState<MembroEquipe | null>(null);
+
+  // Estados para busca e filtro
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterFunction, setFilterFunction] = useState<FuncaoEquipe | "todas">("todas");
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = () => {
-    const todosPendentes = usuariosPendentesStorage.getAll();
-    setPendentes(todosPendentes.filter((u) => u.status === "pendente"));
-    setAprovados(membrosStorage.getAll());
+    setPendentes(equipeStorage.getPendentes());
+    setAprovados(equipeStorage.getAtivos());
   };
 
-  const handleAprovar = (usuario: UsuarioPendente) => {
-    setUsuarioSelecionado(usuario);
-    setModalOpen(true);
+  const handleAprovarClick = (usuario: MembroEquipe) => {
+    setUsuarioParaAprovar(usuario);
+    setApprovalModalOpen(true);
   };
 
   const handleConfirmarAprovacao = (funcao: FuncaoEquipe) => {
-    if (!usuarioSelecionado) return;
-
-    membrosStorage.create({
-      nome: usuarioSelecionado.nome,
-      funcao,
-      telefone: usuarioSelecionado.telefone,
-      email: usuarioSelecionado.email,
-    });
-
-    usuariosPendentesStorage.aprovar(usuarioSelecionado.id);
-
+    if (!usuarioParaAprovar) return;
+    equipeStorage.aprovar(usuarioParaAprovar.id, funcao);
     toast({
       title: "Membro aprovado",
-      description: `${usuarioSelecionado.nome} foi adicionado à equipe.`,
+      description: `${usuarioParaAprovar.nome} foi adicionado à equipe.`,
     });
-
     loadData();
-    setUsuarioSelecionado(null);
   };
 
-  const handleRejeitar = (usuario: UsuarioPendente) => {
+  const handleRejeitarClick = (usuario: MembroEquipe) => {
     setUsuarioParaRejeitar(usuario);
     setRejectionDialogOpen(true);
   };
 
   const handleConfirmarRejeicao = () => {
     if (!usuarioParaRejeitar) return;
-    usuariosPendentesStorage.rejeitar(usuarioParaRejeitar.id);
+    equipeStorage.delete(usuarioParaRejeitar.id);
     toast({
       title: "Solicitação rejeitada",
       description: `${usuarioParaRejeitar.nome} foi rejeitado.`,
       variant: "destructive",
     });
     loadData();
-    setRejectionDialogOpen(false);
-    setUsuarioParaRejeitar(null);
   };
 
-  const handleEditarFuncao = (membroId: string, novaFuncao: FuncaoEquipe) => {
-    const atualizado = membrosStorage.update(membroId, { funcao: novaFuncao });
-    if (atualizado) {
-      toast({
-        title: "Função atualizada",
-        description: "A função do membro foi alterada com sucesso.",
-      });
-      loadData();
-    }
+  const handleEditarClick = (membro: MembroEquipe) => {
+    setMembroParaEditar(membro);
+    setEditModalOpen(true);
   };
+
+  const handleSaveMembro = (data: MembroEquipeFormData) => {
+    if (!membroParaEditar) return;
+    equipeStorage.update(membroParaEditar.id, data);
+    toast({
+      title: "Membro atualizado",
+      description: "As informações foram salvas com sucesso.",
+    });
+    loadData();
+  };
+
+  const filteredAprovados = useMemo(() => {
+    return aprovados
+      .filter(membro => {
+        const term = searchTerm.toLowerCase();
+        return membro.nome.toLowerCase().includes(term) || membro.email.toLowerCase().includes(term);
+      })
+      .filter(membro => {
+        return filterFunction === "todas" || membro.funcao === filterFunction;
+      });
+  }, [aprovados, searchTerm, filterFunction]);
 
   return (
     <>
@@ -146,7 +158,7 @@ export const AdminMembersPanel = () => {
                 {pendentes.map((usuario) => (
                   <div
                     key={usuario.id}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors gap-4"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
                     <div className="space-y-1">
                       <p className="font-medium">{usuario.nome}</p>
@@ -158,7 +170,7 @@ export const AdminMembersPanel = () => {
                     <div className="flex gap-2 w-full md:w-auto">
                       <Button
                         size="sm"
-                        onClick={() => handleAprovar(usuario)}
+                        onClick={() => handleAprovarClick(usuario)}
                         className="bg-green-600 hover:bg-green-700 flex-1 md:flex-none"
                       >
                         <UserCheck className="w-4 h-4 mr-1" />
@@ -167,7 +179,7 @@ export const AdminMembersPanel = () => {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleRejeitar(usuario)}
+                        onClick={() => handleRejeitarClick(usuario)}
                         className="flex-1 md:flex-none"
                       >
                         <UserX className="w-4 h-4 mr-1" />
@@ -181,16 +193,40 @@ export const AdminMembersPanel = () => {
           )}
 
           {/* Membros Ativos */}
-          {aprovados.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                Membros Ativos
-              </h3>
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              Membros Ativos
+            </h3>
+            
+            {/* Filtros e Busca */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome ou e-mail..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Select value={filterFunction} onValueChange={(v) => setFilterFunction(v as FuncaoEquipe | "todas")}>
+                <SelectTrigger className="w-full md:w-[220px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {funcoesDisponiveis.map((f) => (
+                    <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {filteredAprovados.length > 0 ? (
               <div className="space-y-2">
-                {aprovados.map((membro) => (
+                {filteredAprovados.map((membro) => (
                   <div
                     key={membro.id}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors gap-4"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
                     <div className="flex justify-between items-start flex-1">
                       <div className="space-y-1">
@@ -200,28 +236,34 @@ export const AdminMembersPanel = () => {
                       <Badge className="bg-green-600">Ativo</Badge>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto md:max-w-[250px]">
-                      <Edit2 className="w-4 h-4 text-muted-foreground hidden md:block" />
                       <Select
                         value={membro.funcao}
-                        onValueChange={(value) => handleEditarFuncao(membro.id, value as FuncaoEquipe)}
+                        onValueChange={(value) => equipeStorage.update(membro.id, { funcao: value as FuncaoEquipe }) && loadData()}
                       >
-                        <SelectTrigger className="w-full md:w-[220px]">
+                        <SelectTrigger className="w-full md:w-[200px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {funcoesDisponiveis.map((funcao) => (
+                          {funcoesDisponiveis.filter(f => f.value !== 'todas').map((funcao) => (
                             <SelectItem key={funcao.value} value={funcao.value}>
                               {funcao.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button variant="outline" size="icon" onClick={() => handleEditarClick(membro)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhum membro encontrado com os filtros aplicados.</p>
+              </div>
+            )}
+          </div>
 
           {pendentes.length === 0 && aprovados.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
@@ -233,10 +275,17 @@ export const AdminMembersPanel = () => {
       </Card>
 
       <ApprovalModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        usuarioNome={usuarioSelecionado?.nome || ""}
+        open={approvalModalOpen}
+        onOpenChange={setApprovalModalOpen}
+        usuarioNome={usuarioParaAprovar?.nome || ""}
         onAprovar={handleConfirmarAprovacao}
+      />
+
+      <ModalMembro
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        membro={membroParaEditar}
+        onSave={handleSaveMembro}
       />
 
       <AlertDialog open={rejectionDialogOpen} onOpenChange={setRejectionDialogOpen}>
