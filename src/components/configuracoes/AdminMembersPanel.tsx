@@ -135,16 +135,6 @@ export const AdminMembersPanel = () => {
               </CardTitle>
               <CardDescription>Aprove novos membros e gerencie funções</CardDescription>
             </div>
-            <div className="flex gap-4 text-sm">
-              <div className="text-center">
-                <p className="font-semibold text-lg text-destructive">{pendentes.length}</p>
-                <p className="text-muted-foreground">Pendentes</p>
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-lg text-green-600">{aprovados.length}</p>
-                <p className="text-muted-foreground">Aprovados</p>
-              </div>
-            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
