@@ -16,6 +16,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
   { value: "cozinheira", label: "Cozinheira" },
@@ -33,6 +43,8 @@ export const AdminMembersPanel = () => {
   const [aprovados, setAprovados] = useState<MembroEquipe[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioPendente | null>(null);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [usuarioParaRejeitar, setUsuarioParaRejeitar] = useState<UsuarioPendente | null>(null);
 
   useEffect(() => {
     loadData();
@@ -52,7 +64,6 @@ export const AdminMembersPanel = () => {
   const handleConfirmarAprovacao = (funcao: FuncaoEquipe) => {
     if (!usuarioSelecionado) return;
 
-    // Adiciona à equipe
     membrosStorage.create({
       nome: usuarioSelecionado.nome,
       funcao,
@@ -60,7 +71,6 @@ export const AdminMembersPanel = () => {
       email: usuarioSelecionado.email,
     });
 
-    // Marca como aprovado
     usuariosPendentesStorage.aprovar(usuarioSelecionado.id);
 
     toast({
@@ -73,13 +83,21 @@ export const AdminMembersPanel = () => {
   };
 
   const handleRejeitar = (usuario: UsuarioPendente) => {
-    usuariosPendentesStorage.rejeitar(usuario.id);
+    setUsuarioParaRejeitar(usuario);
+    setRejectionDialogOpen(true);
+  };
+
+  const handleConfirmarRejeicao = () => {
+    if (!usuarioParaRejeitar) return;
+    usuariosPendentesStorage.rejeitar(usuarioParaRejeitar.id);
     toast({
       title: "Solicitação rejeitada",
-      description: `${usuario.nome} foi rejeitado.`,
+      description: `${usuarioParaRejeitar.nome} foi rejeitado.`,
       variant: "destructive",
     });
     loadData();
+    setRejectionDialogOpen(false);
+    setUsuarioParaRejeitar(null);
   };
 
   const handleEditarFuncao = (membroId: string, novaFuncao: FuncaoEquipe) => {
@@ -128,7 +146,7 @@ export const AdminMembersPanel = () => {
                 {pendentes.map((usuario) => (
                   <div
                     key={usuario.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
                     <div className="space-y-1">
                       <p className="font-medium">{usuario.nome}</p>
@@ -137,11 +155,11 @@ export const AdminMembersPanel = () => {
                         Pendente
                       </Badge>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full md:w-auto">
                       <Button
                         size="sm"
                         onClick={() => handleAprovar(usuario)}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 flex-1 md:flex-none"
                       >
                         <UserCheck className="w-4 h-4 mr-1" />
                         Aprovar
@@ -150,6 +168,7 @@ export const AdminMembersPanel = () => {
                         size="sm"
                         variant="destructive"
                         onClick={() => handleRejeitar(usuario)}
+                        className="flex-1 md:flex-none"
                       >
                         <UserX className="w-4 h-4 mr-1" />
                         Rejeitar
@@ -161,7 +180,7 @@ export const AdminMembersPanel = () => {
             </div>
           )}
 
-          {/* Membros Aprovados */}
+          {/* Membros Ativos */}
           {aprovados.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
@@ -171,32 +190,32 @@ export const AdminMembersPanel = () => {
                 {aprovados.map((membro) => (
                   <div
                     key={membro.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
-                    <div className="space-y-1 flex-1">
-                      <p className="font-medium">{membro.nome}</p>
-                      <p className="text-sm text-muted-foreground">{membro.email}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <Edit2 className="w-4 h-4 text-muted-foreground" />
-                        <Select
-                          value={membro.funcao}
-                          onValueChange={(value) => handleEditarFuncao(membro.id, value as FuncaoEquipe)}
-                        >
-                          <SelectTrigger className="w-[220px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {funcoesDisponiveis.map((funcao) => (
-                              <SelectItem key={funcao.value} value={funcao.value}>
-                                {funcao.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    <div className="flex justify-between items-start flex-1">
+                      <div className="space-y-1">
+                        <p className="font-medium">{membro.nome}</p>
+                        <p className="text-sm text-muted-foreground">{membro.email}</p>
                       </div>
                       <Badge className="bg-green-600">Ativo</Badge>
+                    </div>
+                    <div className="flex items-center gap-2 w-full md:w-auto md:max-w-[250px]">
+                      <Edit2 className="w-4 h-4 text-muted-foreground hidden md:block" />
+                      <Select
+                        value={membro.funcao}
+                        onValueChange={(value) => handleEditarFuncao(membro.id, value as FuncaoEquipe)}
+                      >
+                        <SelectTrigger className="w-full md:w-[220px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {funcoesDisponiveis.map((funcao) => (
+                            <SelectItem key={funcao.value} value={funcao.value}>
+                              {funcao.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 ))}
@@ -219,6 +238,27 @@ export const AdminMembersPanel = () => {
         usuarioNome={usuarioSelecionado?.nome || ""}
         onAprovar={handleConfirmarAprovacao}
       />
+
+      <AlertDialog open={rejectionDialogOpen} onOpenChange={setRejectionDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Rejeição</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja rejeitar a solicitação de{" "}
+              <strong>{usuarioParaRejeitar?.nome}</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmarRejeicao}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Rejeitar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
