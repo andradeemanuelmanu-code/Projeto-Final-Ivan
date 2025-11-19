@@ -5,14 +5,7 @@ import { ModalEscalaEquipe } from "@/components/equipe/ModalEscalaEquipe";
 import { ModalMembro } from "@/components/equipe/ModalMembro";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -208,45 +201,60 @@ export default function Equipe() {
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {membros.map(membro => (
-                    <TableRow key={membro.id}>
-                      <TableCell className="font-medium">{membro.nome}</TableCell>
-                      <TableCell>{FUNCOES_LABEL[membro.funcao]}</TableCell>
-                      <TableCell>{membro.telefone}</TableCell>
-                      <TableCell>{membro.email}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditMembro(membro)}
-                          >
-                            <Pencil size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setMembroParaExcluir(membro.id)}
-                          >
-                            <Trash2 size={16} className="text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {/* Desktop Header */}
+              <div className="hidden md:grid md:grid-cols-[2fr_1fr_1.5fr_2fr_auto] gap-4 px-4 py-3 border-b font-medium text-muted-foreground bg-muted/50">
+                <div>Nome</div>
+                <div>Função</div>
+                <div>Telefone</div>
+                <div>E-mail</div>
+                <div className="text-right">Ações</div>
+              </div>
+              <div className="divide-y md:divide-y-0">
+                {membros.map(membro => (
+                  <div key={membro.id} className="p-4 md:grid md:grid-cols-[2fr_1fr_1.5fr_2fr_auto] md:gap-4 md:items-center md:px-4 md:py-3">
+                    {/* Nome e Ações (Mobile) */}
+                    <div className="flex justify-between items-start md:block">
+                      <div className="font-medium pr-2">{membro.nome}</div>
+                      <div className="md:hidden flex items-center shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditMembro(membro)}>
+                          <Pencil size={16} />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setMembroParaExcluir(membro.id)}>
+                          <Trash2 size={16} className="text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Função */}
+                    <div className="flex justify-between items-center mt-2 md:mt-0">
+                      <span className="md:hidden text-sm text-muted-foreground">Função</span>
+                      <Badge variant="secondary">{FUNCOES_LABEL[membro.funcao]}</Badge>
+                    </div>
+
+                    {/* Telefone */}
+                    <div className="flex justify-between items-center mt-1 md:mt-0">
+                      <span className="md:hidden text-sm text-muted-foreground">Telefone</span>
+                      <span className="text-sm text-right md:text-left">{membro.telefone}</span>
+                    </div>
+
+                    {/* E-mail */}
+                    <div className="flex justify-between items-center mt-1 md:mt-0">
+                      <span className="md:hidden text-sm text-muted-foreground">E-mail</span>
+                      <span className="text-sm text-right md:text-left truncate">{membro.email}</span>
+                    </div>
+
+                    {/* Ações (Desktop) */}
+                    <div className="hidden md:flex justify-end gap-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleEditMembro(membro)}>
+                        <Pencil size={16} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => setMembroParaExcluir(membro.id)}>
+                        <Trash2 size={16} className="text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </section>
