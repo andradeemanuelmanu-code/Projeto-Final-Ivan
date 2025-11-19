@@ -4,6 +4,7 @@ import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,6 +15,10 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, title, description }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // A sidebar está expandida se não estiver colapsada no desktop, ou se for a visualização mobile.
+  const isExpanded = !sidebarCollapsed || isMobile;
 
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, url: "/" },
@@ -28,7 +33,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
   ];
 
   const handleNavClick = () => {
-    if (window.innerWidth < 1024) {
+    if (isMobile) {
       setMobileMenuOpen(false);
     }
   };
@@ -49,13 +54,13 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
           "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
           "fixed top-0 left-0 h-screen z-50",
           "lg:sticky lg:z-auto",
-          sidebarCollapsed ? "w-20" : "w-72",
+          isExpanded ? "w-72" : "w-20",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-sidebar-border">
-          {!sidebarCollapsed && (
+          {isExpanded && (
             <h1 className="font-display font-bold text-xl text-sidebar-foreground">
               Gestão Buffet
             </h1>
@@ -84,18 +89,18 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
               activeClassName="bg-sidebar-primary text-sidebar-primary-foreground font-medium"
             >
               <item.icon size={20} />
-              {!sidebarCollapsed && <span>{item.title}</span>}
+              {isExpanded && <span>{item.title}</span>}
             </NavLink>
           ))}
         </nav>
 
         {/* User Section */}
         <div className="p-4 border-t border-sidebar-border">
-          <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
+          <div className={cn("flex items-center gap-3", !isExpanded && "justify-center")}>
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
               AD
             </div>
-            {!sidebarCollapsed && (
+            {isExpanded && (
               <div className="flex-1">
                 <p className="font-medium text-sm text-sidebar-foreground">Admin</p>
                 <p className="text-xs text-muted-foreground">admin@buffet.com</p>
