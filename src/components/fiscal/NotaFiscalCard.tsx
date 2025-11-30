@@ -7,6 +7,7 @@ import { FileText, Calendar, User, DollarSign, TrendingUp, RefreshCw } from "luc
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate, cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
@@ -27,6 +28,14 @@ const tipoImpostoLabels: Record<string, string> = {
 };
 
 export function NotaFiscalCard({ nota, evento, onToggleStatus }: NotaFiscalCardProps) {
+  const isMobile = useIsMobile();
+
+  const dataFormatada = format(
+    parseLocalDate(evento.data),
+    isMobile ? "dd/MM/yy" : "dd 'de' MMMM 'de' yyyy",
+    { locale: ptBR }
+  );
+
   const getStatusColor = () => {
     if (nota.situacaoNota === "nao-emitida") return "bg-red-500";
     if (nota.situacaoNota === "aguardando" || nota.situacaoImposto === "pendente") return "bg-yellow-500";
@@ -67,7 +76,7 @@ export function NotaFiscalCard({ nota, evento, onToggleStatus }: NotaFiscalCardP
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                <span>{format(parseLocalDate(evento.data), "dd 'de' MMMM", { locale: ptBR })}</span>
+                <span>{dataFormatada}</span>
               </div>
             </div>
           </div>
