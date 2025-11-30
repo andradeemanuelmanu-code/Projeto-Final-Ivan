@@ -2,9 +2,10 @@ import { Calendar, MapPin, Users, DollarSign, Edit, Trash2, UtensilsCrossed, Gla
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/evento";
-import { cn, parseLocalDate } from "@/lib/utils";
+import { cn, formatarOpcoes, parseLocalDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 
 interface EventoCardProps {
   evento: Evento;
@@ -26,23 +27,12 @@ const statusConfig = {
   }
 };
 
-const cardapioLabels: Record<string, string> = {
-  "churrasco-tradicional": "Churrasco Tradicional",
-  "churrasco-prime": "Churrasco Prime",
-  "churrasco-vip": "Churrasco VIP",
-  "massas": "Massas",
-  "roda-boteco": "Roda de Boteco",
-  "coffee-break": "Coffee Break",
-  "evento-kids": "Evento Kids",
-  "jantar": "Jantar"
-};
-
 export const EventoCard = ({ evento, onEdit, onDelete, onManagePayment }: EventoCardProps) => {
   const config = statusConfig[evento.statusPagamento];
   
   const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
   
-  const cardapioFormatado = evento.cardapio.map(c => cardapioLabels[c] || c).join(", ");
+  const cardapioFormatado = formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions);
   const bebidasFormatadas = evento.bebidas.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(", ");
 
   const renderValor = () => {

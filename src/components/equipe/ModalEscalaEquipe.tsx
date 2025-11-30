@@ -15,10 +15,11 @@ import { Label } from "@/components/ui/label";
 import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { parseLocalDate } from "@/lib/utils";
+import { formatarOpcoes, parseLocalDate } from "@/lib/utils";
 import { Users, UtensilsCrossed, GlassWater, Trash2 } from "lucide-react";
 import { ModalSelecaoFuncao } from "./ModalSelecaoFuncao";
 import { Separator } from "@/components/ui/separator";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 
 interface ModalEscalaEquipeProps {
   open: boolean;
@@ -35,17 +36,6 @@ const FUNCAO_LABELS: Record<FuncaoEquipe, string> = {
   garcom: "Garçons",
   barman: "Barmen",
   maitre: "Maîtres",
-};
-
-const CARDAPIO_LABELS: Record<string, string> = {
-  "churrasco-tradicional": "Churrasco Tradicional",
-  "churrasco-prime": "Churrasco Prime",
-  "churrasco-vip": "Churrasco VIP",
-  "massas": "Massas",
-  "roda-boteco": "Roda de Boteco",
-  "coffee-break": "Coffee Break",
-  "evento-kids": "Evento Kids",
-  "jantar": "Jantar",
 };
 
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
@@ -137,9 +127,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
 
   const dataFormatada = format(parseLocalDate(evento.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   
-  const cardapioFormatado = evento.cardapio.length > 0
-    ? evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ")
-    : "Não definido";
+  const cardapioFormatado = formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions);
 
   const bebidasFormatadas = evento.bebidas.length > 0
     ? evento.bebidas.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(", ")

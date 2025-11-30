@@ -2,24 +2,14 @@ import { Evento } from "@/types/evento";
 import { CalendarDays, User, UtensilsCrossed } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { parseLocalDate } from "@/lib/utils";
+import { formatarOpcoes, parseLocalDate } from "@/lib/utils";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 
 interface EventCostCardProps {
   evento: Evento;
   hasCosts: boolean;
   onClick: () => void;
 }
-
-const cardapioLabels: Record<string, string> = {
-  "churrasco-tradicional": "Churrasco Tradicional",
-  "churrasco-prime": "Churrasco Prime",
-  "churrasco-vip": "Churrasco VIP",
-  "massas": "Massas",
-  "roda-boteco": "Roda de Boteco",
-  "coffee-break": "Coffee Break",
-  "evento-kids": "Evento Kids",
-  "jantar": "Jantar",
-};
 
 export function EventCostCard({ evento, hasCosts, onClick }: EventCostCardProps) {
   const statusBadgeClass = hasCosts
@@ -59,7 +49,7 @@ export function EventCostCard({ evento, hasCosts, onClick }: EventCostCardProps)
           <div className="flex items-center gap-2">
             <UtensilsCrossed className="h-4 w-4 shrink-0" />
             <span className="line-clamp-1">
-              {evento.cardapio.map((c) => cardapioLabels[c] || c).join(", ")}
+              {formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions)}
             </span>
           </div>
         </div>

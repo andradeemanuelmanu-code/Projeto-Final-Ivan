@@ -12,9 +12,10 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
-import { cn, parseLocalDate } from "@/lib/utils";
+import { cn, formatarOpcoes, parseLocalDate } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventoModal } from "@/components/eventos/EventoModal";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 
 interface AgendaCalendarProps {
   viewMode: "month" | "week" | "day";
@@ -43,17 +44,6 @@ const FUNCAO_LABELS: Record<string, string> = {
   garcom: "Garçom",
   barman: "Barman",
   maitre: "Maître",
-};
-
-const CARDAPIO_LABELS: Record<string, string> = {
-  "churrasco-tradicional": "Churrasco Tradicional",
-  "churrasco-prime": "Churrasco Prime",
-  "churrasco-vip": "Churrasco VIP",
-  "massas": "Massas",
-  "roda-boteco": "Roda de Boteco",
-  "coffee-break": "Coffee Break",
-  "evento-kids": "Evento Kids",
-  "jantar": "Jantar",
 };
 
 const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
@@ -194,7 +184,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
   const renderActionDialogContent = () => {
     if (!selectedEvento) return null;
     const equipeInfo = getEquipeInfo(selectedEvento.id);
-    const cardapioFormatado = selectedEvento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+    const cardapioFormatado = formatarOpcoes(selectedEvento.cardapio, opcoesStorage.getCardapioOptions);
     const valorFormatado = selectedEvento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     return (
@@ -437,7 +427,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         {dayEventos.slice(0, 3).map(evento => {
                           const status = statusConfig[evento.statusPagamento];
                           const equipeInfo = getEquipeInfo(evento.id);
-                          const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                          const cardapioFormatado = formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions);
                           const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                           return (
                             <Tooltip key={evento.id}>
@@ -526,7 +516,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                         {dayEventos.map(evento => {
                           const status = statusConfig[evento.statusPagamento];
                           const equipeInfo = getEquipeInfo(evento.id);
-                          const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                          const cardapioFormatado = formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions);
                           const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                           return (
                             <Tooltip key={evento.id}>
@@ -609,7 +599,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
                 ) : (
                   getEventosForDate(currentDate).map(evento => {
                     const status = statusConfig[evento.statusPagamento];
-                    const cardapioFormatado = evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ");
+                    const cardapioFormatado = formatarOpcoes(evento.cardapio, opcoesStorage.getCardapioOptions);
                     const valorFormatado = evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     return (
                       <Card

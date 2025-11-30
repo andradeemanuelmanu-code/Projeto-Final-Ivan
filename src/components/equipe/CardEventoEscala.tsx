@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, User, UtensilsCrossed } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn, parseLocalDate } from "@/lib/utils";
+import { cn, formatarOpcoes, parseLocalDate } from "@/lib/utils";
+import { opcoesStorage } from "@/lib/opcoesStorage";
 
 interface CardEventoEscalaProps {
   evento: Evento;
@@ -11,20 +12,9 @@ interface CardEventoEscalaProps {
   onClick: () => void;
 }
 
-const CARDAPIO_LABELS: Record<string, string> = {
-  "churrasco-tradicional": "Churrasco Tradicional",
-  "churrasco-prime": "Churrasco Prime",
-  "churrasco-vip": "Churrasco VIP",
-  "massas": "Massas",
-  "roda-boteco": "Roda de Boteco",
-  "coffee-break": "Coffee Break",
-  "evento-kids": "Evento Kids",
-  "jantar": "Jantar",
-};
-
 export const CardEventoEscala = ({ evento, hasEscala, onClick }: CardEventoEscalaProps) => {
   const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
-  const cardapioPrincipal = evento.cardapio[0] ? CARDAPIO_LABELS[evento.cardapio[0]] || evento.cardapio[0] : "Não definido";
+  const cardapioPrincipal = formatarOpcoes(evento.cardapio.slice(0, 1), opcoesStorage.getCardapioOptions);
 
   return (
     <Card 
