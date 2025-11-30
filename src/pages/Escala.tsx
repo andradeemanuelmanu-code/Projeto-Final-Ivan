@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { CardEventoEscala } from "@/components/equipe/CardEventoEscala";
 import { ModalEscalaEquipe } from "@/components/equipe/ModalEscalaEquipe";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -14,11 +15,12 @@ import { Evento } from "@/types/evento";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage } from "@/lib/equipeStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 
 export default function Escala() {
   const [loading, setLoading] = useState(true);
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
   const [modalEscalaOpen, setModalEscalaOpen] = useState(false);
   const [modalVerMaisOpen, setModalVerMaisOpen] = useState(false);
@@ -37,16 +39,28 @@ export default function Escala() {
     }, 500);
   };
 
-  const eventosOrdenados = [...eventos].sort((a, b) => {
+  const eventosOrdenados = useMemo(() => [...eventos].sort((a, b) => {
     const hasEscalaA = escalasStorage.hasEscala(a.id);
     const hasEscalaB = escalasStorage.hasEscala(b.id);
     
     if (hasEscalaA === hasEscalaB) return 0;
     return hasEscalaA ? 1 : -1;
-  });
+  }), [eventos]);
 
-  const eventosPrincipais = eventosOrdenados.slice(0, 8);
-  const eventosRestantes = eventosOrdenados.slice(8);
+  const filteredEventos = useMemo(() => {
+    if (!searchTerm) {
+      return eventosOrdenados;
+    }
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return eventosOrdenados.filter(
+      (evento) =>
+        evento.motivo.toLowerCase().includes(lowercasedFilter) ||
+        evento.cliente.nome.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [eventosOrdenados, searchTerm]);
+
+  const eventosPrincipais = filteredEventos.slice(0, 8);
+  const eventosRestantes = filteredEventos.slice(8);
 
   const handleOpenEscala = (evento: Evento) => {
     setEventoSelecionado(evento);
@@ -74,6 +88,16 @@ export default function Escala() {
             <h2 className="font-display font-semibold text-2xl text-foreground">Escala de Eventos</h2>
           </div>
 
+          <div className="relative w-full sm:max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por evento ou cliente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
@@ -85,6 +109,12 @@ export default function Escala() {
               <Calendar className="mx-auto text-muted-foreground mb-4" size={48} />
               <p className="text-muted-foreground">Nenhum evento cadastrado.</p>
               <p className="text-sm text-muted-foreground">Cadastre eventos para gerenciar a escala.</p>
+            </div>
+          ) : filteredEventos.length === 0 ? (
+            <div className="text-center py-12 bg-muted/30 rounded-lg">
+              <Search className="mx-auto text-muted-foreground mb-4" size={48} />
+              <p className="text-muted-foreground">Nenhum evento encontrado.</p>
+              <p className="text-sm text-muted-foreground">Tente ajustar seus termos de busca.</p>
             </div>
           ) : (
             <>
