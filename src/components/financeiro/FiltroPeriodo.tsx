@@ -64,13 +64,6 @@ export function FiltroPeriodo({ mesReferencia, onMesChange }: FiltroPeriodoProps
         >
           Último Mês
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleFiltroRapido(2)}
-        >
-          2 Meses Atrás
-        </Button>
       </div>
     </div>
   );
