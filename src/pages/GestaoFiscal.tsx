@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter } from "lucide-react";
+import { Plus } from "lucide-react";
 import { NotaFiscalCard } from "@/components/fiscal/NotaFiscalCard";
 import { ModalRegistrarNota } from "@/components/fiscal/ModalRegistrarNota";
 import { ModalEditarSituacao } from "@/components/fiscal/ModalEditarSituacao";
@@ -12,13 +12,6 @@ import { NotaFiscal, NotaFiscalFormData, SituacaoImposto } from "@/types/notaFis
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export default function GestaoFiscal() {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
@@ -27,7 +20,6 @@ export default function GestaoFiscal() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [notaParaEditar, setNotaParaEditar] = useState<NotaFiscal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [filtro, setFiltro] = useState<string>("todos");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -74,14 +66,6 @@ export default function GestaoFiscal() {
     return eventos.find(e => e.id === eventoId);
   };
 
-  const notasFiltradas = notas.filter(nota => {
-    if (filtro === "todos") return true;
-    if (filtro === "emitidas") return nota.situacaoNota === "emitida";
-    if (filtro === "pendentes") return nota.situacaoNota === "nao-emitida" || nota.situacaoImposto === "pendente";
-    if (filtro === "sem-nota") return nota.situacaoNota === "nao-emitida";
-    return true;
-  });
-
   const resumo = notasFiscaisStorage.getResumo();
 
   const eventosDisponiveis = eventos.filter(evento => {
@@ -124,34 +108,15 @@ export default function GestaoFiscal() {
               percentualMedio={resumo.percentualMedio}
             />
 
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-start">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={filtro} onValueChange={setFiltro}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="emitidas">Notas Emitidas</SelectItem>
-                    <SelectItem value="pendentes">Pendentes</SelectItem>
-                    <SelectItem value="sem-nota">Sem Nota</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {notasFiltradas.length === 0 ? (
+            {notas.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
-                  {filtro === "todos" 
-                    ? "Nenhuma nota fiscal registrada. Clique em 'Registrar Nota Fiscal' para começar."
-                    : "Nenhuma nota fiscal encontrada com os filtros selecionados."}
+                  Nenhuma nota fiscal registrada. Clique em 'Registrar Nota Fiscal' para começar.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {notasFiltradas.map((nota) => {
+                {notas.map((nota) => {
                   const evento = getEventoById(nota.eventoId);
                   return evento ? (
                     <NotaFiscalCard key={nota.id} nota={nota} evento={evento} onEditStatus={handleEditStatus} />
