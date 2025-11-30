@@ -80,69 +80,61 @@ export default function Escala() {
       title="Escala"
       description="Gerencie a escala de trabalho para os eventos"
     >
-      <div className="space-y-8">
-        {/* Seção: Escala de Eventos */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="text-primary" size={24} />
-            <h2 className="font-display font-semibold text-2xl text-foreground">Escala de Eventos</h2>
-          </div>
+      <div className="space-y-6">
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por evento ou cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
 
-          <div className="relative w-full sm:max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por evento ou cliente..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="h-[200px] rounded-lg" />
+            ))}
           </div>
-
-          {loading ? (
+        ) : eventos.length === 0 ? (
+          <div className="text-center py-12 bg-muted/30 rounded-lg">
+            <Calendar className="mx-auto text-muted-foreground mb-4" size={48} />
+            <p className="text-muted-foreground">Nenhum evento cadastrado.</p>
+            <p className="text-sm text-muted-foreground">Cadastre eventos para gerenciar a escala.</p>
+          </div>
+        ) : filteredEventos.length === 0 ? (
+          <div className="text-center py-12 bg-muted/30 rounded-lg">
+            <Search className="mx-auto text-muted-foreground mb-4" size={48} />
+            <p className="text-muted-foreground">Nenhum evento encontrado.</p>
+            <p className="text-sm text-muted-foreground">Tente ajustar seus termos de busca.</p>
+          </div>
+        ) : (
+          <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="h-[200px] rounded-lg" />
+              {eventosPrincipais.map(evento => (
+                <CardEventoEscala
+                  key={evento.id}
+                  evento={evento}
+                  hasEscala={escalasStorage.hasEscala(evento.id)}
+                  onClick={() => handleOpenEscala(evento)}
+                />
               ))}
             </div>
-          ) : eventos.length === 0 ? (
-            <div className="text-center py-12 bg-muted/30 rounded-lg">
-              <Calendar className="mx-auto text-muted-foreground mb-4" size={48} />
-              <p className="text-muted-foreground">Nenhum evento cadastrado.</p>
-              <p className="text-sm text-muted-foreground">Cadastre eventos para gerenciar a escala.</p>
-            </div>
-          ) : filteredEventos.length === 0 ? (
-            <div className="text-center py-12 bg-muted/30 rounded-lg">
-              <Search className="mx-auto text-muted-foreground mb-4" size={48} />
-              <p className="text-muted-foreground">Nenhum evento encontrado.</p>
-              <p className="text-sm text-muted-foreground">Tente ajustar seus termos de busca.</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {eventosPrincipais.map(evento => (
-                  <CardEventoEscala
-                    key={evento.id}
-                    evento={evento}
-                    hasEscala={escalasStorage.hasEscala(evento.id)}
-                    onClick={() => handleOpenEscala(evento)}
-                  />
-                ))}
-              </div>
 
-              {eventosRestantes.length > 0 && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="outline"
-                    onClick={() => setModalVerMaisOpen(true)}
-                    className="min-w-[200px]"
-                  >
-                    Ver mais eventos ({eventosRestantes.length})
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </section>
+            {eventosRestantes.length > 0 && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setModalVerMaisOpen(true)}
+                  className="min-w-[200px]"
+                >
+                  Ver mais eventos ({eventosRestantes.length})
+                </Button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Modal: Escala de Equipe */}
