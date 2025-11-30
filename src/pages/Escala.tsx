@@ -2,20 +2,8 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { CardEventoEscala } from "@/components/equipe/CardEventoEscala";
 import { ModalEscalaEquipe } from "@/components/equipe/ModalEscalaEquipe";
-import { ModalMembro } from "@/components/equipe/ModalMembro";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -23,32 +11,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Evento } from "@/types/evento";
-import { MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
 import { eventosStorage } from "@/lib/eventosStorage";
-import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
+import { escalasStorage } from "@/lib/equipeStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Users, Calendar } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-
-const FUNCOES_LABEL: Record<string, string> = {
-  cozinheira: "Cozinheira",
-  "ajudante-cozinheira": "Ajudante de Cozinheira",
-  churrasqueiro: "Churrasqueiro",
-  "ajudante-churrasqueiro": "Ajudante de Churrasqueiro",
-  garcom: "Garçom",
-  barman: "Barman",
-  maitre: "Maître",
-};
+import { Calendar } from "lucide-react";
 
 export default function Escala() {
   const [loading, setLoading] = useState(true);
   const [eventos, setEventos] = useState<Evento[]>([]);
-  const [membros, setMembros] = useState<MembroEquipe[]>([]);
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
-  const [membroSelecionado, setMembroSelecionado] = useState<MembroEquipe | null>(null);
-  const [membroParaExcluir, setMembroParaExcluir] = useState<string | null>(null);
   const [modalEscalaOpen, setModalEscalaOpen] = useState(false);
-  const [modalMembroOpen, setModalMembroOpen] = useState(false);
   const [modalVerMaisOpen, setModalVerMaisOpen] = useState(false);
   const { toast } = useToast();
 
@@ -60,9 +32,7 @@ export default function Escala() {
     setLoading(true);
     setTimeout(() => {
       const eventosData = eventosStorage.getAllSorted();
-      const membrosData = equipeStorage.getAtivos();
       setEventos(eventosData);
-      setMembros(membrosData);
       setLoading(false);
     }, 500);
   };
@@ -88,38 +58,6 @@ export default function Escala() {
       title: "Escala salva com sucesso!",
       description: "A equipe foi designada para o evento.",
     });
-    loadData();
-  };
-
-  const handleEditMembro = (membro: MembroEquipe) => {
-    setMembroSelecionado(membro);
-    setModalMembroOpen(true);
-  };
-
-  const handleSaveMembro = (data: MembroEquipeFormData) => {
-    if (membroSelecionado) {
-      equipeStorage.update(membroSelecionado.id, data);
-      toast({
-        title: "Membro atualizado!",
-        description: "As informações do membro foram atualizadas.",
-      });
-    } else {
-      equipeStorage.create(data);
-      toast({
-        title: "Membro adicionado!",
-        description: "Novo membro cadastrado na equipe.",
-      });
-    }
-    loadData();
-  };
-
-  const handleDeleteMembro = (id: string) => {
-    equipeStorage.delete(id);
-    toast({
-      title: "Membro excluído",
-      description: "O membro foi removido da equipe.",
-    });
-    setMembroParaExcluir(null);
     loadData();
   };
 
@@ -175,94 +113,6 @@ export default function Escala() {
             </>
           )}
         </section>
-
-        <Separator className="my-8" />
-
-        {/* Seção: Membros da Equipe */}
-        <section className="space-y-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <Users className="text-primary" size={24} />
-              <h2 className="font-display font-semibold text-2xl text-foreground">Membros da Equipe</h2>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : membros.length === 0 ? (
-            <div className="text-center py-12 bg-muted/30 rounded-lg">
-              <Users className="mx-auto text-muted-foreground mb-4" size={48} />
-              <p className="text-muted-foreground">Nenhum membro cadastrado.</p>
-              <p className="text-sm text-muted-foreground">Adicione membros para gerenciar a equipe.</p>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
-              {/* Desktop Header */}
-              <div className="hidden md:grid md:grid-cols-[2fr_1fr_1.5fr_2fr_auto] gap-4 px-4 py-3 border-b font-medium text-muted-foreground bg-muted/50">
-                <div>Nome</div>
-                <div>Função</div>
-                <div>Telefone</div>
-                <div>E-mail</div>
-                <div className="text-right">Ações</div>
-              </div>
-              <div className="divide-y md:divide-y-0">
-                {membros.map(membro => (
-                  <div key={membro.id} className="p-4 md:grid md:grid-cols-[2fr_1fr_1.5fr_2fr_auto] md:gap-4 md:items-center md:px-4 md:py-3">
-                    {/* Nome e Ações (Mobile) */}
-                    <div className="flex justify-between items-start md:block">
-                      <div className="font-medium pr-2">{membro.nome}</div>
-                      <div className="md:hidden flex items-center shrink-0">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditMembro(membro)}>
-                          <Pencil size={16} />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setMembroParaExcluir(membro.id)}>
-                          <Trash2 size={16} className="text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Função */}
-                    <div className="flex justify-between items-center mt-2 md:mt-0">
-                      <span className="md:hidden text-sm text-muted-foreground">Função</span>
-                      <div className="flex flex-wrap gap-1 justify-end md:justify-start">
-                        <Badge>{FUNCOES_LABEL[membro.funcaoPrincipal]}</Badge>
-                        {membro.funcoesSecundarias?.map(funcao => (
-                          <Badge key={funcao} variant="outline">{FUNCOES_LABEL[funcao]}</Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Telefone */}
-                    <div className="flex justify-between items-center mt-1 md:mt-0">
-                      <span className="md:hidden text-sm text-muted-foreground">Telefone</span>
-                      <span className="text-sm text-right md:text-left">{membro.telefone}</span>
-                    </div>
-
-                    {/* E-mail */}
-                    <div className="flex justify-between items-center mt-1 md:mt-0">
-                      <span className="md:hidden text-sm text-muted-foreground">E-mail</span>
-                      <span className="text-sm text-right md:text-left truncate">{membro.email}</span>
-                    </div>
-
-                    {/* Ações (Desktop) */}
-                    <div className="hidden md:flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditMembro(membro)}>
-                        <Pencil size={16} />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setMembroParaExcluir(membro.id)}>
-                        <Trash2 size={16} className="text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
       </div>
 
       {/* Modal: Escala de Equipe */}
@@ -271,14 +121,6 @@ export default function Escala() {
         onOpenChange={setModalEscalaOpen}
         evento={eventoSelecionado}
         onSave={handleSaveEscala}
-      />
-
-      {/* Modal: Adicionar/Editar Membro */}
-      <ModalMembro
-        open={modalMembroOpen}
-        onOpenChange={setModalMembroOpen}
-        membro={membroSelecionado}
-        onSave={handleSaveMembro}
       />
 
       {/* Modal: Ver Mais Eventos */}
@@ -302,27 +144,6 @@ export default function Escala() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* AlertDialog: Confirmar Exclusão */}
-      <AlertDialog open={!!membroParaExcluir} onOpenChange={() => setMembroParaExcluir(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir este membro? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => membroParaExcluir && handleDeleteMembro(membroParaExcluir)}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardLayout>
   );
 }
