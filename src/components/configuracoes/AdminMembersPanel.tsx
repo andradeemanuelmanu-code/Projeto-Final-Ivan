@@ -8,7 +8,7 @@ import { equipeStorage } from "@/lib/equipeStorage";
 import { ApprovalModal } from "./ApprovalModal";
 import { ModalMembro } from "@/components/equipe/ModalMembro";
 import { FuncaoEquipe, MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
-import { UserCheck, UserX, UserPlus, Edit, Search } from "lucide-react";
+import { UserCheck, UserX, UserPlus, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -207,32 +207,21 @@ export const AdminMembersPanel = () => {
                     key={membro.id}
                     className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
-                    <div className="flex justify-between items-start flex-1 min-w-0">
-                      <div className="space-y-1 min-w-0">
-                        <p className="font-medium truncate" title={membro.nome}>{membro.nome}</p>
-                        <p className="text-sm text-muted-foreground truncate" title={membro.email}>{membro.email}</p>
-                      </div>
-                      <Badge className="bg-green-600 flex-shrink-0">Ativo</Badge>
-                    </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto md:max-w-[250px]">
-                      <Select
-                        value={membro.funcaoPrincipal}
-                        onValueChange={(value) => equipeStorage.update(membro.id, { funcaoPrincipal: value as FuncaoEquipe }) && loadData()}
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="font-medium truncate cursor-pointer hover:text-primary transition-colors"
+                        title={membro.nome}
+                        onClick={() => handleEditarClick(membro)}
                       >
-                        <SelectTrigger className="w-full md:w-[200px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {funcoesDisponiveis.filter(f => f.value !== 'todas').map((funcao) => (
-                            <SelectItem key={funcao.value} value={funcao.value}>
-                              {funcao.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button variant="outline" size="icon" onClick={() => handleEditarClick(membro)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                        {membro.nome}
+                      </p>
+                      <p className="text-sm text-muted-foreground truncate" title={membro.email}>{membro.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge variant="outline">
+                        {funcoesDisponiveis.find(f => f.value === membro.funcaoPrincipal)?.label || membro.funcaoPrincipal}
+                      </Badge>
+                      <Badge className="bg-green-600">Ativo</Badge>
                     </div>
                   </div>
                 ))}
