@@ -129,30 +129,28 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-muted-foreground text-xs">Evento</Label>
-                  <p className="font-medium">{evento.motivo}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground text-xs">Data</Label>
-                  <p className="font-medium">{dataFormatada}</p>
-                </div>
+            <div className="bg-muted/50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-muted-foreground text-xs">Evento</Label>
+                <p className="font-medium text-sm truncate">{evento.motivo}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Data</Label>
+                <p className="font-medium text-sm">{dataFormatada}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
                   <UtensilsCrossed size={12} />
                   Cardápio
                 </Label>
-                <p className="font-medium text-sm">{cardapioFormatado}</p>
+                <p className="font-medium text-sm truncate">{cardapioFormatado}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
                   <GlassWater size={12} />
                   Bebidas
                 </Label>
-                <p className="font-medium text-sm">{bebidasFormatadas}</p>
+                <p className="font-medium text-sm truncate">{bebidasFormatadas}</p>
               </div>
             </div>
 
