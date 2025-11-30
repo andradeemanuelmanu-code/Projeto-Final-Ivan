@@ -6,9 +6,10 @@ import { parseLocalDate } from "@/lib/utils";
 
 interface ExecutedEventsListProps {
   eventos: Evento[];
+  onEventoClick: (eventoId: string) => void;
 }
 
-export function ExecutedEventsList({ eventos }: ExecutedEventsListProps) {
+export function ExecutedEventsList({ eventos, onEventoClick }: ExecutedEventsListProps) {
   const eventosExecutados = eventos.filter(
     (evento) => parseLocalDate(evento.data) < new Date()
   );
@@ -37,7 +38,8 @@ export function ExecutedEventsList({ eventos }: ExecutedEventsListProps) {
           return (
             <div
               key={evento.id}
-              className="p-4 md:grid md:grid-cols-[2fr_1.5fr_1fr_1fr] md:gap-4 md:items-center md:px-4 md:py-3"
+              className="p-4 md:grid md:grid-cols-[2fr_1.5fr_1fr_1fr] md:gap-4 md:items-center md:px-4 md:py-3 cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => onEventoClick(evento.id)}
             >
               {/* Motivo e Total (Mobile) */}
               <div className="flex justify-between items-start md:block">

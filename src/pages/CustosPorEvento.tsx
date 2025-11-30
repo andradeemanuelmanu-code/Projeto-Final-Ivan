@@ -139,7 +139,7 @@ export default function CustosPorEvento() {
           <h2 className="font-display text-2xl font-bold text-foreground">
             Eventos Executados
           </h2>
-          <ExecutedEventsList eventos={eventos} />
+          <ExecutedEventsList eventos={eventos} onEventoClick={handleCardClick} />
         </div>
       </div>
 
