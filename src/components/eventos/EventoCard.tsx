@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, DollarSign, Edit, Trash2, UtensilsCrossed, GlassWater } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Edit, Trash2, UtensilsCrossed, GlassWater, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/evento";
@@ -10,6 +10,7 @@ interface EventoCardProps {
   evento: Evento;
   onEdit: (evento: Evento) => void;
   onDelete: (id: string) => void;
+  onManagePayment: (evento: Evento) => void;
 }
 
 const statusConfig = {
@@ -41,7 +42,7 @@ const cardapioLabels: Record<string, string> = {
   "jantar": "Jantar"
 };
 
-export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
+export const EventoCard = ({ evento, onEdit, onDelete, onManagePayment }: EventoCardProps) => {
   const config = statusConfig[evento.statusPagamento];
   
   const dataFormatada = format(parseLocalDate(evento.data), "dd/MM/yyyy", { locale: ptBR });
@@ -134,6 +135,15 @@ export const EventoCard = ({ evento, onEdit, onDelete }: EventoCardProps) => {
         {renderValor()}
         
         <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onManagePayment(evento)}
+            className="hover:bg-primary hover:text-primary-foreground h-8 w-8 p-0"
+            aria-label="Gerenciar pagamento"
+          >
+            <CreditCard size={14} />
+          </Button>
           <Button
             variant="outline"
             size="sm"

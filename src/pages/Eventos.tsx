@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { EventoCard } from "@/components/eventos/EventoCard";
 import { EventoModal } from "@/components/eventos/EventoModal";
 import { GerenciarOpcoesModal } from "@/components/eventos/GerenciarOpcoesModal";
+import { ModalGerenciamentoPagamento } from "@/components/eventos/ModalGerenciamentoPagamento";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { Evento, EventoFormData } from "@/types/evento";
 import { toast } from "@/hooks/use-toast";
@@ -21,10 +22,16 @@ import {
 
 const Eventos = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
+  
+  // States for modals
   const [modalOpen, setModalOpen] = useState(false);
   const [gerenciarOpcoesOpen, setGerenciarOpcoesOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  
+  // States for selected items
   const [eventoEditando, setEventoEditando] = useState<Evento | undefined>();
   const [eventoParaDeletar, setEventoParaDeletar] = useState<string | null>(null);
+  const [eventoParaPagamento, setEventoParaPagamento] = useState<Evento | null>(null);
 
   const carregarEventos = () => {
     const eventosOrdenados = eventosStorage.getAllSorted();
@@ -81,6 +88,25 @@ const Eventos = () => {
     setModalOpen(true);
   };
 
+  // Handlers for payment modal
+  const handleOpenPaymentModal = (evento: Evento) => {
+    setEventoParaPagamento(evento);
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleSavePayment = (data: Partial<Evento>) => {
+    if (eventoParaPagamento) {
+      eventosStorage.update(eventoParaPagamento.id, data);
+      toast({
+        title: "Pagamento atualizado",
+        description: "As informações de pagamento foram salvas.",
+      });
+      carregarEventos();
+      setIsPaymentModalOpen(false);
+      setEventoParaPagamento(null);
+    }
+  };
+
   return (
     <DashboardLayout
       title="Administração de Eventos"
@@ -129,6 +155,7 @@ const Eventos = () => {
                 evento={evento}
                 onEdit={handleEditar}
                 onDelete={handleDeletar}
+                onManagePayment={handleOpenPaymentModal}
               />
             ))}
           </div>
@@ -149,6 +176,17 @@ const Eventos = () => {
         <GerenciarOpcoesModal
           open={gerenciarOpcoesOpen}
           onOpenChange={setGerenciarOpcoesOpen}
+        />
+
+        {/* Payment Management Modal */}
+        <ModalGerenciamentoPagamento
+          open={isPaymentModalOpen}
+          onClose={() => {
+            setIsPaymentModalOpen(false);
+            setEventoParaPagamento(null);
+          }}
+          onSave={handleSavePayment}
+          evento={eventoParaPagamento}
         />
 
         {/* Dialog de Confirmação de Exclusão */}
