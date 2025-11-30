@@ -51,7 +51,9 @@ const Financeiro = () => {
     const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
 
     const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
-    const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
+    const totalImpostos = notasMes
+      .filter(nota => nota.situacaoImposto === 'pago')
+      .reduce((acc, nota) => acc + nota.valorImposto, 0);
 
     const custoEquipe = avaliacoes
       .filter(av => eventosIds.includes(av.eventoId))
@@ -102,7 +104,9 @@ const Financeiro = () => {
     const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
 
     const notasMes = notas.filter((nota) => eventosIds.includes(nota.eventoId));
-    const totalImpostos = notasMes.reduce((acc, nota) => acc + nota.valorImposto, 0);
+    const totalImpostos = notasMes
+      .filter(nota => nota.situacaoImposto === 'pago')
+      .reduce((acc, nota) => acc + nota.valorImposto, 0);
 
     const custoEquipe = avaliacoes
       .filter(av => eventosIds.includes(av.eventoId))
@@ -160,7 +164,9 @@ const Financeiro = () => {
         .reduce((acc, av) => acc + av.valorEscala, 0);
 
       const totalCustosFixos = custosFixos.reduce((acc, custo) => acc + custo.valor, 0);
-      const impostos = notas.filter(n => eventosIds.includes(n.eventoId)).reduce((acc, nota) => acc + nota.valorImposto, 0);
+      const impostos = notas
+        .filter(n => eventosIds.includes(n.eventoId) && n.situacaoImposto === 'pago')
+        .reduce((acc, nota) => acc + nota.valorImposto, 0);
       const lucro = faturamento - custosVariaveisEvento - custoEquipe - totalCustosFixos - impostos;
 
       dadosLinha.push({ mes: mesLabel, faturamento, lucro });
