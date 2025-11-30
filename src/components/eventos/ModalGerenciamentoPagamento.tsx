@@ -95,7 +95,6 @@ export const ModalGerenciamentoPagamento = ({ open, onClose, onSave, evento }: M
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pending">Pendente</SelectItem>
-                <SelectItem value="quote">Orçamento</SelectItem>
                 <SelectItem value="paid">Pago</SelectItem>
               </SelectContent>
             </Select>

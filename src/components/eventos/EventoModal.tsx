@@ -388,7 +388,6 @@ export const EventoModal = ({ open, onClose, onSave, evento }: EventoModalProps)
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pendente</SelectItem>
-                    <SelectItem value="quote">Orçamento</SelectItem>
                     <SelectItem value="paid">Pago</SelectItem>
                   </SelectContent>
                 </Select>

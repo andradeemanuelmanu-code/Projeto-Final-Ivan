@@ -40,7 +40,7 @@ export const mockEvents: Event[] = [
     location: "Clube Atlético, São Paulo",
     guests: 300,
     value: "62.000",
-    status: "quote"
+    status: "pending"
   },
   {
     id: "4",

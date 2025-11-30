@@ -2,7 +2,7 @@ import { Calendar, MapPin, Users, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export type EventStatus = "pending" | "paid" | "quote";
+export type EventStatus = "pending" | "paid";
 
 interface EventCardProps {
   title: string;
@@ -24,11 +24,6 @@ const statusConfig = {
     label: "Pago",
     className: "bg-[hsl(var(--status-paid))] text-white",
     cardClass: "event-card-paid"
-  },
-  quote: {
-    label: "Orçamento",
-    className: "bg-[hsl(var(--status-quote))] text-white",
-    cardClass: "event-card-quote"
   }
 };
 

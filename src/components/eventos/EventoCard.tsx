@@ -23,11 +23,6 @@ const statusConfig = {
     label: "Pago",
     className: "bg-[hsl(var(--status-paid))] text-white",
     borderColor: "border-l-[hsl(var(--status-paid))]"
-  },
-  quote: {
-    label: "Orçamento",
-    className: "bg-[hsl(var(--status-quote))] text-white",
-    borderColor: "border-l-[hsl(var(--status-quote))]"
   }
 };
 

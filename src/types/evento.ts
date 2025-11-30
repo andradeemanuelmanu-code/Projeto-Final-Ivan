@@ -1,4 +1,4 @@
-export type StatusPagamento = "pending" | "quote" | "paid";
+export type StatusPagamento = "pending" | "paid";
 export type MetodoPagamento = "pix" | "credito" | "debito" | "boleto";
 export type TipoCardapio = string; // Alterado para string para permitir opções dinâmicas
 

@@ -32,13 +32,7 @@ const statusConfig = {
     textColor: "text-[hsl(var(--status-paid))]", 
     bgLight: "bg-[hsl(var(--status-paid))/0.1]",
     borderColor: "border-[hsl(var(--status-paid))]"
-  },
-  quote: { 
-    label: "Orçamento", 
-    textColor: "text-[hsl(var(--status-quote))]", 
-    bgLight: "bg-[hsl(var(--status-quote))/0.1]",
-    borderColor: "border-[hsl(var(--status-quote))]"
-  },
+  }
 };
 
 const FUNCAO_LABELS: Record<string, string> = {
