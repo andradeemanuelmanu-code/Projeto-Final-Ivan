@@ -16,7 +16,7 @@ import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate } from "@/lib/utils";
-import { Users } from "lucide-react";
+import { Users, UtensilsCrossed, GlassWater } from "lucide-react";
 import { ModalSelecaoFuncao } from "./ModalSelecaoFuncao";
 
 interface ModalEscalaEquipeProps {
@@ -34,6 +34,17 @@ const FUNCAO_LABELS: Record<FuncaoEquipe, string> = {
   garcom: "Garçons",
   barman: "Barmen",
   maitre: "Maîtres",
+};
+
+const CARDAPIO_LABELS: Record<string, string> = {
+  "churrasco-tradicional": "Churrasco Tradicional",
+  "churrasco-prime": "Churrasco Prime",
+  "churrasco-vip": "Churrasco VIP",
+  "massas": "Massas",
+  "roda-boteco": "Roda de Boteco",
+  "coffee-break": "Coffee Break",
+  "evento-kids": "Evento Kids",
+  "jantar": "Jantar",
 };
 
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
@@ -97,6 +108,14 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   if (!evento) return null;
 
   const dataFormatada = format(parseLocalDate(evento.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  
+  const cardapioFormatado = evento.cardapio.length > 0
+    ? evento.cardapio.map(c => CARDAPIO_LABELS[c] || c).join(", ")
+    : "Não definido";
+
+  const bebidasFormatadas = evento.bebidas.length > 0
+    ? evento.bebidas.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(", ")
+    : "Não incluídas";
 
   return (
     <>
@@ -110,14 +129,30 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <div>
-                <Label className="text-muted-foreground text-xs">Evento</Label>
-                <p className="font-medium">{evento.motivo}</p>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-muted-foreground text-xs">Evento</Label>
+                  <p className="font-medium">{evento.motivo}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs">Data</Label>
+                  <p className="font-medium">{dataFormatada}</p>
+                </div>
               </div>
               <div>
-                <Label className="text-muted-foreground text-xs">Data</Label>
-                <p className="font-medium">{dataFormatada}</p>
+                <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
+                  <UtensilsCrossed size={12} />
+                  Cardápio
+                </Label>
+                <p className="font-medium text-sm">{cardapioFormatado}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
+                  <GlassWater size={12} />
+                  Bebidas
+                </Label>
+                <p className="font-medium text-sm">{bebidasFormatadas}</p>
               </div>
             </div>
 
