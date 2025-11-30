@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ModalMembroProps {
   open: boolean;
@@ -99,11 +98,6 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
     onOpenChange(false);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSave();
-  };
-
   const handleFuncaoSecundariaChange = (funcao: FuncaoEquipe) => {
     setFormData(prev => {
       const funcoesAtuais = prev.funcoesSecundarias || [];
@@ -117,8 +111,8 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-4">
+      <DialogContent className="max-w-md">
+        <DialogHeader>
           <DialogTitle className="font-display text-xl">
             {membro ? "Editar Membro" : "Adicionar Membro"}
           </DialogTitle>
@@ -127,103 +121,99 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col min-h-0">
-          <ScrollArea className="flex-1 px-6">
-            <div className="space-y-4 py-4">
-              {/* Nome */}
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome Completo *</Label>
-                <Input
-                  id="nome"
-                  placeholder="Ex: João Silva"
-                  value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                />
-                {errors.nome && <p className="text-sm text-destructive">{errors.nome}</p>}
-              </div>
+        <div className="space-y-4 py-4">
+          {/* Nome */}
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome Completo *</Label>
+            <Input
+              id="nome"
+              placeholder="Ex: João Silva"
+              value={formData.nome}
+              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+            />
+            {errors.nome && <p className="text-sm text-destructive">{errors.nome}</p>}
+          </div>
 
-              {/* Função Principal */}
-              <div className="space-y-2">
-                <Label htmlFor="funcaoPrincipal">Função Principal *</Label>
-                <Select
-                  value={formData.funcaoPrincipal}
-                  onValueChange={(value) => setFormData({ ...formData, funcaoPrincipal: value as FuncaoEquipe })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma função" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FUNCOES.map(funcao => (
-                      <SelectItem key={funcao.value} value={funcao.value}>
-                        {funcao.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Funções Secundárias */}
-              <div className="space-y-2">
-                <Label>Funções Secundárias</Label>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-md border p-4">
-                  {FUNCOES.map(funcao => (
-                    <div key={funcao.value} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`funcao-sec-${funcao.value}`}
-                        checked={formData.funcoesSecundarias.includes(funcao.value)}
-                        disabled={formData.funcaoPrincipal === funcao.value}
-                        onCheckedChange={() => handleFuncaoSecundariaChange(funcao.value)}
-                      />
-                      <Label
-                        htmlFor={`funcao-sec-${funcao.value}`}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {funcao.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Telefone */}
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone *</Label>
-                <Input
-                  id="telefone"
-                  placeholder="(00) 00000-0000"
-                  value={formData.telefone}
-                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                />
-                {errors.telefone && <p className="text-sm text-destructive">{errors.telefone}</p>}
-              </div>
-
-              {/* E-mail */}
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="exemplo@email.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
-            </div>
-          </ScrollArea>
-
-          <DialogFooter className="p-6 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              type="submit"
-              className="bg-[#C44536] hover:bg-[#C44536]/90"
+          {/* Função Principal */}
+          <div className="space-y-2">
+            <Label htmlFor="funcaoPrincipal">Função Principal *</Label>
+            <Select
+              value={formData.funcaoPrincipal}
+              onValueChange={(value) => setFormData({ ...formData, funcaoPrincipal: value as FuncaoEquipe })}
             >
-              {membro ? "Atualizar" : "Adicionar"}
-            </Button>
-          </DialogFooter>
-        </form>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma função" />
+              </SelectTrigger>
+              <SelectContent>
+                {FUNCOES.map(funcao => (
+                  <SelectItem key={funcao.value} value={funcao.value}>
+                    {funcao.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Funções Secundárias */}
+          <div className="space-y-2">
+            <Label>Funções Secundárias</Label>
+            <div className="space-y-2 rounded-md border p-4">
+              {FUNCOES.map(funcao => (
+                <div key={funcao.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`funcao-sec-${funcao.value}`}
+                    checked={formData.funcoesSecundarias.includes(funcao.value)}
+                    disabled={formData.funcaoPrincipal === funcao.value}
+                    onCheckedChange={() => handleFuncaoSecundariaChange(funcao.value)}
+                  />
+                  <Label
+                    htmlFor={`funcao-sec-${funcao.value}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {funcao.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Telefone */}
+          <div className="space-y-2">
+            <Label htmlFor="telefone">Telefone *</Label>
+            <Input
+              id="telefone"
+              placeholder="(00) 00000-0000"
+              value={formData.telefone}
+              onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+            />
+            {errors.telefone && <p className="text-sm text-destructive">{errors.telefone}</p>}
+          </div>
+
+          {/* E-mail */}
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mail *</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="exemplo@email.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSave}
+            className="bg-[#C44536] hover:bg-[#C44536]/90"
+          >
+            {membro ? "Atualizar" : "Adicionar"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
