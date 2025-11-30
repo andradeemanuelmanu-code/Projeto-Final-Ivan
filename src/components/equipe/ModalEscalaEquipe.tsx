@@ -16,8 +16,9 @@ import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate } from "@/lib/utils";
-import { Users, UtensilsCrossed, GlassWater } from "lucide-react";
+import { Users, UtensilsCrossed, GlassWater, Trash2 } from "lucide-react";
 import { ModalSelecaoFuncao } from "./ModalSelecaoFuncao";
+import { Separator } from "@/components/ui/separator";
 
 interface ModalEscalaEquipeProps {
   open: boolean;
@@ -81,6 +82,33 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     }
   }, [evento, open]);
 
+  const equipeEscaladaAgrupada = useMemo(() => {
+    const agrupados: Record<string, { id: string; nome: string }[]> = {};
+
+    membrosSelecionados.forEach(selecionado => {
+      const membroInfo = membros.find(m => m.id === selecionado.membroId);
+      if (membroInfo) {
+        if (!agrupados[selecionado.funcao]) {
+          agrupados[selecionado.funcao] = [];
+        }
+        agrupados[selecionado.funcao].push({ id: membroInfo.id, nome: membroInfo.nome });
+      }
+    });
+
+    const sortedAgrupados: Record<string, { id: string; nome: string }[]> = {};
+    Object.keys(FUNCAO_LABELS).forEach(funcaoKey => {
+      if (agrupados[funcaoKey]) {
+        sortedAgrupados[funcaoKey] = agrupados[funcaoKey];
+      }
+    });
+
+    return sortedAgrupados;
+  }, [membrosSelecionados, membros]);
+
+  const handleRemoverMembro = (membroId: string) => {
+    setMembrosSelecionados(prev => prev.filter(m => m.membroId !== membroId));
+  };
+
   const handleAbrirModalFuncao = (funcao: FuncaoEquipe) => {
     setFuncaoSelecionada(funcao);
     setModalFuncaoOpen(true);
@@ -120,71 +148,109 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-4">
             <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
             <DialogDescription>
               Clique em uma função para selecionar os membros para este evento.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="bg-muted/50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-muted-foreground text-xs">Evento</Label>
-                <p className="font-medium text-sm truncate">{evento.motivo}</p>
+          <div className="flex-1 min-h-0 overflow-y-auto px-6">
+            <div className="space-y-6 py-4">
+              <div className="bg-muted/50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-muted-foreground text-xs">Evento</Label>
+                  <p className="font-medium text-sm truncate">{evento.motivo}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs">Data</Label>
+                  <p className="font-medium text-sm">{dataFormatada}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
+                    <UtensilsCrossed size={12} />
+                    Cardápio
+                  </Label>
+                  <p className="font-medium text-sm truncate">{cardapioFormatado}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
+                    <GlassWater size={12} />
+                    Bebidas
+                  </Label>
+                  <p className="font-medium text-sm truncate">{bebidasFormatadas}</p>
+                </div>
               </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">Data</Label>
-                <p className="font-medium text-sm">{dataFormatada}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
-                  <UtensilsCrossed size={12} />
-                  Cardápio
-                </Label>
-                <p className="font-medium text-sm truncate">{cardapioFormatado}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs flex items-center gap-1.5">
-                  <GlassWater size={12} />
-                  Bebidas
-                </Label>
-                <p className="font-medium text-sm truncate">{bebidasFormatadas}</p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => {
-                const selecionadosNestaFuncao = membrosSelecionados.filter(m => m.funcao === funcao).length;
-                return (
-                  <Card
-                    key={funcao}
-                    className="cursor-pointer hover:shadow-md hover:border-primary transition-all"
-                    onClick={() => handleAbrirModalFuncao(funcao as FuncaoEquipe)}
-                  >
-                    <CardHeader className="p-4">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Users size={18} className="text-primary" />
-                        {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <p className="text-xl font-bold">
-                        {selecionadosNestaFuncao}
-                        <span className="text-sm font-normal text-muted-foreground">
-                          {" "}
-                          / {membrosDoGrupo.length} selecionados
-                        </span>
-                      </p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => {
+                  const selecionadosNestaFuncao = membrosSelecionados.filter(m => m.funcao === funcao).length;
+                  return (
+                    <Card
+                      key={funcao}
+                      className="cursor-pointer hover:shadow-md hover:border-primary transition-all"
+                      onClick={() => handleAbrirModalFuncao(funcao as FuncaoEquipe)}
+                    >
+                      <CardHeader className="p-4">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <Users size={18} className="text-primary" />
+                          {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <p className="text-xl font-bold">
+                          {selecionadosNestaFuncao}
+                          <span className="text-sm font-normal text-muted-foreground">
+                            {" "}
+                            / {membrosDoGrupo.length} selecionados
+                          </span>
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <Separator className="my-6" />
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Equipe Escalada ({membrosSelecionados.length})</h3>
+                {membrosSelecionados.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8 border-2 border-dashed rounded-lg">
+                    <p>Nenhum membro selecionado.</p>
+                    <p className="text-sm">Clique em uma função acima para começar.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {Object.entries(equipeEscaladaAgrupada).map(([funcao, membrosDaFuncao]) => (
+                      <div key={funcao}>
+                        <Label className="text-muted-foreground">
+                          {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao}
+                        </Label>
+                        <div className="mt-2 space-y-2">
+                          {membrosDaFuncao.map(membro => (
+                            <div key={membro.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
+                              <span className="text-sm">{membro.nome}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleRemoverMembro(membro.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="p-6 pt-4 border-t">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
