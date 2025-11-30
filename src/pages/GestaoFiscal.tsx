@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { NotaFiscalCard } from "@/components/fiscal/NotaFiscalCard";
 import { ModalRegistrarNota } from "@/components/fiscal/ModalRegistrarNota";
-import { ModalEditarSituacao } from "@/components/fiscal/ModalEditarSituacao";
 import { ResumoFiscal } from "@/components/fiscal/ResumoFiscal";
 import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
 import { eventosStorage } from "@/lib/eventosStorage";
@@ -17,8 +16,6 @@ export default function GestaoFiscal() {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [notaParaEditar, setNotaParaEditar] = useState<NotaFiscal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -46,19 +43,13 @@ export default function GestaoFiscal() {
     });
   };
 
-  const handleEditStatus = (nota: NotaFiscal) => {
-    setNotaParaEditar(nota);
-    setIsEditModalOpen(true);
-  };
-
-  const handleSalvarStatus = (id: string, situacao: SituacaoImposto) => {
-    notasFiscaisStorage.updateSituacaoImposto(id, situacao);
+  const handleToggleStatus = (nota: NotaFiscal) => {
+    const novoStatus: SituacaoImposto = nota.situacaoImposto === "pago" ? "pendente" : "pago";
+    notasFiscaisStorage.updateSituacaoImposto(nota.id, novoStatus);
     carregarDados();
-    setIsEditModalOpen(false);
-    setNotaParaEditar(null);
     toast({
       title: "Situação atualizada",
-      description: "O status do imposto foi alterado com sucesso.",
+      description: `O status do imposto foi alterado para ${novoStatus === 'pago' ? 'Pago' : 'Pendente'}.`,
     });
   };
 
@@ -119,7 +110,7 @@ export default function GestaoFiscal() {
                 {notas.map((nota) => {
                   const evento = getEventoById(nota.eventoId);
                   return evento ? (
-                    <NotaFiscalCard key={nota.id} nota={nota} evento={evento} onEditStatus={handleEditStatus} />
+                    <NotaFiscalCard key={nota.id} nota={nota} evento={evento} onToggleStatus={handleToggleStatus} />
                   ) : null;
                 })}
               </div>
@@ -133,14 +124,6 @@ export default function GestaoFiscal() {
         onOpenChange={setIsModalOpen}
         eventos={eventosDisponiveis}
         onSave={handleSalvarNota}
-      />
-
-      <ModalEditarSituacao
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-        nota={notaParaEditar}
-        evento={notaParaEditar ? getEventoById(notaParaEditar.eventoId) : undefined}
-        onSave={handleSalvarStatus}
       />
     </DashboardLayout>
   );

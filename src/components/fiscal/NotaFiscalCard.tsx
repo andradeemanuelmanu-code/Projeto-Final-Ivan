@@ -3,8 +3,7 @@ import { Evento } from "@/types/evento";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Calendar, User, DollarSign, TrendingUp, MoreVertical } from "lucide-react";
+import { FileText, Calendar, User, DollarSign, TrendingUp, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate, cn } from "@/lib/utils";
@@ -12,7 +11,7 @@ import { parseLocalDate, cn } from "@/lib/utils";
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
   evento: Evento;
-  onEditStatus: (nota: NotaFiscal) => void;
+  onToggleStatus: (nota: NotaFiscal) => void;
 }
 
 const tipoNotaLabels: Record<string, string> = {
@@ -27,7 +26,7 @@ const tipoImpostoLabels: Record<string, string> = {
   outro: "Outro",
 };
 
-export function NotaFiscalCard({ nota, evento, onEditStatus }: NotaFiscalCardProps) {
+export function NotaFiscalCard({ nota, evento, onToggleStatus }: NotaFiscalCardProps) {
   const getStatusColor = () => {
     if (nota.situacaoNota === "nao-emitida") return "bg-red-500";
     if (nota.situacaoNota === "aguardando" || nota.situacaoImposto === "pendente") return "bg-yellow-500";
@@ -77,18 +76,16 @@ export function NotaFiscalCard({ nota, evento, onEditStatus }: NotaFiscalCardPro
             <Badge className={cn("font-semibold", getBadgeClasses())}>
               {getStatusLabel()}
             </Badge>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEditStatus(nota)}>
-                  Alterar Situação do Imposto
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onToggleStatus(nota)}
+              disabled={nota.situacaoNota === 'nao-emitida'}
+              title="Alterar status do imposto"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
