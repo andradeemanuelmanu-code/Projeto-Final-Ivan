@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, addDays, isSameMonth, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2, Users, DollarSign, UtensilsCrossed } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, User, MapPin, CreditCard, Edit, Trash2, Users, DollarSign, UtensilsCrossed, CalendarDays, CalendarRange, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,9 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EventoModal } from "@/components/eventos/EventoModal";
 import { opcoesStorage } from "@/lib/opcoesStorage";
 
-interface AgendaCalendarProps {
-  viewMode: "month" | "week" | "day";
-}
+type ViewMode = "month" | "week" | "day";
 
 const statusConfig = {
   pending: { 
@@ -46,7 +44,8 @@ const FUNCAO_LABELS: Record<string, string> = {
   maitre: "Maître",
 };
 
-const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
+const AgendaCalendar = () => {
+  const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null);
@@ -372,7 +371,7 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
     <TooltipProvider>
       <div className="space-y-4">
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={handlePrevious}>
               <ChevronLeft size={20} />
@@ -382,9 +381,40 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
             </Button>
             <h3 className="font-semibold text-lg ml-2 capitalize">{getHeaderText()}</h3>
           </div>
-          <Button variant="outline" onClick={handleToday}>
-            Hoje
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={handleToday}>
+              Hoje
+            </Button>
+            <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
+              <Button
+                variant={viewMode === "month" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("month")}
+                className="gap-2"
+              >
+                <CalendarIcon size={16} />
+                <span className="hidden sm:inline">Mês</span>
+              </Button>
+              <Button
+                variant={viewMode === "week" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("week")}
+                className="gap-2"
+              >
+                <CalendarRange size={16} />
+                <span className="hidden sm:inline">Semana</span>
+              </Button>
+              <Button
+                variant={viewMode === "day" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("day")}
+                className="gap-2"
+              >
+                <CalendarDays size={16} />
+                <span className="hidden sm:inline">Dia</span>
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Calendar Grid */}
