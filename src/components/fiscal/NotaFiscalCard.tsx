@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FileText, Calendar, User, DollarSign, TrendingUp, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { parseLocalDate } from "@/lib/utils";
+import { parseLocalDate, cn } from "@/lib/utils";
 
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
@@ -29,20 +29,24 @@ const tipoImpostoLabels: Record<string, string> = {
 
 export function NotaFiscalCard({ nota, evento, onEditStatus }: NotaFiscalCardProps) {
   const getStatusColor = () => {
-    if (nota.situacaoNota === "nao-emitida" || nota.situacaoImposto === "pendente") {
-      return "bg-red-500";
-    }
-    if (nota.situacaoNota === "aguardando") {
-      return "bg-yellow-500";
-    }
-    return "bg-green-500";
+    if (nota.situacaoNota === "nao-emitida") return "bg-red-500";
+    if (nota.situacaoNota === "aguardando" || nota.situacaoImposto === "pendente") return "bg-yellow-500";
+    if (nota.situacaoImposto === "pago") return "bg-green-500";
+    return "bg-gray-400";
   };
 
   const getStatusLabel = () => {
     if (nota.situacaoNota === "nao-emitida") return "Nota não emitida";
     if (nota.situacaoNota === "aguardando") return "Aguardando emissão";
     if (nota.situacaoImposto === "pendente") return "Imposto pendente";
-    return "Nota emitida - Pago";
+    return "Imposto Pago";
+  };
+
+  const getBadgeClasses = () => {
+    if (nota.situacaoNota === "nao-emitida") return "bg-red-600 text-white";
+    if (nota.situacaoNota === "aguardando" || nota.situacaoImposto === "pendente") return "bg-yellow-500 text-yellow-950";
+    if (nota.situacaoImposto === "pago") return "bg-green-600 text-white";
+    return "bg-gray-500 text-white";
   };
 
   return (
@@ -70,7 +74,7 @@ export function NotaFiscalCard({ nota, evento, onEditStatus }: NotaFiscalCardPro
           </div>
           
           <div className="flex items-center gap-2">
-            <Badge variant={nota.situacaoNota === "emitida" && nota.situacaoImposto === "pago" ? "default" : "destructive"}>
+            <Badge className={cn("font-semibold", getBadgeClasses())}>
               {getStatusLabel()}
             </Badge>
             <DropdownMenu>
