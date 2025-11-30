@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -40,58 +41,58 @@ export const UserSettingsForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" />
-          Informações Pessoais
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Atualize seus dados de perfil
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="nome">Nome Completo</Label>
-          <Input
-            id="nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            placeholder="Seu nome"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      {/* Informações Pessoais */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5 text-primary" />
+            Informações Pessoais
+          </CardTitle>
+          <CardDescription>Atualize seus dados de perfil</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome Completo</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="pl-10"
+              id="nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Seu nome"
             />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="telefone">Telefone</Label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="telefone"
-              type="tel"
-              value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              placeholder="(00) 00000-0000"
-              className="pl-10"
-            />
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                className="pl-10"
+              />
+            </div>
           </div>
-        </div>
-        <Button onClick={handleSalvarPerfil} className="w-full sm:w-auto">
-          Salvar Alterações
-        </Button>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="telefone">Telefone</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="telefone"
+                type="tel"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                placeholder="(00) 00000-0000"
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <Button onClick={handleSalvarPerfil} className="w-full sm:w-auto">
+            Salvar Alterações
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };
