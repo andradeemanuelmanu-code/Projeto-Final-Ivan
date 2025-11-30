@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustoFixo } from "@/types/custoFixo";
-import { Evento } from "@/types/evento";
 import { Trash2, Receipt } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { parseLocalDate } from "@/lib/utils";
 
 interface TabelaCustosFixosProps {
   custos: CustoFixo[];
-  eventos: Evento[];
   onDelete: (id: string) => void;
 }
 
@@ -19,13 +20,7 @@ const tiposGastoLabels: Record<string, string> = {
   outros: "Outros",
 };
 
-export const TabelaCustosFixos = ({ custos, eventos, onDelete }: TabelaCustosFixosProps) => {
-  const getEventoNome = (eventoId?: string) => {
-    if (!eventoId || eventoId === "none") return "-";
-    const evento = eventos.find(e => e.id === eventoId);
-    return evento ? evento.motivo : "Evento não encontrado";
-  };
-
+export const TabelaCustosFixos = ({ custos, onDelete }: TabelaCustosFixosProps) => {
   if (custos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center h-full">
@@ -44,7 +39,7 @@ export const TabelaCustosFixos = ({ custos, eventos, onDelete }: TabelaCustosFix
       <div className="hidden md:grid md:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-2 border-b font-medium text-muted-foreground bg-muted/50">
         <div className="text-left">Descrição</div>
         <div className="text-left">Tipo</div>
-        <div className="text-left">Evento Associado</div>
+        <div className="text-left">Data</div>
         <div className="text-right">Valor</div>
         <div className="text-center">Ações</div>
       </div>
@@ -74,11 +69,11 @@ export const TabelaCustosFixos = ({ custos, eventos, onDelete }: TabelaCustosFix
                 <Badge variant="outline">{tiposGastoLabels[custo.tipo] || "N/A"}</Badge>
               </div>
 
-              {/* Coluna 3: Evento */}
+              {/* Coluna 3: Data */}
               <div className="flex justify-between items-center mt-1 md:mt-0">
-                <span className="md:hidden text-sm text-muted-foreground">Evento</span>
+                <span className="md:hidden text-sm text-muted-foreground">Data</span>
                 <span className="text-sm text-right md:text-left text-muted-foreground">
-                  {getEventoNome(custo.eventoId)}
+                  {format(parseLocalDate(custo.data), "dd/MM/yyyy", { locale: ptBR })}
                 </span>
               </div>
 

@@ -7,7 +7,6 @@ import { TabelaCustosFixos } from "@/components/custos-fixos/TabelaCustosFixos";
 import { MonthSelector } from "@/components/custos-fixos/MonthSelector";
 import { HistoricoMeses } from "@/components/custos-fixos/HistoricoMeses";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
-import { eventosStorage } from "@/lib/eventosStorage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -20,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CustoFixoFormData } from "@/types/custoFixo";
 
 const CustosFixosMensais = () => {
   const { toast } = useToast();
@@ -36,25 +36,18 @@ const CustosFixosMensais = () => {
 
   const [mesReferencia, setMesReferencia] = useState(mesReferenciaInicial);
   const [custos, setCustos] = useState(custosFixosStorage.getByMes(mesReferencia));
-  const [eventos, setEventos] = useState(eventosStorage.getAll());
   const [historico, setHistorico] = useState(custosFixosStorage.getHistoricoMeses(3));
 
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
       setCustos(custosFixosStorage.getByMes(mesReferencia));
-      setEventos(eventosStorage.getAll());
       setHistorico(custosFixosStorage.getHistoricoMeses(3));
       setLoading(false);
     }, 300);
   }, [mesReferencia]);
 
-  const handleSave = (data: {
-    descricao: string;
-    tipo: any;
-    valor: number;
-    eventoId?: string;
-  }) => {
+  const handleSave = (data: Omit<CustoFixoFormData, "mesReferencia">) => {
     custosFixosStorage.create({
       ...data,
       mesReferencia,
@@ -116,7 +109,6 @@ const CustosFixosMensais = () => {
           <>
             <TabelaCustosFixos
               custos={custos}
-              eventos={eventos}
               onDelete={handleDelete}
             />
             {custos.length > 0 && (
@@ -145,8 +137,6 @@ const CustosFixosMensais = () => {
           open={modalOpen}
           onOpenChange={setModalOpen}
           onSave={handleSave}
-          mesReferencia={mesReferencia}
-          eventos={eventos}
         />
 
         {/* Dialog de Confirmação de Exclusão */}

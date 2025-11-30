@@ -12,7 +12,7 @@ export interface CustoFixo {
   tipo: TipoCustoFixo;
   valor: number;
   mesReferencia: string; // formato: "2025-11"
-  eventoId?: string;
+  data: string; // formato: "YYYY-MM-DD"
   criadoEm: string;
 }
 

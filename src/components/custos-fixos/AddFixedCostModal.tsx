@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { TipoCustoFixo } from "@/types/custoFixo";
-import { Evento } from "@/types/evento";
-import { parseLocalDate } from "@/lib/utils";
 
 interface AddFixedCostModalProps {
   open: boolean;
@@ -15,10 +19,8 @@ interface AddFixedCostModalProps {
     descricao: string;
     tipo: TipoCustoFixo;
     valor: number;
-    eventoId?: string;
+    data: string;
   }) => void;
-  mesReferencia: string;
-  eventos: Evento[];
 }
 
 const tiposGasto: Array<{ value: TipoCustoFixo; label: string }> = [
@@ -34,29 +36,27 @@ export const AddFixedCostModal = ({
   open,
   onOpenChange,
   onSave,
-  mesReferencia,
-  eventos,
 }: AddFixedCostModalProps) => {
   const [descricao, setDescricao] = useState("");
   const [tipo, setTipo] = useState<TipoCustoFixo>("internet");
   const [valor, setValor] = useState("");
-  const [eventoId, setEventoId] = useState<string>("");
+  const [data, setData] = useState<Date | undefined>(new Date());
 
   const handleSave = () => {
-    if (!descricao || !valor) return;
+    if (!descricao || !valor || !data) return;
 
     onSave({
       descricao,
       tipo,
       valor: parseFloat(valor.replace(/[^\d,]/g, "").replace(",", ".")),
-      eventoId: eventoId || undefined,
+      data: format(data, "yyyy-MM-dd"),
     });
 
     // Reset form
     setDescricao("");
     setTipo("internet");
     setValor("");
-    setEventoId("");
+    setData(new Date());
     onOpenChange(false);
   };
 
@@ -64,7 +64,7 @@ export const AddFixedCostModal = ({
     setDescricao("");
     setTipo("internet");
     setValor("");
-    setEventoId("");
+    setData(new Date());
     onOpenChange(false);
   };
 
@@ -82,16 +82,6 @@ export const AddFixedCostModal = ({
     const valorFormatado = formatarValor(e.target.value);
     setValor(valorFormatado);
   };
-
-  // Filtrar eventos do mês atual
-  const eventosDoMes = eventos.filter(evento => {
-    const eventoData = parseLocalDate(evento.data);
-    const [ano, mes] = mesReferencia.split("-");
-    return (
-      eventoData.getFullYear() === parseInt(ano) &&
-      eventoData.getMonth() + 1 === parseInt(mes)
-    );
-  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -130,39 +120,42 @@ export const AddFixedCostModal = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="valor">Valor Total (R$)</Label>
-            <Input
-              id="valor"
-              value={valor}
-              onChange={handleValorChange}
-              placeholder="0,00"
-              className="bg-background"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="evento">Associar a Evento (opcional)</Label>
-            {eventosDoMes.length > 0 ? (
-              <Select value={eventoId} onValueChange={setEventoId}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Selecione um evento" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="none">Nenhum evento</SelectItem>
-                  {eventosDoMes.map((evento) => (
-                    <SelectItem key={evento.id} value={evento.id}>
-                      {evento.motivo} - {parseLocalDate(evento.data).toLocaleDateString("pt-BR")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                Nenhum evento registrado neste mês. Cadastre um evento antes de associar custos
-                fixos.
-              </p>
-            )}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="valor">Valor Total (R$)</Label>
+              <Input
+                id="valor"
+                value={valor}
+                onChange={handleValorChange}
+                placeholder="0,00"
+                className="bg-background"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="data">Data do Custo</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-background",
+                      !data && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {data ? format(data, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={data}
+                    onSelect={setData}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
 
@@ -172,7 +165,7 @@ export const AddFixedCostModal = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!descricao || !valor}
+            disabled={!descricao || !valor || !data}
             className="bg-accent hover:bg-accent/90"
           >
             Salvar Gasto
