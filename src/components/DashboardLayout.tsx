@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ThemeToggleButton } from "@/components/layout/ThemeToggleButton";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -135,6 +136,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
 
           <div className="flex items-center gap-2 sm:gap-4">
             <NotificationDropdown />
+            <ThemeToggleButton />
             <NavLink
               to="/configuracoes"
               activeClassName="text-primary bg-accent/10 rounded-lg"
