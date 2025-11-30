@@ -46,7 +46,7 @@ const Configuracoes = () => {
             {isAdmin && (
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
-                Administração
+                Gerenciamento de Membros
               </TabsTrigger>
             )}
           </TabsList>
