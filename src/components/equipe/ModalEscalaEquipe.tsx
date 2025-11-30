@@ -165,16 +165,16 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                     className="cursor-pointer hover:shadow-md hover:border-primary transition-all"
                     onClick={() => handleAbrirModalFuncao(funcao as FuncaoEquipe)}
                   >
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Users size={20} className="text-primary" />
+                    <CardHeader className="p-4">
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Users size={18} className="text-primary" />
                         {FUNCAO_LABELS[funcao as FuncaoEquipe] || funcao}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl font-bold">
+                    <CardContent className="p-4 pt-0">
+                      <p className="text-xl font-bold">
                         {selecionadosNestaFuncao}
-                        <span className="text-base font-normal text-muted-foreground">
+                        <span className="text-sm font-normal text-muted-foreground">
                           {" "}
                           / {membrosDoGrupo.length} selecionados
                         </span>
