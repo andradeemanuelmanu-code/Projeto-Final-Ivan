@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, Download } from "lucide-react";
+import { Plus, Filter } from "lucide-react";
 import { NotaFiscalCard } from "@/components/fiscal/NotaFiscalCard";
 import { ModalRegistrarNota } from "@/components/fiscal/ModalRegistrarNota";
 import { ModalEditarSituacao } from "@/components/fiscal/ModalEditarSituacao";
@@ -124,7 +124,7 @@ export default function GestaoFiscal() {
               percentualMedio={resumo.percentualMedio}
             />
 
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-start">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <Select value={filtro} onValueChange={setFiltro}>
@@ -139,11 +139,6 @@ export default function GestaoFiscal() {
                   </SelectContent>
                 </Select>
               </div>
-
-              <Button variant="outline" className="gap-2">
-                <Download className="h-4 w-4" />
-                Exportar
-              </Button>
             </div>
 
             {notasFiltradas.length === 0 ? (
