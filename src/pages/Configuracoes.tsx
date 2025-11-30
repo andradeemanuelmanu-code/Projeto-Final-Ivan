@@ -7,9 +7,11 @@ import { initializeMockUsuariosPendentes } from "@/lib/initializeMockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Configuracoes = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Inicializa usuário padrão se não existir
@@ -46,7 +48,7 @@ const Configuracoes = () => {
             {isAdmin && (
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
-                Gerenciamento de Membros
+                {isMobile ? "Membros" : "Gerenciamento de Membros"}
               </TabsTrigger>
             )}
           </TabsList>
