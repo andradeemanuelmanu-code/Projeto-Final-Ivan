@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Calendar, LayoutDashboard, Users, Settings, Menu, ChevronLeft, DollarSign, Receipt, Star, FileText, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggleButton } from "@/components/layout/ThemeToggleButton";
+import { usuarioLogadoStorage } from "@/lib/usuarioLogadoStorage";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -16,7 +17,15 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, title, description }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userName, setUserName] = useState("Admin");
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const usuario = usuarioLogadoStorage.get();
+    if (usuario) {
+      setUserName(usuario.nome);
+    }
+  }, []);
 
   // A sidebar está expandida se não estiver colapsada no desktop, ou se for a visualização mobile.
   const isExpanded = !sidebarCollapsed || isMobile;
@@ -100,7 +109,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
           <div className={cn("flex items-center", !isExpanded && "justify-center")}>
             {isExpanded && (
               <div className="flex-1 px-4">
-                <p className="font-medium text-sm text-sidebar-foreground">Admin</p>
+                <p className="font-medium text-sm text-sidebar-foreground">{userName}</p>
               </div>
             )}
           </div>
