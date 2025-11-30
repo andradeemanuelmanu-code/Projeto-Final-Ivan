@@ -139,9 +139,9 @@ export const AdminMembersPanel = () => {
                     key={usuario.id}
                     className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
-                    <div className="space-y-1">
-                      <p className="font-medium">{usuario.nome}</p>
-                      <p className="text-sm text-muted-foreground">{usuario.email}</p>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <p className="font-medium truncate" title={usuario.nome}>{usuario.nome}</p>
+                      <p className="text-sm text-muted-foreground truncate" title={usuario.email}>{usuario.email}</p>
                       <Badge variant="outline" className="text-yellow-600 border-yellow-600">
                         Pendente
                       </Badge>
@@ -207,12 +207,12 @@ export const AdminMembersPanel = () => {
                     key={membro.id}
                     className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4"
                   >
-                    <div className="flex justify-between items-start flex-1">
-                      <div className="space-y-1">
-                        <p className="font-medium">{membro.nome}</p>
-                        <p className="text-sm text-muted-foreground">{membro.email}</p>
+                    <div className="flex justify-between items-start flex-1 min-w-0">
+                      <div className="space-y-1 min-w-0">
+                        <p className="font-medium truncate" title={membro.nome}>{membro.nome}</p>
+                        <p className="text-sm text-muted-foreground truncate" title={membro.email}>{membro.email}</p>
                       </div>
-                      <Badge className="bg-green-600">Ativo</Badge>
+                      <Badge className="bg-green-600 flex-shrink-0">Ativo</Badge>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto md:max-w-[250px]">
                       <Select
