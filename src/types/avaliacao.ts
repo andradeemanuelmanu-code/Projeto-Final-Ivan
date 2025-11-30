@@ -1,5 +1,5 @@
 export type AvaliacaoTrabalho = "ruim" | "razoavel" | "bom" | "excelente";
-export type AvaliacaoPontualidade = "atrasado" | "no-horario" | "adiantado";
+export type AvaliacaoPontualidade = "atrasado" | "no-horario";
 
 export interface Avaliacao {
   id: string;

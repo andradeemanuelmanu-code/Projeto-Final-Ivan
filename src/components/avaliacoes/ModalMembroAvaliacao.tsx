@@ -50,7 +50,7 @@ export const ModalMembroAvaliacao = ({
     if (trabalho === "excelente") {
       bonusCalculado += 30;
     }
-    if (pontualidade === "no-horario" || pontualidade === "adiantado") {
+    if (pontualidade === "no-horario") {
       bonusCalculado += 30;
     }
     setBonus(bonusCalculado);
@@ -131,7 +131,6 @@ export const ModalMembroAvaliacao = ({
               <SelectContent>
                 <SelectItem value="atrasado">Atrasado</SelectItem>
                 <SelectItem value="no-horario">No horário (+ R$ 30,00)</SelectItem>
-                <SelectItem value="adiantado">Adiantado (+ R$ 30,00)</SelectItem>
               </SelectContent>
             </Select>
           </div>
