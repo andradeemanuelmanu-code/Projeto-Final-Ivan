@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { equipeStorage } from "@/lib/equipeStorage";
 import { ApprovalModal } from "./ApprovalModal";
 import { ModalMembro } from "@/components/equipe/ModalMembro";
 import { FuncaoEquipe, MembroEquipe, MembroEquipeFormData } from "@/types/equipe";
-import { UserCheck, UserX, Users, UserPlus, Edit, Search } from "lucide-react";
+import { UserCheck, UserX, UserPlus, Edit, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -126,18 +126,7 @@ export const AdminMembersPanel = () => {
   return (
     <>
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Gerenciamento de Membros
-              </CardTitle>
-              <CardDescription>Aprove novos membros e gerencie funções</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-6">
           {/* Usuários Pendentes */}
           {pendentes.length > 0 && (
             <div className="space-y-3">
