@@ -112,7 +112,7 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-md max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
             {membro ? "Editar Membro" : "Adicionar Membro"}
@@ -122,8 +122,8 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6">
-          <div className="space-y-4 py-4 px-6">
+        <ScrollArea className="max-h-[calc(90vh-10rem)] pr-4">
+          <div className="space-y-4 py-4">
             {/* Nome */}
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Completo *</Label>
@@ -204,19 +204,18 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
               {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
             </div>
           </div>
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSave}
+              className="bg-[#C44536] hover:bg-[#C44536]/90"
+            >
+              {membro ? "Atualizar" : "Adicionar"}
+            </Button>
+          </DialogFooter>
         </ScrollArea>
-
-        <DialogFooter className="pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleSave}
-            className="bg-[#C44536] hover:bg-[#C44536]/90"
-          >
-            {membro ? "Atualizar" : "Adicionar"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
