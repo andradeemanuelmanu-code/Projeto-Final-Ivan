@@ -8,7 +8,7 @@ import Eventos from "./pages/Eventos";
 import Agenda from "./pages/Agenda";
 import CustosPorEvento from "./pages/CustosPorEvento";
 import CustosFixosMensais from "./pages/CustosFixosMensais";
-import Equipe from "./pages/Equipe";
+import Escala from "./pages/Escala";
 import Avaliacoes from "./pages/Avaliacoes";
 import GestaoFiscal from "./pages/GestaoFiscal";
 import Financeiro from "./pages/Financeiro";
@@ -29,7 +29,7 @@ const App = () => (
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/custos-por-evento" element={<CustosPorEvento />} />
           <Route path="/custos-fixos-mensais" element={<CustosFixosMensais />} />
-          <Route path="/equipe" element={<Equipe />} />
+          <Route path="/escala" element={<Escala />} />
           <Route path="/avaliacoes" element={<Avaliacoes />} />
           <Route path="/gestao-fiscal" element={<GestaoFiscal />} />
           <Route path="/financeiro" element={<Financeiro />} />

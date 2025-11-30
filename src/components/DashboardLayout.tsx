@@ -27,7 +27,7 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
     { title: "Agenda", icon: Calendar, url: "/agenda" },
     { title: "Custos por Evento", icon: DollarSign, url: "/custos-por-evento" },
     { title: "Custos Fixos Mensais", icon: Receipt, url: "/custos-fixos-mensais" },
-    { title: "Equipe", icon: Users, url: "/equipe" },
+    { title: "Escala", icon: Users, url: "/escala" },
     { title: "Avaliações", icon: Star, url: "/avaliacoes" },
     { title: "Gestão Fiscal", icon: FileText, url: "/gestao-fiscal" },
     { title: "Financeiro", icon: TrendingUp, url: "/financeiro" },

@@ -40,7 +40,7 @@ const FUNCOES_LABEL: Record<string, string> = {
   maitre: "Maître",
 };
 
-export default function Equipe() {
+export default function Escala() {
   const [loading, setLoading] = useState(true);
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [membros, setMembros] = useState<MembroEquipe[]>([]);
@@ -125,8 +125,8 @@ export default function Equipe() {
 
   return (
     <DashboardLayout
-      title="Equipe"
-      description="Gerencie a escala de trabalho e os membros da equipe"
+      title="Escala"
+      description="Gerencie a escala de trabalho para os eventos"
     >
       <div className="space-y-8">
         {/* Seção: Escala de Eventos */}
