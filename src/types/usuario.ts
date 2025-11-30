@@ -3,4 +3,5 @@ export interface Usuario {
   nome: string;
   email: string;
   isAdmin: boolean;
+  telefone?: string;
 }

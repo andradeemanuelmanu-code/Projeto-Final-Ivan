@@ -5,18 +5,20 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { usuarioLogadoStorage } from "@/lib/usuarioLogadoStorage";
-import { User, Mail } from "lucide-react";
+import { User, Mail, Phone } from "lucide-react";
 
 export const UserSettingsForm = () => {
   const { toast } = useToast();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
 
   useEffect(() => {
     const usuario = usuarioLogadoStorage.get();
     if (usuario) {
       setNome(usuario.nome);
       setEmail(usuario.email);
+      setTelefone(usuario.telefone || "");
     }
   }, []);
 
@@ -30,7 +32,7 @@ export const UserSettingsForm = () => {
       return;
     }
 
-    usuarioLogadoStorage.update({ nome, email });
+    usuarioLogadoStorage.update({ nome, email, telefone });
     toast({
       title: "Sucesso",
       description: "Configurações salvas com sucesso!",
@@ -68,6 +70,20 @@ export const UserSettingsForm = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu@email.com"
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="telefone">Telefone</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="telefone"
+                type="tel"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                placeholder="(00) 00000-0000"
                 className="pl-10"
               />
             </div>
