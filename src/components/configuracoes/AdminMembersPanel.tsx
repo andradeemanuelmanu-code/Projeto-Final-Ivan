@@ -119,7 +119,7 @@ export const AdminMembersPanel = () => {
         return membro.nome.toLowerCase().includes(term) || membro.email.toLowerCase().includes(term);
       })
       .filter(membro => {
-        return filterFunction === "todas" || membro.funcao === filterFunction;
+        return filterFunction === "todas" || membro.funcaoPrincipal === filterFunction;
       });
   }, [aprovados, searchTerm, filterFunction]);
 
@@ -227,8 +227,8 @@ export const AdminMembersPanel = () => {
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto md:max-w-[250px]">
                       <Select
-                        value={membro.funcao}
-                        onValueChange={(value) => equipeStorage.update(membro.id, { funcao: value as FuncaoEquipe }) && loadData()}
+                        value={membro.funcaoPrincipal}
+                        onValueChange={(value) => equipeStorage.update(membro.id, { funcaoPrincipal: value as FuncaoEquipe }) && loadData()}
                       >
                         <SelectTrigger className="w-full md:w-[200px]">
                           <SelectValue />

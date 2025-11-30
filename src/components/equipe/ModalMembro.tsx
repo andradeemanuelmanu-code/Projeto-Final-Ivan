@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ModalMembroProps {
   open: boolean;
@@ -39,7 +40,8 @@ const FUNCOES: { value: FuncaoEquipe; label: string }[] = [
 export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroProps) => {
   const [formData, setFormData] = useState<MembroEquipeFormData>({
     nome: "",
-    funcao: "garcom",
+    funcaoPrincipal: "garcom",
+    funcoesSecundarias: [],
     telefone: "",
     email: "",
   });
@@ -50,14 +52,16 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
     if (membro) {
       setFormData({
         nome: membro.nome,
-        funcao: membro.funcao,
+        funcaoPrincipal: membro.funcaoPrincipal,
+        funcoesSecundarias: membro.funcoesSecundarias || [],
         telefone: membro.telefone,
         email: membro.email,
       });
     } else {
       setFormData({
         nome: "",
-        funcao: "garcom",
+        funcaoPrincipal: "garcom",
+        funcoesSecundarias: [],
         telefone: "",
         email: "",
       });
@@ -94,6 +98,17 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
     onOpenChange(false);
   };
 
+  const handleFuncaoSecundariaChange = (funcao: FuncaoEquipe) => {
+    setFormData(prev => {
+      const funcoesAtuais = prev.funcoesSecundarias || [];
+      if (funcoesAtuais.includes(funcao)) {
+        return { ...prev, funcoesSecundarias: funcoesAtuais.filter(f => f !== funcao) };
+      } else {
+        return { ...prev, funcoesSecundarias: [...funcoesAtuais, funcao] };
+      }
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -119,12 +134,12 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
             {errors.nome && <p className="text-sm text-destructive">{errors.nome}</p>}
           </div>
 
-          {/* Função */}
+          {/* Função Principal */}
           <div className="space-y-2">
-            <Label htmlFor="funcao">Função Principal *</Label>
+            <Label htmlFor="funcaoPrincipal">Função Principal *</Label>
             <Select
-              value={formData.funcao}
-              onValueChange={(value) => setFormData({ ...formData, funcao: value as FuncaoEquipe })}
+              value={formData.funcaoPrincipal}
+              onValueChange={(value) => setFormData({ ...formData, funcaoPrincipal: value as FuncaoEquipe })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma função" />
@@ -137,6 +152,29 @@ export const ModalMembro = ({ open, onOpenChange, membro, onSave }: ModalMembroP
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Funções Secundárias */}
+          <div className="space-y-2">
+            <Label>Funções Secundárias</Label>
+            <div className="space-y-2 rounded-md border p-4">
+              {FUNCOES.map(funcao => (
+                <div key={funcao.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`funcao-sec-${funcao.value}`}
+                    checked={formData.funcoesSecundarias.includes(funcao.value)}
+                    disabled={formData.funcaoPrincipal === funcao.value}
+                    onCheckedChange={() => handleFuncaoSecundariaChange(funcao.value)}
+                  />
+                  <Label
+                    htmlFor={`funcao-sec-${funcao.value}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {funcao.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Telefone */}

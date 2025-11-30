@@ -48,7 +48,8 @@ export const equipeStorage = {
     const novaSolicitacao: MembroEquipe = {
       ...data,
       id: crypto.randomUUID(),
-      funcao: "garcom", // Função padrão, será definida na aprovação
+      funcaoPrincipal: "garcom", // Função padrão, será definida na aprovação
+      funcoesSecundarias: [],
       status: "pendente",
       criadoEm: new Date().toISOString(),
       atualizadoEm: new Date().toISOString(),
@@ -81,7 +82,8 @@ export const equipeStorage = {
     if (index === -1) return null;
 
     membros[index].status = "ativo";
-    membros[index].funcao = funcao;
+    membros[index].funcaoPrincipal = funcao;
+    membros[index].funcoesSecundarias = [];
     membros[index].atualizadoEm = new Date().toISOString();
 
     localStorage.setItem(MEMBROS_KEY, JSON.stringify(membros));

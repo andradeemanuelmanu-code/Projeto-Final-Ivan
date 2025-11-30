@@ -44,14 +44,23 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   const membros = useMemo(() => equipeStorage.getAtivos(), []);
 
   const membrosAgrupados = useMemo(() => {
-    return membros.reduce((acc: Record<string, MembroEquipe[]>, membro) => {
-      const funcao = membro.funcao;
-      if (!acc[funcao]) {
-        acc[funcao] = [];
-      }
-      acc[funcao].push(membro);
-      return acc;
-    }, {});
+    const agrupados: Record<string, MembroEquipe[]> = {};
+
+    Object.keys(FUNCAO_LABELS).forEach(funcao => {
+      agrupados[funcao] = [];
+    });
+
+    membros.forEach(membro => {
+      const funcoes = new Set([membro.funcaoPrincipal, ...(membro.funcoesSecundarias || [])]);
+      
+      funcoes.forEach(funcao => {
+        if (agrupados[funcao] && !agrupados[funcao].some(m => m.id === membro.id)) {
+          agrupados[funcao].push(membro);
+        }
+      });
+    });
+
+    return agrupados;
   }, [membros]);
 
   useEffect(() => {

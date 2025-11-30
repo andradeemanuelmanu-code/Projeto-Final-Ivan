@@ -2,17 +2,19 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock } from "lucide-react";
-import { MembroEquipe } from "@/types/equipe";
+import { MembroEquipe, FuncaoEquipe } from "@/types/equipe";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { ModalMembroAvaliacao } from "./ModalMembroAvaliacao";
 import { AvaliacaoFormData } from "@/types/avaliacao";
+
+type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
 
 interface ModalEquipeAvaliacaoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   eventoNome: string;
   eventoId: string;
-  membros: MembroEquipe[];
+  membros: MembroParaAvaliacao[];
   onAvaliacaoSaved: () => void;
 }
 

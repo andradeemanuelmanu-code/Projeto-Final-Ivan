@@ -4,7 +4,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { Evento } from "@/types/evento";
-import { MembroEquipe } from "@/types/equipe";
+import { MembroEquipe, FuncaoEquipe } from "@/types/equipe";
 import { EventoAvaliadoCard } from "@/components/avaliacoes/EventoAvaliadoCard";
 import { ModalEquipeAvaliacao } from "@/components/avaliacoes/ModalEquipeAvaliacao";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
+
 const Avaliacoes = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
-  const [membrosEvento, setMembrosEvento] = useState<MembroEquipe[]>([]);
+  const [membrosEvento, setMembrosEvento] = useState<MembroParaAvaliacao[]>([]);
   const [modalEquipeOpen, setModalEquipeOpen] = useState(false);
   const [verMaisOpen, setVerMaisOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -32,17 +34,14 @@ const Avaliacoes = () => {
   const carregarEventos = () => {
     setLoading(true);
     
-    // Simula loading para skeleton
     setTimeout(() => {
       const todosEventos = eventosStorage.getAllSorted();
       
-      // Filtra apenas eventos que têm escala (membros alocados)
       const eventosComEscala = todosEventos.filter(evento => {
         const escala = escalasStorage.getByEventoId(evento.id);
         return escala && escala.membros.length > 0;
       });
 
-      // Ordena: pendentes primeiro
       const eventosOrdenados = eventosComEscala.sort((a, b) => {
         const escalaA = escalasStorage.getByEventoId(a.id)!;
         const escalaB = escalasStorage.getByEventoId(b.id)!;
@@ -71,12 +70,18 @@ const Avaliacoes = () => {
       return;
     }
 
-    const membros = escala.membros
-      .map(m => equipeStorage.getById(m.membroId))
-      .filter((m): m is MembroEquipe => m !== undefined);
+    const membrosParaAvaliar = escala.membros
+      .map(membroEscalado => {
+        const membroInfo = equipeStorage.getById(membroEscalado.membroId);
+        if (membroInfo) {
+          return { ...membroInfo, funcao: membroEscalado.funcao };
+        }
+        return null;
+      })
+      .filter((m): m is MembroParaAvaliacao => m !== null);
 
     setEventoSelecionado(evento);
-    setMembrosEvento(membros);
+    setMembrosEvento(membrosParaAvaliar);
     setModalEquipeOpen(true);
   };
 
@@ -97,7 +102,6 @@ const Avaliacoes = () => {
       description="Avalie o desempenho da equipe após os eventos"
     >
       <div className="space-y-6">
-        {/* Cards de Eventos */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -132,7 +136,6 @@ const Avaliacoes = () => {
               })}
             </div>
 
-            {/* Botão Ver Mais */}
             {eventosRestantes.length > 0 && (
               <div className="flex justify-center">
                 <Button
@@ -148,7 +151,6 @@ const Avaliacoes = () => {
         )}
       </div>
 
-      {/* Modal Ver Mais Eventos */}
       <Dialog open={verMaisOpen} onOpenChange={setVerMaisOpen}>
         <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
@@ -173,7 +175,6 @@ const Avaliacoes = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Equipe */}
       {eventoSelecionado && (
         <ModalEquipeAvaliacao
           open={modalEquipeOpen}

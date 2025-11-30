@@ -228,7 +228,12 @@ export default function Equipe() {
                     {/* Função */}
                     <div className="flex justify-between items-center mt-2 md:mt-0">
                       <span className="md:hidden text-sm text-muted-foreground">Função</span>
-                      <Badge variant="secondary">{FUNCOES_LABEL[membro.funcao]}</Badge>
+                      <div className="flex flex-wrap gap-1 justify-end md:justify-start">
+                        <Badge>{FUNCOES_LABEL[membro.funcaoPrincipal]}</Badge>
+                        {membro.funcoesSecundarias?.map(funcao => (
+                          <Badge key={funcao} variant="outline">{FUNCOES_LABEL[funcao]}</Badge>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Telefone */}

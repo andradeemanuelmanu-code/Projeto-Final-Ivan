@@ -10,7 +10,8 @@ export type FuncaoEquipe =
 export interface MembroEquipe {
   id: string;
   nome: string;
-  funcao: FuncaoEquipe;
+  funcaoPrincipal: FuncaoEquipe;
+  funcoesSecundarias: FuncaoEquipe[];
   telefone: string;
   email: string;
   status: "pendente" | "ativo";
