@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { UserSettingsForm } from "@/components/configuracoes/UserSettingsForm";
-import { ThemeToggle } from "@/components/configuracoes/ThemeToggle";
 import { AdminMembersPanel } from "@/components/configuracoes/AdminMembersPanel";
 import { usuarioLogadoStorage } from "@/lib/usuarioLogadoStorage";
 import { initializeMockUsuariosPendentes } from "@/lib/initializeMockData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Palette, Shield } from "lucide-react";
+import { User, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Configuracoes = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -38,14 +38,10 @@ const Configuracoes = () => {
     >
       <div className="max-w-4xl mx-auto space-y-6">
         <Tabs defaultValue="conta" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className={cn("grid w-full", isAdmin ? "grid-cols-2" : "grid-cols-1")}>
             <TabsTrigger value="conta" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               Conta
-            </TabsTrigger>
-            <TabsTrigger value="aparencia" className="flex items-center gap-2">
-              <Palette className="w-4 h-4" />
-              Aparência
             </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="admin" className="flex items-center gap-2">
@@ -57,10 +53,6 @@ const Configuracoes = () => {
 
           <TabsContent value="conta" className="mt-6">
             <UserSettingsForm />
-          </TabsContent>
-
-          <TabsContent value="aparencia" className="mt-6">
-            <ThemeToggle />
           </TabsContent>
 
           {isAdmin && (
