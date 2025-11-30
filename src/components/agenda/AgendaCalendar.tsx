@@ -329,6 +329,16 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
           <DialogContent>
             {renderActionDialogContent()}
             <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button asChild className="w-full sm:w-auto gap-2" variant="outline">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvento?.endereco || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MapPin size={16} />
+                  Mapa
+                </a>
+              </Button>
               <Button onClick={handleEdit} className="w-full sm:w-auto gap-2">
                 <Edit size={16} />
                 Editar
@@ -658,6 +668,16 @@ const AgendaCalendar = ({ viewMode }: AgendaCalendarProps) => {
           <DialogContent>
             {renderActionDialogContent()}
             <DialogFooter>
+              <Button asChild variant="outline" className="gap-2">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvento?.endereco || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MapPin size={16} />
+                  Mapa
+                </a>
+              </Button>
               <Button onClick={handleEdit} className="gap-2">
                 <Edit size={16} />
                 Editar
