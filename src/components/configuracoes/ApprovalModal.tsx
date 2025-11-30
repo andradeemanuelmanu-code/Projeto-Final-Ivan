@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FuncaoEquipe } from "@/types/equipe";
 
 interface ApprovalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   usuarioNome: string;
-  onAprovar: (funcao: FuncaoEquipe) => void;
+  onAprovar: (funcaoPrincipal: FuncaoEquipe, funcoesSecundarias: FuncaoEquipe[]) => void;
 }
 
 const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
@@ -36,11 +37,29 @@ const funcoesDisponiveis: { value: FuncaoEquipe; label: string }[] = [
 ];
 
 export const ApprovalModal = ({ open, onOpenChange, usuarioNome, onAprovar }: ApprovalModalProps) => {
-  const [funcaoSelecionada, setFuncaoSelecionada] = useState<FuncaoEquipe>("garcom");
+  const [funcaoPrincipal, setFuncaoPrincipal] = useState<FuncaoEquipe>("garcom");
+  const [funcoesSecundarias, setFuncoesSecundarias] = useState<FuncaoEquipe[]>([]);
+
+  useEffect(() => {
+    if (!open) {
+      setFuncaoPrincipal("garcom");
+      setFuncoesSecundarias([]);
+    }
+  }, [open]);
 
   const handleAprovar = () => {
-    onAprovar(funcaoSelecionada);
+    onAprovar(funcaoPrincipal, funcoesSecundarias);
     onOpenChange(false);
+  };
+
+  const handleFuncaoSecundariaChange = (funcao: FuncaoEquipe) => {
+    setFuncoesSecundarias(prev => {
+      if (prev.includes(funcao)) {
+        return prev.filter(f => f !== funcao);
+      } else {
+        return [...prev, funcao];
+      }
+    });
   };
 
   return (
@@ -49,15 +68,21 @@ export const ApprovalModal = ({ open, onOpenChange, usuarioNome, onAprovar }: Ap
         <DialogHeader>
           <DialogTitle>Aprovar Membro</DialogTitle>
           <DialogDescription>
-            Selecione a função para <strong>{usuarioNome}</strong>
+            Defina as funções para <strong>{usuarioNome}</strong>
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="funcao">Função na Equipe</Label>
+            <Label htmlFor="funcao">Função Principal</Label>
             <Select
-              value={funcaoSelecionada}
-              onValueChange={(value) => setFuncaoSelecionada(value as FuncaoEquipe)}
+              value={funcaoPrincipal}
+              onValueChange={(value) => {
+                const newFuncao = value as FuncaoEquipe;
+                setFuncaoPrincipal(newFuncao);
+                if (funcoesSecundarias.includes(newFuncao)) {
+                  setFuncoesSecundarias(fs => fs.filter(f => f !== newFuncao));
+                }
+              }}
             >
               <SelectTrigger id="funcao">
                 <SelectValue placeholder="Selecione uma função" />
@@ -70,6 +95,28 @@ export const ApprovalModal = ({ open, onOpenChange, usuarioNome, onAprovar }: Ap
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Funções Secundárias</Label>
+            <div className="space-y-2 rounded-md border p-4">
+              {funcoesDisponiveis.map(funcao => (
+                <div key={funcao.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`funcao-sec-aprov-${funcao.value}`}
+                    checked={funcoesSecundarias.includes(funcao.value)}
+                    disabled={funcaoPrincipal === funcao.value}
+                    onCheckedChange={() => handleFuncaoSecundariaChange(funcao.value)}
+                  />
+                  <Label
+                    htmlFor={`funcao-sec-aprov-${funcao.value}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {funcao.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <DialogFooter className="gap-2 sm:gap-0">

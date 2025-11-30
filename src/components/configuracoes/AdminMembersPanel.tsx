@@ -71,9 +71,9 @@ export const AdminMembersPanel = () => {
     setApprovalModalOpen(true);
   };
 
-  const handleConfirmarAprovacao = (funcao: FuncaoEquipe) => {
+  const handleConfirmarAprovacao = (funcaoPrincipal: FuncaoEquipe, funcoesSecundarias: FuncaoEquipe[]) => {
     if (!usuarioParaAprovar) return;
-    equipeStorage.aprovar(usuarioParaAprovar.id, funcao);
+    equipeStorage.aprovar(usuarioParaAprovar.id, funcaoPrincipal, funcoesSecundarias);
     toast({
       title: "Membro aprovado",
       description: `${usuarioParaAprovar.nome} foi adicionado à equipe.`,

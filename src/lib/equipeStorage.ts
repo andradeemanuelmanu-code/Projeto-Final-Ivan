@@ -75,15 +75,15 @@ export const equipeStorage = {
     return membros[index];
   },
 
-  aprovar: (id: string, funcao: FuncaoEquipe): MembroEquipe | null => {
+  aprovar: (id: string, funcaoPrincipal: FuncaoEquipe, funcoesSecundarias: FuncaoEquipe[]): MembroEquipe | null => {
     const membros = equipeStorage.getAll();
     const index = membros.findIndex(membro => membro.id === id);
 
     if (index === -1) return null;
 
     membros[index].status = "ativo";
-    membros[index].funcaoPrincipal = funcao;
-    membros[index].funcoesSecundarias = [];
+    membros[index].funcaoPrincipal = funcaoPrincipal;
+    membros[index].funcoesSecundarias = funcoesSecundarias;
     membros[index].atualizadoEm = new Date().toISOString();
 
     localStorage.setItem(MEMBROS_KEY, JSON.stringify(membros));
@@ -148,7 +148,7 @@ export const escalasStorage = {
       atualizadoEm: new Date().toISOString(),
     };
     
-    localStorage.setItem(ESCALAS_KEY, JSON.stringify(escalas));
+    localStorage.setItem(MEMBROS_KEY, JSON.stringify(escalas));
     return escalas[index];
   },
 
