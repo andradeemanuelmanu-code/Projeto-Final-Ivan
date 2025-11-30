@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
@@ -10,7 +10,8 @@ import { ModalEquipeAvaliacao } from "@/components/avaliacoes/ModalEquipeAvaliac
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
@@ -18,6 +19,7 @@ type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
 const Avaliacoes = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
   const [membrosEvento, setMembrosEvento] = useState<MembroParaAvaliacao[]>([]);
   const [modalEquipeOpen, setModalEquipeOpen] = useState(false);
@@ -93,8 +95,20 @@ const Avaliacoes = () => {
     });
   };
 
-  const eventosPrincipais = eventos.slice(0, CARDS_POR_PAGINA);
-  const eventosRestantes = eventos.slice(CARDS_POR_PAGINA);
+  const filteredEventos = useMemo(() => {
+    if (!searchTerm) {
+      return eventos;
+    }
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return eventos.filter(
+      (evento) =>
+        evento.motivo.toLowerCase().includes(lowercasedFilter) ||
+        evento.cliente.nome.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [eventos, searchTerm]);
+
+  const eventosPrincipais = filteredEventos.slice(0, CARDS_POR_PAGINA);
+  const eventosRestantes = filteredEventos.slice(CARDS_POR_PAGINA);
 
   return (
     <DashboardLayout
@@ -102,6 +116,16 @@ const Avaliacoes = () => {
       description="Avalie o desempenho da equipe após os eventos"
     >
       <div className="space-y-6">
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por evento ou cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -115,6 +139,15 @@ const Avaliacoes = () => {
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               Escale membros para eventos na página "Equipe" para poder avaliá-los.
+            </p>
+          </div>
+        ) : filteredEventos.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              Nenhum evento encontrado.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Tente ajustar seus termos de busca.
             </p>
           </div>
         ) : (
