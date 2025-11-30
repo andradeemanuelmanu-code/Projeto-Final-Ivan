@@ -1,4 +1,4 @@
-import { NotaFiscal, NotaFiscalFormData } from "@/types/notaFiscal";
+import { NotaFiscal, NotaFiscalFormData, SituacaoImposto } from "@/types/notaFiscal";
 
 const STORAGE_KEY = "buffet_notas_fiscais";
 
@@ -45,6 +45,10 @@ export const notasFiscaisStorage = {
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notas));
     return notas[index];
+  },
+
+  updateSituacaoImposto: (id: string, situacao: SituacaoImposto): NotaFiscal | null => {
+    return notasFiscaisStorage.update(id, { situacaoImposto: situacao });
   },
 
   delete: (id: string): boolean => {

@@ -2,7 +2,9 @@ import { NotaFiscal } from "@/types/notaFiscal";
 import { Evento } from "@/types/evento";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, User, DollarSign, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileText, Calendar, User, DollarSign, TrendingUp, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDate } from "@/lib/utils";
@@ -10,6 +12,7 @@ import { parseLocalDate } from "@/lib/utils";
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
   evento: Evento;
+  onEditStatus: (nota: NotaFiscal) => void;
 }
 
 const tipoNotaLabels: Record<string, string> = {
@@ -24,7 +27,7 @@ const tipoImpostoLabels: Record<string, string> = {
   outro: "Outro",
 };
 
-export function NotaFiscalCard({ nota, evento }: NotaFiscalCardProps) {
+export function NotaFiscalCard({ nota, evento, onEditStatus }: NotaFiscalCardProps) {
   const getStatusColor = () => {
     if (nota.situacaoNota === "nao-emitida" || nota.situacaoImposto === "pendente") {
       return "bg-red-500";
@@ -66,9 +69,23 @@ export function NotaFiscalCard({ nota, evento }: NotaFiscalCardProps) {
             </div>
           </div>
           
-          <Badge variant={nota.situacaoNota === "emitida" ? "default" : "destructive"}>
-            {getStatusLabel()}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={nota.situacaoNota === "emitida" && nota.situacaoImposto === "pago" ? "default" : "destructive"}>
+              {getStatusLabel()}
+            </Badge>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditStatus(nota)}>
+                  Alterar Situação do Imposto
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border">

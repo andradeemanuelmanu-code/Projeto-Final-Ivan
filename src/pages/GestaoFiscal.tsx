@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Plus, Filter, Download } from "lucide-react";
 import { NotaFiscalCard } from "@/components/fiscal/NotaFiscalCard";
 import { ModalRegistrarNota } from "@/components/fiscal/ModalRegistrarNota";
+import { ModalEditarSituacao } from "@/components/fiscal/ModalEditarSituacao";
 import { ResumoFiscal } from "@/components/fiscal/ResumoFiscal";
 import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
 import { eventosStorage } from "@/lib/eventosStorage";
-import { NotaFiscal, NotaFiscalFormData } from "@/types/notaFiscal";
+import { NotaFiscal, NotaFiscalFormData, SituacaoImposto } from "@/types/notaFiscal";
 import { Evento } from "@/types/evento";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +24,8 @@ export default function GestaoFiscal() {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [notaParaEditar, setNotaParaEditar] = useState<NotaFiscal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [filtro, setFiltro] = useState<string>("todos");
   const { toast } = useToast();
@@ -48,6 +51,22 @@ export default function GestaoFiscal() {
     toast({
       title: "Nota registrada com sucesso",
       description: "A nota fiscal foi registrada no sistema.",
+    });
+  };
+
+  const handleEditStatus = (nota: NotaFiscal) => {
+    setNotaParaEditar(nota);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSalvarStatus = (id: string, situacao: SituacaoImposto) => {
+    notasFiscaisStorage.updateSituacaoImposto(id, situacao);
+    carregarDados();
+    setIsEditModalOpen(false);
+    setNotaParaEditar(null);
+    toast({
+      title: "Situação atualizada",
+      description: "O status do imposto foi alterado com sucesso.",
     });
   };
 
@@ -140,7 +159,7 @@ export default function GestaoFiscal() {
                 {notasFiltradas.map((nota) => {
                   const evento = getEventoById(nota.eventoId);
                   return evento ? (
-                    <NotaFiscalCard key={nota.id} nota={nota} evento={evento} />
+                    <NotaFiscalCard key={nota.id} nota={nota} evento={evento} onEditStatus={handleEditStatus} />
                   ) : null;
                 })}
               </div>
@@ -154,6 +173,14 @@ export default function GestaoFiscal() {
         onOpenChange={setIsModalOpen}
         eventos={eventosDisponiveis}
         onSave={handleSalvarNota}
+      />
+
+      <ModalEditarSituacao
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        nota={notaParaEditar}
+        evento={notaParaEditar ? getEventoById(notaParaEditar.eventoId) : undefined}
+        onSave={handleSalvarStatus}
       />
     </DashboardLayout>
   );
