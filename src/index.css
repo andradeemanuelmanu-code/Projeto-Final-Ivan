@@ -183,6 +183,23 @@ All colors MUST be HSL.
   .filter-chip:hover {
     @apply bg-primary text-primary-foreground;
   }
+
+  /* Calendar Event Indicator */
+  .day-with-event {
+    position: relative;
+  }
+
+  .day-with-event::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: hsl(var(--accent));
+  }
 }
 
 @layer utilities {
