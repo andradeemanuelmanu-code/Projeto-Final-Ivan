@@ -97,17 +97,16 @@ const CustosFixosMensais = () => {
       description="Gerencie os gastos mensais e acompanhe o histórico"
     >
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-          <Button onClick={() => setModalOpen(true)} className="bg-accent hover:bg-accent/90">
-            <Plus size={20} />
+        {/* Header com Seletor de Mês e Botão */}
+        <div className="bg-card border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <MonthSelector value={mesReferencia} onChange={setMesReferencia} />
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="bg-accent hover:bg-accent/90 w-full sm:w-auto"
+          >
+            <Plus size={20} className="mr-2" />
             Adicionar Gasto
           </Button>
-        </div>
-
-        {/* Seletor de Mês */}
-        <div className="bg-card border border-border rounded-lg p-4">
-          <MonthSelector value={mesReferencia} onChange={setMesReferencia} />
         </div>
 
         {/* Tabela de Custos */}
