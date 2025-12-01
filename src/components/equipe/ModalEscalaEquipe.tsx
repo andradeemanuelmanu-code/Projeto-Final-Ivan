@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Evento } from "@/types/evento";
-import { MembroEscalado, MembroEquipe, FuncaoEquipe } from "@/types/equipe";
+import { MembroEscalado, MembroEquipe, FuncaoEquipe, MembroExtra } from "@/types/equipe";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,11 @@ import { equipeStorage, escalasStorage } from "@/lib/equipeStorage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatarOpcoes, parseLocalDate } from "@/lib/utils";
-import { Users, UtensilsCrossed, GlassWater, Trash2 } from "lucide-react";
+import { Users, UtensilsCrossed, GlassWater, Trash2, UserPlus } from "lucide-react";
 import { ModalSelecaoFuncao } from "./ModalSelecaoFuncao";
 import { Separator } from "@/components/ui/separator";
 import { opcoesStorage } from "@/lib/opcoesStorage";
+import { ModalAdicionarExtra } from "./ModalAdicionarExtra";
 
 interface ModalEscalaEquipeProps {
   open: boolean;
@@ -40,7 +41,9 @@ const FUNCAO_LABELS: Record<FuncaoEquipe, string> = {
 
 export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalEscalaEquipeProps) => {
   const [membrosSelecionados, setMembrosSelecionados] = useState<MembroEscalado[]>([]);
+  const [extrasSelecionados, setExtrasSelecionados] = useState<MembroExtra[]>([]);
   const [modalFuncaoOpen, setModalFuncaoOpen] = useState(false);
+  const [modalExtraOpen, setModalExtraOpen] = useState(false);
   const [funcaoSelecionada, setFuncaoSelecionada] = useState<FuncaoEquipe | null>(null);
   
   const membros = useMemo(() => equipeStorage.getAtivos(), []);
@@ -69,6 +72,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     if (evento && open) {
       const escalaExistente = escalasStorage.getByEventoId(evento.id);
       setMembrosSelecionados(escalaExistente ? escalaExistente.membros : []);
+      setExtrasSelecionados(escalaExistente?.membrosExtras || []);
     }
   }, [evento, open]);
 
@@ -99,6 +103,10 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     setMembrosSelecionados(prev => prev.filter(m => m.membroId !== membroId));
   };
 
+  const handleRemoverExtra = (extraId: string) => {
+    setExtrasSelecionados(prev => prev.filter(e => e.id !== extraId));
+  };
+
   const handleAbrirModalFuncao = (funcao: FuncaoEquipe) => {
     setFuncaoSelecionada(funcao);
     setModalFuncaoOpen(true);
@@ -116,9 +124,22 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
     setMembrosSelecionados([...outrosMembros, ...novosMembrosParaFuncao]);
   };
 
+  const handleSalvarExtra = (nome: string, funcao: FuncaoEquipe) => {
+    const novoExtra: MembroExtra = {
+      id: crypto.randomUUID(),
+      nome,
+      funcao,
+    };
+    setExtrasSelecionados(prev => [...prev, novoExtra]);
+  };
+
   const handleSave = () => {
     if (!evento) return;
-    escalasStorage.create({ eventoId: evento.id, membros: membrosSelecionados });
+    escalasStorage.create({ 
+      eventoId: evento.id, 
+      membros: membrosSelecionados,
+      membrosExtras: extrasSelecionados,
+    });
     onSave();
     onOpenChange(false);
   };
@@ -136,7 +157,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-4">
             <DialogTitle className="font-display text-xl">Escala de Equipe</DialogTitle>
             <DialogDescription>
@@ -171,7 +192,7 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Object.entries(membrosAgrupados).map(([funcao, membrosDoGrupo]) => {
                   const selecionadosNestaFuncao = membrosSelecionados.filter(m => m.funcao === funcao).length;
                   return (
@@ -198,12 +219,32 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                     </Card>
                   );
                 })}
+                <Card
+                  className="cursor-pointer hover:shadow-md hover:border-primary transition-all bg-primary/5"
+                  onClick={() => setModalExtraOpen(true)}
+                >
+                  <CardHeader className="p-4">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <UserPlus size={18} className="text-primary" />
+                      Escala Extra
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <p className="text-xl font-bold">
+                      {extrasSelecionados.length}
+                      <span className="text-sm font-normal text-muted-foreground">
+                        {" "}
+                        {extrasSelecionados.length === 1 ? "membro adicionado" : "membros adicionados"}
+                      </span>
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
 
               <Separator className="my-6" />
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Equipe Escalada ({membrosSelecionados.length})</h3>
-                {membrosSelecionados.length === 0 ? (
+                <h3 className="font-semibold text-lg">Equipe Escalada ({membrosSelecionados.length + extrasSelecionados.length})</h3>
+                {membrosSelecionados.length === 0 && extrasSelecionados.length === 0 ? (
                   <div className="text-center text-muted-foreground py-8 border-2 border-dashed rounded-lg">
                     <p>Nenhum membro selecionado.</p>
                     <p className="text-sm">Clique em uma função acima para começar.</p>
@@ -232,6 +273,31 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
                         </div>
                       </div>
                     ))}
+                    {extrasSelecionados.length > 0 && (
+                      <div>
+                        <Label className="text-muted-foreground font-semibold">
+                          Membros Extras
+                        </Label>
+                        <div className="mt-2 space-y-2">
+                          {extrasSelecionados.map(extra => (
+                            <div key={extra.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
+                              <div className="flex flex-col">
+                                <span className="text-sm">{extra.nome}</span>
+                                <span className="text-xs text-muted-foreground">{FUNCAO_LABELS[extra.funcao]}</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleRemoverExtra(extra.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -261,6 +327,12 @@ export const ModalEscalaEquipe = ({ open, onOpenChange, evento, onSave }: ModalE
           onSaveSelecao={handleSalvarSelecaoFuncao}
         />
       )}
+
+      <ModalAdicionarExtra
+        open={modalExtraOpen}
+        onOpenChange={setModalExtraOpen}
+        onSave={handleSalvarExtra}
+      />
     </>
   );
 };

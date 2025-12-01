@@ -2,12 +2,16 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock } from "lucide-react";
-import { MembroEquipe, FuncaoEquipe } from "@/types/equipe";
+import { FuncaoEquipe } from "@/types/equipe";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { ModalMembroAvaliacao } from "./ModalMembroAvaliacao";
 import { AvaliacaoFormData } from "@/types/avaliacao";
 
-type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
+type MembroParaAvaliacao = {
+  id: string;
+  nome: string;
+  funcao: FuncaoEquipe;
+};
 
 interface ModalEquipeAvaliacaoProps {
   open: boolean;
@@ -36,10 +40,10 @@ export const ModalEquipeAvaliacao = ({
   membros,
   onAvaliacaoSaved,
 }: ModalEquipeAvaliacaoProps) => {
-  const [membroSelecionado, setMembroSelecionado] = useState<MembroEquipe | null>(null);
+  const [membroSelecionado, setMembroSelecionado] = useState<MembroParaAvaliacao | null>(null);
   const [modalMembroOpen, setModalMembroOpen] = useState(false);
 
-  const handleMembroClick = (membro: MembroEquipe) => {
+  const handleMembroClick = (membro: MembroParaAvaliacao) => {
     setMembroSelecionado(membro);
     setModalMembroOpen(true);
   };

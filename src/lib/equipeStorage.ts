@@ -148,7 +148,7 @@ export const escalasStorage = {
       atualizadoEm: new Date().toISOString(),
     };
     
-    localStorage.setItem(MEMBROS_KEY, JSON.stringify(escalas));
+    localStorage.setItem(ESCALAS_KEY, JSON.stringify(escalas));
     return escalas[index];
   },
 

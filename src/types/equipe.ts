@@ -32,10 +32,17 @@ export interface MembroEscalado {
   funcao: FuncaoEquipe;
 }
 
+export interface MembroExtra {
+  id: string; // UUID gerado no momento da adição
+  nome: string;
+  funcao: FuncaoEquipe;
+}
+
 export interface EscalaEvento {
   id: string;
   eventoId: string;
   membros: MembroEscalado[];
+  membrosExtras?: MembroExtra[];
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -43,4 +50,5 @@ export interface EscalaEvento {
 export interface EscalaEventoFormData {
   eventoId: string;
   membros: MembroEscalado[];
+  membrosExtras?: MembroExtra[];
 }

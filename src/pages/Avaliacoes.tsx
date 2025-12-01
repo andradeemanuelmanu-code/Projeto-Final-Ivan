@@ -4,7 +4,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage, equipeStorage } from "@/lib/equipeStorage";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { Evento } from "@/types/evento";
-import { MembroEquipe, FuncaoEquipe } from "@/types/equipe";
+import { FuncaoEquipe } from "@/types/equipe";
 import { EventoAvaliadoCard } from "@/components/avaliacoes/EventoAvaliadoCard";
 import { ModalEquipeAvaliacao } from "@/components/avaliacoes/ModalEquipeAvaliacao";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,18 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type MembroParaAvaliacao = MembroEquipe & { funcao: FuncaoEquipe };
+type AvaliacaoSubject = {
+  id: string;
+  nome: string;
+  funcao: FuncaoEquipe;
+};
 
 const Avaliacoes = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
-  const [membrosEvento, setMembrosEvento] = useState<MembroParaAvaliacao[]>([]);
+  const [membrosEvento, setMembrosEvento] = useState<AvaliacaoSubject[]>([]);
   const [modalEquipeOpen, setModalEquipeOpen] = useState(false);
   const [verMaisOpen, setVerMaisOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -41,15 +45,18 @@ const Avaliacoes = () => {
       
       const eventosComEscala = todosEventos.filter(evento => {
         const escala = escalasStorage.getByEventoId(evento.id);
-        return escala && escala.membros.length > 0;
+        return escala && (escala.membros.length > 0 || (escala.membrosExtras && escala.membrosExtras.length > 0));
       });
 
       const eventosOrdenados = eventosComEscala.sort((a, b) => {
         const escalaA = escalasStorage.getByEventoId(a.id)!;
         const escalaB = escalasStorage.getByEventoId(b.id)!;
         
-        const avaliadoA = avaliacoesStorage.isEventoAvaliado(a.id, escalaA.membros.length);
-        const avaliadoB = avaliacoesStorage.isEventoAvaliado(b.id, escalaB.membros.length);
+        const totalMembrosA = (escalaA.membros?.length || 0) + (escalaA.membrosExtras?.length || 0);
+        const totalMembrosB = (escalaB.membros?.length || 0) + (escalaB.membrosExtras?.length || 0);
+
+        const avaliadoA = avaliacoesStorage.isEventoAvaliado(a.id, totalMembrosA);
+        const avaliadoB = avaliacoesStorage.isEventoAvaliado(b.id, totalMembrosB);
 
         if (avaliadoA === avaliadoB) return 0;
         return avaliadoA ? 1 : -1;
@@ -63,7 +70,7 @@ const Avaliacoes = () => {
   const handleCardClick = (evento: Evento) => {
     const escala = escalasStorage.getByEventoId(evento.id);
     
-    if (!escala || escala.membros.length === 0) {
+    if (!escala || (escala.membros.length === 0 && (!escala.membrosExtras || escala.membrosExtras.length === 0))) {
       toast({
         title: "Sem equipe",
         description: "Este evento não possui membros escalados.",
@@ -72,18 +79,24 @@ const Avaliacoes = () => {
       return;
     }
 
-    const membrosParaAvaliar = escala.membros
+    const membrosCadastrados = escala.membros
       .map(membroEscalado => {
         const membroInfo = equipeStorage.getById(membroEscalado.membroId);
         if (membroInfo) {
-          return { ...membroInfo, funcao: membroEscalado.funcao };
+          return { id: membroInfo.id, nome: membroInfo.nome, funcao: membroEscalado.funcao };
         }
         return null;
       })
-      .filter((m): m is MembroParaAvaliacao => m !== null);
+      .filter((m): m is AvaliacaoSubject => m !== null);
+
+    const membrosExtras = escala.membrosExtras?.map(extra => ({
+      id: extra.id,
+      nome: extra.nome,
+      funcao: extra.funcao,
+    })) || [];
 
     setEventoSelecionado(evento);
-    setMembrosEvento(membrosParaAvaliar);
+    setMembrosEvento([...membrosCadastrados, ...membrosExtras]);
     setModalEquipeOpen(true);
   };
 
@@ -155,7 +168,7 @@ const Avaliacoes = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {eventosPrincipais.map((evento) => {
                 const escala = escalasStorage.getByEventoId(evento.id);
-                const totalMembros = escala?.membros.length || 0;
+                const totalMembros = (escala?.membros.length || 0) + (escala?.membrosExtras?.length || 0);
                 const isAvaliado = avaliacoesStorage.isEventoAvaliado(evento.id, totalMembros);
 
                 return (
@@ -189,7 +202,7 @@ const Avaliacoes = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {eventosRestantes.map((evento) => {
               const escala = escalasStorage.getByEventoId(evento.id);
-              const totalMembros = escala?.membros.length || 0;
+              const totalMembros = (escala?.membros.length || 0) + (escala?.membrosExtras?.length || 0);
               const isAvaliado = avaliacoesStorage.isEventoAvaliado(evento.id, totalMembros);
 
               return (
