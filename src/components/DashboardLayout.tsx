@@ -140,8 +140,8 @@ const DashboardLayout = ({ children, title, description }: DashboardLayoutProps)
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <NotificationDropdown />
             <ThemeToggleButton />
+            <NotificationDropdown />
             <NavLink
               to="/configuracoes"
               activeClassName="text-primary bg-accent/10 rounded-lg"
