@@ -20,10 +20,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 9;
 
 const Eventos = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // States for modals
   const [modalOpen, setModalOpen] = useState(false);
@@ -56,6 +68,17 @@ const Eventos = () => {
         evento.endereco.toLowerCase().includes(lowercasedFilter)
     );
   }, [eventos, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const pageCount = Math.ceil(filteredEventos.length / ITEMS_PER_PAGE);
+  const eventosPaginados = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredEventos.slice(startIndex, endIndex);
+  }, [filteredEventos, currentPage]);
 
   const handleSalvar = (data: EventoFormData) => {
     if (eventoEditando) {
@@ -122,6 +145,43 @@ const Eventos = () => {
     }
   };
 
+  const renderPaginationItems = () => {
+    if (pageCount <= 1) return null;
+
+    const delta = 1;
+    const range = [];
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(pageCount - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) range.unshift("...");
+    if (currentPage + delta < pageCount - 1) range.push("...");
+
+    range.unshift(1);
+    if (pageCount > 1) range.push(pageCount);
+
+    const uniqueRange = [...new Set(range)];
+
+    return uniqueRange.map((item, index) => (
+      <PaginationItem key={index}>
+        {item === "..." ? (
+          <PaginationEllipsis />
+        ) : (
+          <PaginationLink
+            href="#"
+            isActive={currentPage === item}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage(item as number);
+            }}
+          >
+            {item}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
+  };
+
   return (
     <DashboardLayout
       title="Administração de Eventos"
@@ -184,17 +244,46 @@ const Eventos = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredEventos.map((evento) => (
-              <EventoCard
-                key={evento.id}
-                evento={evento}
-                onEdit={handleEditar}
-                onDelete={handleDeletar}
-                onManagePayment={handleOpenPaymentModal}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {eventosPaginados.map((evento) => (
+                <EventoCard
+                  key={evento.id}
+                  evento={evento}
+                  onEdit={handleEditar}
+                  onDelete={handleDeletar}
+                  onManagePayment={handleOpenPaymentModal}
+                />
+              ))}
+            </div>
+            {pageCount > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.max(prev - 1, 1));
+                      }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {renderPaginationItems()}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.min(prev + 1, pageCount));
+                      }}
+                      className={currentPage === pageCount ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
         )}
 
         {/* Modal de Criação/Edição */}
