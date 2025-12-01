@@ -29,6 +29,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { parseLocalDate } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -48,26 +49,41 @@ const Eventos = () => {
   const [eventoParaPagamento, setEventoParaPagamento] = useState<Evento | null>(null);
 
   const carregarEventos = () => {
-    const eventosOrdenados = eventosStorage.getAllSorted();
-    setEventos(eventosOrdenados);
+    const eventosCarregados = eventosStorage.getAll(); // Carrega todos sem ordenação inicial
+    setEventos(eventosCarregados);
   };
 
   useEffect(() => {
     carregarEventos();
   }, []);
 
+  const eventosOrdenados = useMemo(() => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const eventosFuturos = eventos
+      .filter(e => parseLocalDate(e.data) >= hoje)
+      .sort((a, b) => parseLocalDate(a.data).getTime() - parseLocalDate(b.data).getTime());
+
+    const eventosPassados = eventos
+      .filter(e => parseLocalDate(e.data) < hoje)
+      .sort((a, b) => parseLocalDate(b.data).getTime() - parseLocalDate(a.data).getTime());
+
+    return [...eventosFuturos, ...eventosPassados];
+  }, [eventos]);
+
   const filteredEventos = useMemo(() => {
     if (!searchTerm) {
-      return eventos;
+      return eventosOrdenados;
     }
     const lowercasedFilter = searchTerm.toLowerCase();
-    return eventos.filter(
+    return eventosOrdenados.filter(
       (evento) =>
         evento.motivo.toLowerCase().includes(lowercasedFilter) ||
         evento.cliente.nome.toLowerCase().includes(lowercasedFilter) ||
         evento.endereco.toLowerCase().includes(lowercasedFilter)
     );
-  }, [eventos, searchTerm]);
+  }, [eventosOrdenados, searchTerm]);
 
   useEffect(() => {
     setCurrentPage(1);
