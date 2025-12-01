@@ -1,12 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { EventCostCard } from "@/components/custos/EventCostCard";
 import { AddCostModal } from "@/components/custos/AddCostModal";
 import { CostListModal } from "@/components/custos/CostListModal";
 import { ExecutedEventsList } from "@/components/custos/ExecutedEventsList";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { toast } from "@/hooks/use-toast";
@@ -14,15 +22,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { parseLocalDate } from "@/lib/utils";
 import { CustoFormData } from "@/types/custo";
 
+const ITEMS_PER_PAGE = 12;
+
 export default function CustosPorEvento() {
   const [eventos] = useState(() => eventosStorage.getAllSorted());
   const [isLoading] = useState(false);
-  const [showAllEventsModal, setShowAllEventsModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // --- State Management Refatorado ---
+  // --- State Management for Modals ---
   const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
   const [modalView, setModalView] = useState<'list' | 'add' | null>(null);
 
+  // --- Data Filtering and Sorting ---
   const eventosFuturos = useMemo(
     () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
     [eventos]
@@ -46,10 +58,31 @@ export default function CustosPorEvento() {
     [eventosComCustos]
   );
 
-  const firstEightEvents = eventosSorted.slice(0, 8);
-  const remainingEvents = eventosSorted.slice(8);
+  const filteredEventos = useMemo(() => {
+    if (!searchTerm) {
+      return eventosSorted;
+    }
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return eventosSorted.filter(
+      ({ evento }) =>
+        evento.motivo.toLowerCase().includes(lowercasedFilter) ||
+        evento.cliente.nome.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [eventosSorted, searchTerm]);
 
-  // --- Funções de Manipulação de Modais Refatoradas ---
+  // --- Pagination Logic ---
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const pageCount = Math.ceil(filteredEventos.length / ITEMS_PER_PAGE);
+  const eventosPaginados = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredEventos.slice(startIndex, endIndex);
+  }, [filteredEventos, currentPage]);
+
+  // --- Modal Handlers ---
   const handleCardClick = (eventoId: string) => {
     setSelectedEventoId(eventoId);
     setModalView('list');
@@ -78,12 +111,10 @@ export default function CustosPorEvento() {
     });
 
     handleCloseModals();
-    // Recarregar para atualizar o status do card "hasCosts"
-    // Em uma aplicação maior, usaríamos um gerenciador de estado para evitar o reload.
-    window.location.reload(); 
+    window.location.reload();
   };
 
-  // --- Variáveis Derivadas do Estado ---
+  // --- Derived State for Modals ---
   const selectedEvento = useMemo(
     () => (selectedEventoId ? eventos.find((e) => e.id === selectedEventoId) : null),
     [selectedEventoId, eventos]
@@ -94,12 +125,67 @@ export default function CustosPorEvento() {
     [selectedEventoId]
   );
 
+  // --- Pagination Rendering ---
+  const renderPaginationItems = () => {
+    if (pageCount <= 1) return null;
+
+    const delta = 1;
+    const range = [];
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(pageCount - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      range.unshift("...");
+    }
+    if (currentPage + delta < pageCount - 1) {
+      range.push("...");
+    }
+
+    range.unshift(1);
+    if (pageCount > 1) {
+      range.push(pageCount);
+    }
+
+    const uniqueRange = [...new Set(range)];
+
+    return uniqueRange.map((item, index) => (
+      <PaginationItem key={index}>
+        {item === "..." ? (
+          <PaginationEllipsis />
+        ) : (
+          <PaginationLink
+            href="#"
+            isActive={currentPage === item}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage(item as number);
+            }}
+          >
+            {item}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
+  };
+
   return (
     <DashboardLayout
       title="Custos por Evento"
       description="Gerencie os gastos de cada evento e acompanhe os custos registrados"
     >
       <div className="space-y-6">
+        {/* Search Input */}
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por evento ou cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         {/* Cards de Eventos */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -110,7 +196,7 @@ export default function CustosPorEvento() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {firstEightEvents.map(({ evento, hasCosts }) => (
+              {eventosPaginados.map(({ evento, hasCosts }) => (
                 <EventCostCard
                   key={evento.id}
                   evento={evento}
@@ -120,16 +206,32 @@ export default function CustosPorEvento() {
               ))}
             </div>
 
-            {remainingEvents.length > 0 && (
-              <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAllEventsModal(true)}
-                  className="font-display"
-                >
-                  Ver mais eventos ({remainingEvents.length})
-                </Button>
-              </div>
+            {pageCount > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.max(prev - 1, 1));
+                      }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {renderPaginationItems()}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.min(prev + 1, pageCount));
+                      }}
+                      className={currentPage === pageCount ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             )}
           </>
         )}
@@ -143,33 +245,7 @@ export default function CustosPorEvento() {
         </div>
       </div>
 
-      {/* Modal: Ver Mais Eventos */}
-      <Dialog open={showAllEventsModal} onOpenChange={setShowAllEventsModal}>
-        <DialogContent className="sm:max-w-[90vw] max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">
-              Todos os Eventos ({remainingEvents.length})
-            </DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="h-[70vh] pr-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {remainingEvents.map(({ evento, hasCosts }) => (
-                <EventCostCard
-                  key={evento.id}
-                  evento={evento}
-                  hasCosts={hasCosts}
-                  onClick={() => {
-                    setShowAllEventsModal(false);
-                    handleCardClick(evento.id);
-                  }}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal: Lista de Custos */}
+      {/* Modals */}
       <CostListModal
         open={modalView === 'list'}
         onClose={handleCloseModals}
@@ -177,8 +253,6 @@ export default function CustosPorEvento() {
         evento={selectedEvento}
         custos={custosForSelectedEvento}
       />
-
-      {/* Modal: Adicionar Custo */}
       <AddCostModal
         open={modalView === 'add'}
         onClose={handleCloseModals}
