@@ -6,16 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { Evento } from "@/types/evento";
 import { eventosStorage } from "@/lib/eventosStorage";
 import { escalasStorage } from "@/lib/equipeStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Search } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
+
+const ITEMS_PER_PAGE = 12;
 
 export default function Escala() {
   const [loading, setLoading] = useState(true);
@@ -23,7 +29,7 @@ export default function Escala() {
   const [searchTerm, setSearchTerm] = useState("");
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
   const [modalEscalaOpen, setModalEscalaOpen] = useState(false);
-  const [modalVerMaisOpen, setModalVerMaisOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,13 +45,19 @@ export default function Escala() {
     }, 500);
   };
 
-  const eventosOrdenados = useMemo(() => [...eventos].sort((a, b) => {
+  const eventosFuturos = useMemo(() => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return eventos.filter((evento) => parseLocalDate(evento.data) >= hoje);
+  }, [eventos]);
+
+  const eventosOrdenados = useMemo(() => [...eventosFuturos].sort((a, b) => {
     const hasEscalaA = escalasStorage.hasEscala(a.id);
     const hasEscalaB = escalasStorage.hasEscala(b.id);
     
     if (hasEscalaA === hasEscalaB) return 0;
     return hasEscalaA ? 1 : -1;
-  }), [eventos]);
+  }), [eventosFuturos]);
 
   const filteredEventos = useMemo(() => {
     if (!searchTerm) {
@@ -59,8 +71,16 @@ export default function Escala() {
     );
   }, [eventosOrdenados, searchTerm]);
 
-  const eventosPrincipais = filteredEventos.slice(0, 8);
-  const eventosRestantes = filteredEventos.slice(8);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const pageCount = Math.ceil(filteredEventos.length / ITEMS_PER_PAGE);
+  const eventosPaginados = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredEventos.slice(startIndex, endIndex);
+  }, [filteredEventos, currentPage]);
 
   const handleOpenEscala = (evento: Evento) => {
     setEventoSelecionado(evento);
@@ -75,10 +95,53 @@ export default function Escala() {
     loadData();
   };
 
+  const renderPaginationItems = () => {
+    if (pageCount <= 1) return null;
+
+    const delta = 1;
+    const range = [];
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(pageCount - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      range.unshift("...");
+    }
+    if (currentPage + delta < pageCount - 1) {
+      range.push("...");
+    }
+
+    range.unshift(1);
+    if (pageCount > 1) {
+      range.push(pageCount);
+    }
+
+    const uniqueRange = [...new Set(range)];
+
+    return uniqueRange.map((item, index) => (
+      <PaginationItem key={index}>
+        {item === "..." ? (
+          <PaginationEllipsis />
+        ) : (
+          <PaginationLink
+            href="#"
+            isActive={currentPage === item}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage(item as number);
+            }}
+          >
+            {item}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
+  };
+
   return (
     <DashboardLayout
       title="Escala"
-      description="Gerencie a escala de trabalho para os eventos"
+      description="Gerencie a escala de trabalho para os próximos eventos"
     >
       <div className="space-y-6">
         <div className="relative w-full sm:max-w-sm">
@@ -97,11 +160,11 @@ export default function Escala() {
               <Skeleton key={i} className="h-[200px] rounded-lg" />
             ))}
           </div>
-        ) : eventos.length === 0 ? (
+        ) : eventosFuturos.length === 0 ? (
           <div className="text-center py-12 bg-muted/30 rounded-lg">
             <Calendar className="mx-auto text-muted-foreground mb-4" size={48} />
-            <p className="text-muted-foreground">Nenhum evento cadastrado.</p>
-            <p className="text-sm text-muted-foreground">Cadastre eventos para gerenciar a escala.</p>
+            <p className="text-muted-foreground">Nenhum evento futuro cadastrado.</p>
+            <p className="text-sm text-muted-foreground">Cadastre novos eventos para gerenciar a escala.</p>
           </div>
         ) : filteredEventos.length === 0 ? (
           <div className="text-center py-12 bg-muted/30 rounded-lg">
@@ -112,7 +175,7 @@ export default function Escala() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {eventosPrincipais.map(evento => (
+              {eventosPaginados.map(evento => (
                 <CardEventoEscala
                   key={evento.id}
                   evento={evento}
@@ -122,16 +185,32 @@ export default function Escala() {
               ))}
             </div>
 
-            {eventosRestantes.length > 0 && (
-              <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => setModalVerMaisOpen(true)}
-                  className="min-w-[200px]"
-                >
-                  Ver mais eventos ({eventosRestantes.length})
-                </Button>
-              </div>
+            {pageCount > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.max(prev - 1, 1));
+                      }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {renderPaginationItems()}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((prev) => Math.min(prev + 1, pageCount));
+                      }}
+                      className={currentPage === pageCount ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             )}
           </>
         )}
@@ -144,28 +223,6 @@ export default function Escala() {
         evento={eventoSelecionado}
         onSave={handleSaveEscala}
       />
-
-      {/* Modal: Ver Mais Eventos */}
-      <Dialog open={modalVerMaisOpen} onOpenChange={setModalVerMaisOpen}>
-        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">Todos os Eventos</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
-            {eventosRestantes.map(evento => (
-              <CardEventoEscala
-                key={evento.id}
-                evento={evento}
-                hasEscala={escalasStorage.hasEscala(evento.id)}
-                onClick={() => {
-                  setModalVerMaisOpen(false);
-                  handleOpenEscala(evento);
-                }}
-              />
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </DashboardLayout>
   );
 }
