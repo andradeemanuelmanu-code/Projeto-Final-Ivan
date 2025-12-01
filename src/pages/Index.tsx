@@ -3,8 +3,11 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import EventCard from "@/components/EventCard";
 import CalendarWidget from "@/components/CalendarWidget";
-import { Calendar, DollarSign, Users, Clock } from "lucide-react";
+import { Calendar, DollarSign, Receipt, Clock } from "lucide-react";
 import { eventosStorage } from "@/lib/eventosStorage";
+import { custosStorage } from "@/lib/custosStorage";
+import { custosFixosStorage } from "@/lib/custosFixosStorage";
+import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
 import { Evento } from "@/types/evento";
 import { parseLocalDate } from "@/lib/utils";
 import { format } from "date-fns";
@@ -32,9 +35,19 @@ const Index = () => {
     const eventosPendentes = eventos.filter(e => e.statusPagamento === 'pending');
     const totalPendente = eventosPendentes.reduce((acc, e) => acc + e.valor, 0);
 
-    // 4. Média de Convidados
-    const totalConvidados = eventosEsteMes.reduce((acc, e) => acc + e.convidados, 0);
-    const mediaConvidados = eventosEsteMes.length > 0 ? Math.round(totalConvidados / eventosEsteMes.length) : 0;
+    // 4. Despesas do Mês
+    const mesReferencia = `${anoAtual}-${String(mesAtual + 1).padStart(2, "0")}`;
+    const custosFixosMes = custosFixosStorage.getTotalByMes(mesReferencia);
+    
+    const idsEventosMes = eventosEsteMes.map(e => e.id);
+    const custosVariaveisEventos = idsEventosMes.reduce((acc, id) => acc + custosStorage.getTotalByEventoId(id), 0);
+    
+    const avaliacoes = avaliacoesStorage.getAll();
+    const custosEquipe = avaliacoes
+      .filter(av => idsEventosMes.includes(av.eventoId))
+      .reduce((acc, av) => acc + av.valorEscala, 0);
+      
+    const despesasTotais = custosFixosMes + custosVariaveisEventos + custosEquipe;
 
     return [
       {
@@ -56,10 +69,10 @@ const Index = () => {
         icon: Clock,
       },
       {
-        title: "Média de Convidados",
-        value: mediaConvidados,
-        subtitle: "Por evento este mês",
-        icon: Users,
+        title: "Despesas do Mês",
+        value: despesasTotais.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        subtitle: "Soma de custos fixos e variáveis",
+        icon: Receipt,
       }
     ];
   }, [eventos]);
