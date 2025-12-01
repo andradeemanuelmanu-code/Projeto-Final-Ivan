@@ -8,6 +8,7 @@ import { eventosStorage } from "@/lib/eventosStorage";
 import { custosStorage } from "@/lib/custosStorage";
 import { custosFixosStorage } from "@/lib/custosFixosStorage";
 import { avaliacoesStorage } from "@/lib/avaliacoesStorage";
+import { notasFiscaisStorage } from "@/lib/notasFiscaisStorage";
 import { Evento } from "@/types/evento";
 import { parseLocalDate } from "@/lib/utils";
 import { format } from "date-fns";
@@ -47,7 +48,12 @@ const Index = () => {
       .filter(av => idsEventosMes.includes(av.eventoId))
       .reduce((acc, av) => acc + av.valorEscala, 0);
       
-    const despesasTotais = custosFixosMes + custosVariaveisEventos + custosEquipe;
+    const notas = notasFiscaisStorage.getAll();
+    const impostosMes = notas
+      .filter(n => idsEventosMes.includes(n.eventoId))
+      .reduce((acc, n) => acc + n.valorImposto, 0);
+
+    const despesasTotais = custosFixosMes + custosVariaveisEventos + custosEquipe + impostosMes;
 
     return [
       {
