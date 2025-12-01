@@ -10,11 +10,7 @@ interface ExecutedEventsListProps {
 }
 
 export function ExecutedEventsList({ eventos, onEventoClick }: ExecutedEventsListProps) {
-  const eventosExecutados = eventos.filter(
-    (evento) => parseLocalDate(evento.data) < new Date()
-  );
-
-  if (eventosExecutados.length === 0) {
+  if (eventos.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         Nenhum evento executado encontrado.
@@ -33,7 +29,7 @@ export function ExecutedEventsList({ eventos, onEventoClick }: ExecutedEventsLis
       </div>
 
       <div className="divide-y md:divide-y-0">
-        {eventosExecutados.map((evento) => {
+        {eventos.map((evento) => {
           const totalGastos = custosStorage.getTotalByEventoId(evento.id);
           return (
             <div

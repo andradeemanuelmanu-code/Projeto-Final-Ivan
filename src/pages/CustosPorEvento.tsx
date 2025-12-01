@@ -22,19 +22,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { parseLocalDate } from "@/lib/utils";
 import { CustoFormData } from "@/types/custo";
 
-const ITEMS_PER_PAGE = 12;
+const FUTURE_ITEMS_PER_PAGE = 12;
+const EXECUTED_ITEMS_PER_PAGE = 10;
 
 export default function CustosPorEvento() {
   const [eventos] = useState(() => eventosStorage.getAllSorted());
   const [isLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [executedCurrentPage, setExecutedCurrentPage] = useState(1);
 
   // --- State Management for Modals ---
   const [selectedEventoId, setSelectedEventoId] = useState<string | null>(null);
   const [modalView, setModalView] = useState<'list' | 'add' | null>(null);
 
-  // --- Data Filtering and Sorting ---
+  // --- Data Filtering and Sorting for Future Events ---
   const eventosFuturos = useMemo(
     () => eventos.filter((evento) => parseLocalDate(evento.data) >= new Date()),
     [eventos]
@@ -70,17 +72,33 @@ export default function CustosPorEvento() {
     );
   }, [eventosSorted, searchTerm]);
 
-  // --- Pagination Logic ---
+  // --- Pagination Logic for Future Events ---
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const pageCount = Math.ceil(filteredEventos.length / ITEMS_PER_PAGE);
+  const pageCount = Math.ceil(filteredEventos.length / FUTURE_ITEMS_PER_PAGE);
   const eventosPaginados = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const startIndex = (currentPage - 1) * FUTURE_ITEMS_PER_PAGE;
+    const endIndex = startIndex + FUTURE_ITEMS_PER_PAGE;
     return filteredEventos.slice(startIndex, endIndex);
   }, [filteredEventos, currentPage]);
+
+  // --- Data Filtering and Pagination for Executed Events ---
+  const executedEventsSorted = useMemo(() => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return eventos
+      .filter((evento) => parseLocalDate(evento.data) < hoje)
+      .sort((a, b) => parseLocalDate(b.data).getTime() - parseLocalDate(a.data).getTime());
+  }, [eventos]);
+
+  const executedPageCount = Math.ceil(executedEventsSorted.length / EXECUTED_ITEMS_PER_PAGE);
+  const paginatedExecutedEvents = useMemo(() => {
+    const startIndex = (executedCurrentPage - 1) * EXECUTED_ITEMS_PER_PAGE;
+    const endIndex = startIndex + EXECUTED_ITEMS_PER_PAGE;
+    return executedEventsSorted.slice(startIndex, endIndex);
+  }, [executedEventsSorted, executedCurrentPage]);
 
   // --- Modal Handlers ---
   const handleCardClick = (eventoId: string) => {
@@ -126,26 +144,24 @@ export default function CustosPorEvento() {
   );
 
   // --- Pagination Rendering ---
-  const renderPaginationItems = () => {
-    if (pageCount <= 1) return null;
+  const renderPaginationItems = (
+    totalPages: number,
+    activePage: number,
+    setPage: (page: number) => void
+  ) => {
+    if (totalPages <= 1) return null;
 
     const delta = 1;
     const range = [];
-    for (let i = Math.max(2, currentPage - delta); i <= Math.min(pageCount - 1, currentPage + delta); i++) {
+    for (let i = Math.max(2, activePage - delta); i <= Math.min(totalPages - 1, activePage + delta); i++) {
       range.push(i);
     }
 
-    if (currentPage - delta > 2) {
-      range.unshift("...");
-    }
-    if (currentPage + delta < pageCount - 1) {
-      range.push("...");
-    }
+    if (activePage - delta > 2) range.unshift("...");
+    if (activePage + delta < totalPages - 1) range.push("...");
 
     range.unshift(1);
-    if (pageCount > 1) {
-      range.push(pageCount);
-    }
+    if (totalPages > 1) range.push(totalPages);
 
     const uniqueRange = [...new Set(range)];
 
@@ -156,10 +172,10 @@ export default function CustosPorEvento() {
         ) : (
           <PaginationLink
             href="#"
-            isActive={currentPage === item}
+            isActive={activePage === item}
             onClick={(e) => {
               e.preventDefault();
-              setCurrentPage(item as number);
+              setPage(item as number);
             }}
           >
             {item}
@@ -186,7 +202,7 @@ export default function CustosPorEvento() {
           />
         </div>
 
-        {/* Cards de Eventos */}
+        {/* Cards de Eventos Futuros */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
@@ -219,7 +235,7 @@ export default function CustosPorEvento() {
                       className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                     />
                   </PaginationItem>
-                  {renderPaginationItems()}
+                  {renderPaginationItems(pageCount, currentPage, setCurrentPage)}
                   <PaginationItem>
                     <PaginationNext
                       href="#"
@@ -237,11 +253,38 @@ export default function CustosPorEvento() {
         )}
 
         {/* Lista de Eventos Executados */}
-        <div className="space-y-4 pt-8">
+        <div className="space-y-6 pt-8">
           <h2 className="font-display text-2xl font-bold text-foreground">
             Eventos Executados
           </h2>
-          <ExecutedEventsList eventos={eventos} onEventoClick={handleCardClick} />
+          <ExecutedEventsList eventos={paginatedExecutedEvents} onEventoClick={handleCardClick} />
+          {executedPageCount > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setExecutedCurrentPage((prev) => Math.max(prev - 1, 1));
+                    }}
+                    className={executedCurrentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+                {renderPaginationItems(executedPageCount, executedCurrentPage, setExecutedCurrentPage)}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setExecutedCurrentPage((prev) => Math.min(prev + 1, executedPageCount));
+                    }}
+                    className={executedCurrentPage === executedPageCount ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
       </div>
 
